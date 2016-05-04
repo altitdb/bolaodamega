@@ -1,6 +1,6 @@
 package com.bolaodamega.megasena.roles;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.bolaodamega.megasena.domain.Game;
 
@@ -8,13 +8,7 @@ public class NumbersSequentialRole implements Role {
 
 	public boolean validate(Game game) {
 
-		ArrayList<Integer> numbers = new ArrayList<Integer>();
-		numbers.add(game.getNumber01());
-		numbers.add(game.getNumber02());
-		numbers.add(game.getNumber03());
-		numbers.add(game.getNumber04());
-		numbers.add(game.getNumber05());
-		numbers.add(game.getNumber06());
+		List<Integer> numbers = game.getNumbers();
 
 		int i = 0;
 		int sequenceCounter = 0;
