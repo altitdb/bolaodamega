@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 /target/
-=======
 .classpath
 *.class
 .project
@@ -12,4 +10,3 @@ target/
 *.iml
 .idea/
 .recommenders/
->>>>>>> 87b700c42b1cde89d6977b03eb2acd3750543efa
