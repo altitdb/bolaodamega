@@ -1,5 +1,8 @@
 package com.bolaodamega.megasena.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EmbeddedId;
 import javax.persistence.MappedSuperclass;
 
@@ -56,6 +59,17 @@ public class Game {
     public void setNumber06(Integer number06) {
         this.gamePk.setNumber06(number06);
     }
+
+	public List<Integer> getNumbers() {
+		ArrayList<Integer> numbers = new ArrayList<Integer>();
+		numbers.add(getNumber01());
+		numbers.add(getNumber02());
+		numbers.add(getNumber03());
+		numbers.add(getNumber04());
+		numbers.add(getNumber05());
+		numbers.add(getNumber06());
+		return numbers;
+	}
 
     @Override
     public String toString() {
