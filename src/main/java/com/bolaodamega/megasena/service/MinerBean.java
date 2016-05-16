@@ -13,7 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 
+import com.bolaodamega.megasena.domain.ExcludedGame;
+import com.bolaodamega.megasena.domain.Game;
 import com.bolaodamega.megasena.domain.MineGame;
+import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
@@ -24,24 +27,39 @@ public class MinerBean implements CommandLineRunner {
     @Autowired
     private MineGameRepository mineGameRepository;
     
+    @Autowired
+    private ExcludedGameRepository excludedGameRepository;
+    
     @PersistenceContext
     private EntityManager entityManager;
 
     private static final Logger LOG = Logger.getLogger(MinerBean.class);
 
-    private Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles = new HashSet<>();
 
     private boolean miner(MineGame game) {
         LOG.debug("VALIDATING " + game);
         roles.add(new NumbersSequentialRole());
         for (Role role : roles) {
-            return role.validate(game);
+            boolean isInvalid = role.validate(game);
+            entityManager.detach(game);
+            if (isInvalid) {
+                LOG.debug("INVALID " + game);
+                removeGame(game, role);
+            }
+            return isInvalid;
         }
         return false;
     }
 
-    private void removeGame(MineGame game) {
-
+    private void removeGame(Game game, Role role) {
+        LOG.debug("SAVING EXCLUDED " + game);
+        ExcludedGame newGame = new ExcludedGame();
+        newGame.setGamePk(game.getGamePk());
+        newGame.setRole(role);
+        excludedGameRepository.save(newGame);
+        LOG.debug("EXCLUDING " + game);
+        mineGameRepository.delete(game.getGamePk());
     }
 
     public void start() {
@@ -52,10 +70,7 @@ public class MinerBean implements CommandLineRunner {
             mineGameStream = mineGameRepository.findAllBy(new PageRequest(start, pageSize));
             for (MineGame mineGame : mineGameStream) {
                 boolean isInvalid = miner(mineGame);
-                if (isInvalid) {
-                    LOG.debug("INVALID " + mineGame);
-                    removeGame(mineGame);
-                } else {
+                if (!isInvalid) {
                     start++;
                 }
             }

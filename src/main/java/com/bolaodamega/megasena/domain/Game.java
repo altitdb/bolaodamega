@@ -11,6 +11,14 @@ public class Game {
 
     @EmbeddedId
     private GamePK gamePk = new GamePK();
+    
+    public void setGamePk(GamePK gamePk) {
+        this.gamePk = gamePk;
+    }
+
+    public GamePK getGamePk() {
+        return gamePk;
+    }
 
     public Integer getNumber01() {
         return gamePk.getNumber01();
