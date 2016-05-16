@@ -110,16 +110,20 @@ public class NumbersSequentialRoleTest {
 		game.setNumber06(44);
 		boolean isInvalid = role.validate(game);
 		Assert.assertTrue(isInvalid);
-		
-		game.setNumber01(2);
-		game.setNumber02(4);
-		game.setNumber03(11);
-		game.setNumber04(12);
-		game.setNumber05(13);
-		game.setNumber06(44);
-		isInvalid = role.validate(game);
-		Assert.assertTrue(isInvalid);
 	}
+	
+    @Test
+    public void shouldShowInvalidThreeSequenceAtMiddleInLastPositions() {
+        Game game = new Game();
+        game.setNumber01(2);
+        game.setNumber02(4);
+        game.setNumber03(11);
+        game.setNumber04(12);
+        game.setNumber05(13);
+        game.setNumber06(44);
+        boolean isInvalid = role.validate(game);
+        Assert.assertTrue(isInvalid);
+    }
 	
 	@Test
 	public void shouldShowInvalidThreeSequenceAtEnd() {
@@ -171,24 +175,6 @@ public class NumbersSequentialRoleTest {
 		game.setNumber06(60);
 		boolean isInvalid = role.validate(game);
 		Assert.assertFalse(isInvalid);
-		
-		game.setNumber01(1);
-		game.setNumber02(3);
-		game.setNumber03(12);
-		game.setNumber04(13);
-		game.setNumber05(57);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
-		
-		game.setNumber01(1);
-		game.setNumber02(3);
-		game.setNumber03(6);
-		game.setNumber04(13);
-		game.setNumber05(14);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
 	}
 	
 	@Test
@@ -214,24 +200,6 @@ public class NumbersSequentialRoleTest {
 		game.setNumber05(49);
 		game.setNumber06(50);
 		boolean isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
-
-		game.setNumber01(10);
-		game.setNumber02(11);
-		game.setNumber03(20);
-		game.setNumber04(49);
-		game.setNumber05(50);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
-
-		game.setNumber01(10);
-		game.setNumber02(11);
-		game.setNumber03(49);
-		game.setNumber04(50);
-		game.setNumber05(55);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
 		Assert.assertFalse(isInvalid);
 	}
 	
@@ -259,25 +227,20 @@ public class NumbersSequentialRoleTest {
 		game.setNumber06(60);
 		boolean isInvalid = role.validate(game);
 		Assert.assertFalse(isInvalid);
-
-		game.setNumber01(2);
-		game.setNumber02(10);
-		game.setNumber03(11);
-		game.setNumber04(49);
-		game.setNumber05(59);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
-
-		game.setNumber01(2);
-		game.setNumber02(5);
-		game.setNumber03(10);
-		game.setNumber04(11);
-		game.setNumber05(59);
-		game.setNumber06(60);
-		isInvalid = role.validate(game);
-		Assert.assertFalse(isInvalid);
 	}
+	
+	@Test
+    public void shouldShowValidWithTwoGroupOfTwoAtEndAndLastPositions() {
+        Game game = new Game();
+        game.setNumber01(2);
+        game.setNumber02(5);
+        game.setNumber03(10);
+        game.setNumber04(11);
+        game.setNumber05(59);
+        game.setNumber06(60);
+        boolean isInvalid = role.validate(game);
+        Assert.assertFalse(isInvalid);
+    }
 
 	@Test
 	public void shouldShowValidWithThreeGroupOfTwo() {

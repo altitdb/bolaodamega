@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="INFO" packages="com.bolaodamega.megasena">
+    <Properties>
+	   <Property name="log-path">logs</Property>
+	</Properties>
+    
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<File name="File" fileName="logs/app.log">
+		<RollingFile name="File" fileName="${log-path}/app.log"
+			filePattern="${log-path}/app-%d{dd-MM-yyyy}-%i.log">
 			<PatternLayout>
-			     <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			     <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
 			</PatternLayout>
-		</File>
+			<Policies>
+			     <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                 <SizeBasedTriggeringPolicy size="25MB"/>
+			</Policies>
+		</RollingFile>
 	</Appenders>
 	<Loggers>
 		<Root level="info">

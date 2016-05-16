@@ -15,8 +15,8 @@ import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.MineGame;
 import com.bolaodamega.megasena.repository.MineGameRepository;
+import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
-import com.bolaodamega.megasena.roles.SixNumbersSequentialRole;
 
 @Controller
 public class MinerBean implements CommandLineRunner {
@@ -33,7 +33,7 @@ public class MinerBean implements CommandLineRunner {
 
     private boolean miner(MineGame game) {
         LOG.debug("VALIDATING " + game);
-        roles.add(new SixNumbersSequentialRole());
+        roles.add(new NumbersSequentialRole());
         for (Role role : roles) {
             return role.validate(game);
         }
@@ -53,7 +53,7 @@ public class MinerBean implements CommandLineRunner {
             for (MineGame mineGame : mineGameStream) {
                 boolean isInvalid = miner(mineGame);
                 if (isInvalid) {
-                    LOG.info("INVALID " + mineGame);
+                    LOG.debug("INVALID " + mineGame);
                     removeGame(mineGame);
                 } else {
                     start++;
