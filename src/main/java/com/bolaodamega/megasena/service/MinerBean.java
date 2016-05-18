@@ -66,9 +66,9 @@ public class MinerBean implements CommandLineRunner {
     public void start() {
         final int pageSize = 1000;
         int start = 0;
-        boolean nextPage = true;
         Slice<MineGame> mineGameStream;
         do {
+        	boolean nextPage = true;
             LOG.debug("STARTING SEARCH IN " + start);
             mineGameStream = mineGameRepository.findAllBy(new PageRequest(start, pageSize));
             LOG.debug("TOTAL: " + mineGameStream.getSize());
