@@ -3,6 +3,8 @@ package com.bolaodamega.megasena.domain;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+import com.bolaodamega.megasena.roles.NumbersSameColumn;
+import com.bolaodamega.megasena.roles.NumbersSameRow;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
 
@@ -20,8 +22,15 @@ public class RoleConverter implements AttributeConverter<Role, Integer> {
         case 0: {
             return new NumbersSequentialRole();
         }
+        case 1: {
+            return new NumbersSameRow();
         }
-        return null;
+        case 2: {
+            return new NumbersSameColumn();
+        }
+        default:
+            return null;
+        }
     }
 
 }

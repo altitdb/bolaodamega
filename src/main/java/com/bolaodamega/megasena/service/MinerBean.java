@@ -60,22 +60,29 @@ public class MinerBean implements CommandLineRunner {
         excludedGameRepository.save(newGame);
         LOG.debug("EXCLUDING " + game);
         mineGameRepository.delete(game.getGamePk());
+        entityManager.clear();
     }
 
     public void start() {
         final int pageSize = 1000;
         int start = 0;
+        boolean nextPage = true;
         Slice<MineGame> mineGameStream;
         do {
+            LOG.debug("STARTING SEARCH IN " + start);
             mineGameStream = mineGameRepository.findAllBy(new PageRequest(start, pageSize));
+            LOG.debug("TOTAL: " + mineGameStream.getSize());
             for (MineGame mineGame : mineGameStream) {
                 boolean isInvalid = miner(mineGame);
-                if (!isInvalid) {
-                    start++;
+                if (isInvalid) {
+                    nextPage = false;
                 }
             }
+            if (nextPage) {
+                start++;
+            }
             entityManager.clear();
-        }while(mineGameStream.hasNext());
+        } while (mineGameStream.hasNext());
     }
 
     public MineGameRepository getMineGameRepository() {
