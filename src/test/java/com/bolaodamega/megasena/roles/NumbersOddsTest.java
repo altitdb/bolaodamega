@@ -1,6 +1,7 @@
 package com.bolaodamega.megasena.roles;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -68,7 +69,7 @@ public class NumbersOddsTest {
         game.setNumber05(11);
         game.setNumber06(13);
         boolean result = role.validate(game);
-        assertTrue(result);
+        assertFalse(result);
 	}
 	
 	@Test
@@ -81,6 +82,6 @@ public class NumbersOddsTest {
         game.setNumber05(11);
         game.setNumber06(12);
         boolean result = role.validate(game);
-        assertTrue(result);
+        assertFalse(result);
 	}
 }
