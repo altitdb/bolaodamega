@@ -4,6 +4,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import com.bolaodamega.megasena.domain.Game;
 
+/**
+ * The numbers only can have three numbers in sequential order.
+ * 
+ * Example 01 (Incorrect): 1, 2, 3, 4, 5, 6
+ * Example 02 (Incorrect): 1, 2, 3, 4, 5, 11
+ * Example 03 (Incorrect): 1, 2, 3, 4, 10, 11
+ * Example 04 (Correct): 1, 2, 3, 8, 11, 20
+ * @author ALM
+ *
+ */
 public class NumbersSequentialRoleTest {
 
 	private Role role = new NumbersSequentialRole();

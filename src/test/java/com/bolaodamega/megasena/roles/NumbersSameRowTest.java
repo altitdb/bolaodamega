@@ -6,6 +6,16 @@ import org.junit.Test;
 
 import com.bolaodamega.megasena.domain.Game;
 
+/**
+ * The numbers only can be in the same row at maximum thrice times.
+ * 
+ * Example 01 (Incorrect): 1, 2, 3, 4, 5, 6
+ * Example 02 (Incorrect): 1, 2, 3, 4, 5, 10
+ * Example 03 (Incorrect): 11, 12, 13, 16, 55, 56
+ * Example 04 (Correct): 11, 12, 17, 41, 46, 60 
+ * @author ALM
+ *
+ */
 public class NumbersSameRowTest {
 
     private Role role = new NumbersSameRow();

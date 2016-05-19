@@ -7,6 +7,16 @@ import org.junit.Test;
 
 import com.bolaodamega.megasena.domain.Game;
 
+/**
+ * The numbers only can be in the same column at maximum thrice times.
+ * 
+ * Example 01 (Incorrect): 1, 11, 21, 31, 41, 51
+ * Example 02 (Incorrect): 1, 11, 21, 25, 41, 51
+ * Example 03 (Incorrect): 1, 10, 26, 31, 41, 51
+ * Example 04 (Correct): 11, 21, 35, 40, 41, 60 
+ * @author ALM
+ *
+ */
 public class NumbersSameColumnTest {
 
     private Role role = new NumbersSameColumn();
