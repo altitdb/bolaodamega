@@ -10,7 +10,7 @@ import com.bolaodamega.megasena.domain.Game;
  * The numbers only can to have four numbers odds in maximum
  * Example 01 (Incorrect): 2, 4, 6, 8, 10, 12
  * Example 02 (Incorrect): 2, 4, 6, 8, 10, 35
- * Example 03 (Incorrect): 2, 5, 6, 7, 10, 20
+ * Example 03 (Correct): 2, 5, 6, 7, 10, 20
  * Example 04 (Correct): 2, 4, 6, 29, 41, 55
  * Example 05 (Correct): 2, 5, 6, 9, 10, 55
  * @author ALM
