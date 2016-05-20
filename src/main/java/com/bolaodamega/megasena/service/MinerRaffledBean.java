@@ -6,6 +6,7 @@ import javax.persistence.PersistenceContext;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import com.bolaodamega.megasena.domain.RaffledGame;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
 
+@Order(value = 2)
 @Controller
 public class MinerRaffledBean implements CommandLineRunner {
     
