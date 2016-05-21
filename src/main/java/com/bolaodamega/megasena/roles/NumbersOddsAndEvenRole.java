@@ -9,20 +9,17 @@ public class NumbersOddsAndEvenRole implements Role{
 	@Override
 	public boolean validate(Game game) {
 		List<Integer> numbers = game.getNumbers();
-		int even = 0;
-		int odd = 0;
-		int i = 0;
-		while (i < 6) {
-			int number = numbers.get(i);
+		int evens = 0;
+		int odds = 0;
+		for (Integer number : numbers) {
 			if (number % 2 == 0) {
-				even++;
+				evens++;
 			} else {
-				odd++;
+				odds++;
 			}
-			if (i > 4 && (even > 4 || odd > 4)) {
-				return true;
-			}
-			i++;
+		}
+		if (evens > 4 || odds > 4) {
+			return true;
 		}
 		return false;
 	}
