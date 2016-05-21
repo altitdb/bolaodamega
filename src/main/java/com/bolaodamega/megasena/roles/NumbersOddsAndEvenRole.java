@@ -26,7 +26,7 @@ public class NumbersOddsAndEvenRole implements Role{
 
 	@Override
 	public int value() {
-		return 4;
+		return 2;
 	}
 
 }

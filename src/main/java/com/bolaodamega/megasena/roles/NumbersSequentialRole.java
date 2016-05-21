@@ -32,7 +32,7 @@ public class NumbersSequentialRole implements Role {
 
     @Override
     public int value() {
-        return 0;
+        return 1;
     }
 
 }

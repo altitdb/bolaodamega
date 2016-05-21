@@ -13,6 +13,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.RaffledGame;
+import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
 
@@ -25,6 +26,9 @@ public class MinerRaffledBean implements CommandLineRunner {
     
     @Autowired
     private MineGameRepository mineGameRepository;
+    
+    @Autowired
+    private ExcludedGameRepository excludedGameRepository;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -43,6 +47,7 @@ public class MinerRaffledBean implements CommandLineRunner {
             	LOG.debug("DELETING " + raffledGame);
             	try {
             		mineGameRepository.delete(raffledGame.getGamePk());
+            		excludedGameRepository.delete(raffledGame.getGamePk());
             	} catch (EmptyResultDataAccessException erdae) {
             		LOG.debug(raffledGame + " ALREADY WAS DELETED");
             	}
