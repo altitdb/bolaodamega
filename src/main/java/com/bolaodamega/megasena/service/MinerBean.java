@@ -22,7 +22,7 @@ import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
 
-@Order(value = 1)
+@Order(value = 2)
 @Controller
 public class MinerBean implements CommandLineRunner {
     

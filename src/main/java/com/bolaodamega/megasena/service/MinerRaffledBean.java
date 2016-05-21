@@ -7,6 +7,7 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,7 @@ import com.bolaodamega.megasena.domain.RaffledGame;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
 
-@Order(value = 2)
+@Order(value = 1)
 @Controller
 public class MinerRaffledBean implements CommandLineRunner {
     
@@ -40,8 +41,13 @@ public class MinerRaffledBean implements CommandLineRunner {
             LOG.debug("TOTAL: " + raffledGameStream.getSize());
             for (RaffledGame raffledGame : raffledGameStream) {
             	LOG.debug("DELETING " + raffledGame);
-            	mineGameRepository.delete(raffledGame.getGamePk());
+            	try {
+            		mineGameRepository.delete(raffledGame.getGamePk());
+            	} catch (EmptyResultDataAccessException erdae) {
+            		LOG.debug(raffledGame + " ALREADY WAS DELETED");
+            	}
             }
+            start++;
             entityManager.clear();
         } while (raffledGameStream.hasNext());
     }
