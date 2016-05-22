@@ -17,9 +17,9 @@ import com.bolaodamega.megasena.domain.Game;
  * @author ALM
  *
  */
-public class NumbersSameColumnTest {
+public class NumbersSameColumnRoleTest {
 
-    private Role role = new NumbersSameColumn();
+    private Role role = new NumbersSameColumnRole();
     
     @Test
     public void shouldShowInvalidSameFirstColumn() {

@@ -3,8 +3,9 @@ package com.bolaodamega.megasena.domain;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.bolaodamega.megasena.roles.NumbersSameColumn;
-import com.bolaodamega.megasena.roles.NumbersSameRow;
+import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
+import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
+import com.bolaodamega.megasena.roles.NumbersSameRowRole;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
 
@@ -19,14 +20,17 @@ public class RoleConverter implements AttributeConverter<Role, Integer> {
     @Override
     public Role convertToEntityAttribute(Integer dbData) {
         switch (dbData) {
-        case 0: {
+        case 1: {
             return new NumbersSequentialRole();
         }
-        case 1: {
-            return new NumbersSameRow();
-        }
         case 2: {
-            return new NumbersSameColumn();
+        	return new NumbersOddsAndEvenRole();
+        }
+        case 3: {
+        	return new NumbersSameRowRole();
+        }
+        case 4: {
+        	return new NumbersSameColumnRole();
         }
         default:
             return null;

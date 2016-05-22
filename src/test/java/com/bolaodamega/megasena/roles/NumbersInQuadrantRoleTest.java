@@ -17,7 +17,7 @@ import com.bolaodamega.megasena.domain.Game;
  * @author ALM
  *
  */
-public class NumbersInQuadrantTest {
+public class NumbersInQuadrantRoleTest {
 
 	private Role role = new NumberInQuadrantRole();
 	

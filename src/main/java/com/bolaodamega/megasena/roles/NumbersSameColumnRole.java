@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.bolaodamega.megasena.domain.Game;
 
-public class NumbersSameColumn implements Role {
+public class NumbersSameColumnRole implements Role {
 
     @Override
     public boolean validate(Game game) {
@@ -15,14 +15,16 @@ public class NumbersSameColumn implements Role {
     	for(Integer number : numbers){
     		int column = (number + 10)%10;
     		columns[column]++;
-    		if(columns[column] > 3) return true;
+    		if(columns[column] > 3) {
+    			return true;
+    		}
     	}
         return false;
     }
 
     @Override
     public int value() {
-        return 2;
+        return 4;
     }
 
 }

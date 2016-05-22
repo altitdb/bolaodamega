@@ -25,7 +25,7 @@ import com.bolaodamega.megasena.domain.Game;
  * @author ALM
  *
  */
-public class NumbersOddsAndEvenTest {
+public class NumbersOddsAndEvenRoleTest {
 
 	private Role role = new NumbersOddsAndEvenRole();
 
