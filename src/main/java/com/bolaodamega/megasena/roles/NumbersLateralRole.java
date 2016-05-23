@@ -13,9 +13,11 @@ public class NumbersLateralRole implements Role {
 		for(Integer number : numbers){
 			boolean invalidColumn = number % 10 < 2;
 			boolean invalidRow = (number < 11 || number > 50);
-			if( invalidRow || invalidColumn){
+			if(invalidRow || invalidColumn){
 				lateralCount++;
-				if(lateralCount > 2) return true;
+				if(lateralCount > 2) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -23,7 +25,7 @@ public class NumbersLateralRole implements Role {
 
 	@Override
 	public int value() {
-		return 6;
+		return 5;
 	}
 
 }
