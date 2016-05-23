@@ -119,7 +119,7 @@ public class NumbersInQuadrantRoleTest {
         game.setNumber02(38);
         game.setNumber03(47);
         game.setNumber04(49);
-        game.setNumber05(55);
+        game.setNumber05(56);
         game.setNumber06(60);
         boolean result = role.validate(game);
         assertTrue(result);
