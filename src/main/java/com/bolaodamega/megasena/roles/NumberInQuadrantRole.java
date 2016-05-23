@@ -15,7 +15,7 @@ public class NumberInQuadrantRole implements Role {
 		for(Integer number : numbers){
 			int column = (number + 10) % 10;
 			if (number < 31) {
-				if ( column > 0 && column < 6) {
+				if (column > 0 && column < 6) {
 					quadrantCount[0]++;
 				} else {
 					quadrantCount[1]++;
@@ -29,14 +29,16 @@ public class NumberInQuadrantRole implements Role {
 			}
 		}
 		for(Integer quadrant : quadrantCount){
-			if (quadrant > 4) return true;
+			if (quadrant > 4) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	@Override
 	public int value() {
-		return 5;
+		return 6;
 	}
 
 }

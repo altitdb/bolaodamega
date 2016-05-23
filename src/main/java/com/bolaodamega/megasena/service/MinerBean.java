@@ -19,6 +19,7 @@ import com.bolaodamega.megasena.domain.Game;
 import com.bolaodamega.megasena.domain.MineGame;
 import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
+import com.bolaodamega.megasena.roles.NumberInQuadrantRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
 import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
@@ -50,6 +51,7 @@ public class MinerBean implements CommandLineRunner {
         roles.add(new NumbersSameRowRole());
         roles.add(new NumbersSameColumnRole());
         roles.add(new NumbersLateralRole());
+        roles.add(new NumberInQuadrantRole());
         for (Role role : roles) {
             boolean isInvalid = role.validate(game);
             entityManager.detach(game);

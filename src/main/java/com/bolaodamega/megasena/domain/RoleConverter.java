@@ -3,6 +3,7 @@ package com.bolaodamega.megasena.domain;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+import com.bolaodamega.megasena.roles.NumberInQuadrantRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
 import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
@@ -35,6 +36,9 @@ public class RoleConverter implements AttributeConverter<Role, Integer> {
         }
         case 5: {
         	return new NumbersLateralRole();
+        }
+        case 6: {
+        	return new NumberInQuadrantRole();
         }
         default:
             return null;
