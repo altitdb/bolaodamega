@@ -12,18 +12,18 @@ public class Statistics implements Serializable {
 	private static final long serialVersionUID = 23L;
 	@Id
 	@Column
-	private Integer order;
+	private Integer id;
 	@Column
 	private String description;
 	@Column
 	private Long value;
 
-	public Integer getOrder() {
-		return order;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setOrder(Integer order) {
-		this.order = order;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getDescription() {

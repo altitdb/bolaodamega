@@ -27,7 +27,7 @@ import com.bolaodamega.megasena.roles.NumbersSameRowRole;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
 
-@Order(value = 2)
+@Order(value = 3)
 @Controller
 public class MinerBean implements CommandLineRunner {
     
@@ -43,15 +43,18 @@ public class MinerBean implements CommandLineRunner {
     private static final Logger LOG = Logger.getLogger(MinerBean.class);
 
     private Set<Role> roles = new HashSet<>();
-
-    private boolean miner(MineGame game) {
-        LOG.debug("VALIDATING " + game);
-        roles.add(new NumbersSequentialRole());
+    
+    public MinerBean() {
+    	roles.add(new NumbersSequentialRole());
         roles.add(new NumbersOddsAndEvenRole());
         roles.add(new NumbersSameRowRole());
         roles.add(new NumbersSameColumnRole());
         roles.add(new NumbersLateralRole());
         roles.add(new NumberInQuadrantRole());
+    }
+
+    private boolean miner(MineGame game) {
+        LOG.debug("VALIDATING " + game);
         for (Role role : roles) {
             boolean isInvalid = role.validate(game);
             entityManager.detach(game);

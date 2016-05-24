@@ -18,7 +18,7 @@ import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
 import com.bolaodamega.megasena.repository.StatisticsRepository;
 
-@Order(value = 3)
+@Order(value = 2)
 @Controller
 public class StatisticsBean implements CommandLineRunner {
 
@@ -65,7 +65,7 @@ public class StatisticsBean implements CommandLineRunner {
 	private void saveNumberStatistics(Map<Integer, Integer> total) {
 		for (Entry<Integer, Integer> entry : total.entrySet()) {
 			Statistics statistics = new Statistics();
-			statistics.setOrder(entry.getKey() + 4);
+			statistics.setId(entry.getKey() + 4);
 			statistics.setDescription("Total Sorteado do Número " + entry.getKey());
 			statistics.setValue(entry.getValue().longValue());
 			statisticsRepository.save(statistics);
@@ -84,7 +84,7 @@ public class StatisticsBean implements CommandLineRunner {
 
 	private void amountRaffledGames() {
 		Statistics statistics = new Statistics();
-		statistics.setOrder(4);
+		statistics.setId(4);
 		statistics.setDescription("Total de Sorteios");
 		Long total = raffledGameRepository.count();
 		statistics.setValue(total);
@@ -93,7 +93,7 @@ public class StatisticsBean implements CommandLineRunner {
 
 	private void amountExcludedGames() {
 		Statistics statistics = new Statistics();
-		statistics.setOrder(3);
+		statistics.setId(3);
 		statistics.setDescription("Total de Jogos Excluídos");
 		Long total = excludedGameRepository.count();
 		statistics.setValue(total);
@@ -102,7 +102,7 @@ public class StatisticsBean implements CommandLineRunner {
 
 	private void amountAvailableGames() {
 		Statistics statistics = new Statistics();
-		statistics.setOrder(2);
+		statistics.setId(2);
 		statistics.setDescription("Total de Jogos Disponíveis");
 		Long total = mineGameRepository.count();
 		statistics.setValue(total);
@@ -111,7 +111,7 @@ public class StatisticsBean implements CommandLineRunner {
 
 	private void amountGames() {
 		Statistics statistics = new Statistics();
-		statistics.setOrder(1);
+		statistics.setId(1);
 		statistics.setDescription("Total de Jogos");
 		statistics.setValue(50063860L);
 		statisticsRepository.save(statistics);
