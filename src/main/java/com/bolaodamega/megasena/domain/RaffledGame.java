@@ -1,7 +1,9 @@
 package com.bolaodamega.megasena.domain;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -103,4 +105,77 @@ public class RaffledGame extends Game {
 		return valuesSixth;
 	}
 
+	public void setTenderNumber(Integer tenderNumber) {
+		this.tenderNumber = tenderNumber;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public void setAccumulated(String accumulated) {
+		this.accumulated = accumulated;
+	}
+
+	public void setAccumulatedValue(BigDecimal accumulatedValue) {
+		this.accumulatedValue = accumulatedValue;
+	}
+
+	public void setAccumulatedTurning(BigDecimal accumulatedTurning) {
+		this.accumulatedTurning = accumulatedTurning;
+	}
+
+	public void setTaxRevenuesTotal(BigDecimal taxRevenuesTotal) {
+		this.taxRevenuesTotal = taxRevenuesTotal;
+	}
+
+	public void setTenderDate(Date tenderDate) {
+		this.tenderDate = tenderDate;
+	}
+
+	public void setEstimatedPrize(BigDecimal estimatedPrize) {
+		this.estimatedPrize = estimatedPrize;
+	}
+
+	public void setWinnersFourth(Integer winnersFourth) {
+		this.winnersFourth = winnersFourth;
+	}
+
+	public void setWinnersFifth(Integer winnersFifth) {
+		this.winnersFifth = winnersFifth;
+	}
+
+	public void setWinnersSixth(Integer winnersSixth) {
+		this.winnersSixth = winnersSixth;
+	}
+
+	public void setValueFourth(BigDecimal valueFourth) {
+		this.valueFourth = valueFourth;
+	}
+
+	public void setValueFifth(BigDecimal valueFifth) {
+		this.valueFifth = valueFifth;
+	}
+
+	public void setValuesSixth(BigDecimal valuesSixth) {
+		this.valuesSixth = valuesSixth;
+	}
+
+	@Override
+	public GamePK getGamePk() {
+		List<Integer> numbers = this.getNumbers();
+		Collections.sort(numbers);
+		GamePK newGamePK = new GamePK();
+		newGamePK.setNumber01(numbers.get(0));
+		newGamePK.setNumber02(numbers.get(1));
+		newGamePK.setNumber03(numbers.get(2));
+		newGamePK.setNumber04(numbers.get(3));
+		newGamePK.setNumber05(numbers.get(4));
+		newGamePK.setNumber06(numbers.get(5));
+        return newGamePK;
+    }
 }
