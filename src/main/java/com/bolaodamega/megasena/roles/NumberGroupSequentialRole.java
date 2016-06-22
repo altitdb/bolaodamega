@@ -15,7 +15,6 @@ public class NumberGroupSequentialRole implements Role {
 			int before = numbers.get(i -1);
 			if(actual == (before + 1)){
 				sequentialCount++;
-//				i++;
 				while(i < numbers.size() && actual == (before +1)){
 					actual = numbers.get(i);
 					before = numbers.get(i -1);
@@ -34,7 +33,7 @@ public class NumberGroupSequentialRole implements Role {
 
 	@Override
 	public int value() {
-		return -1;
+		return 9;
 	}
 
 }

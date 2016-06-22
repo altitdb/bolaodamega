@@ -28,7 +28,7 @@ public class NumbersInTwoColumnRole implements Role {
 
     @Override
     public int value() {
-        return -1;
+        return 8;
     }
 
 }

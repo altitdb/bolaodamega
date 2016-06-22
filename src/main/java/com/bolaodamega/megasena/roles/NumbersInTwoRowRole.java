@@ -33,7 +33,7 @@ public class NumbersInTwoRowRole implements Role {
 
     @Override
     public int value() {
-        return -1;
+        return 7;
     }
 
 }
