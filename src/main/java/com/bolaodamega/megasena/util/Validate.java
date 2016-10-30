@@ -47,7 +47,7 @@ public class Validate {
 		for (Role role : roles) {
 			boolean isInvalid = role.validate(game);
 			if (isInvalid) {
-				System.out.println("INVALID " + game);
+				System.out.println("INVALID (" + role.getClass() + ")" + game);
 				break;
 			}
 		}
