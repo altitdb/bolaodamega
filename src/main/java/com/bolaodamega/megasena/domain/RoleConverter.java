@@ -4,6 +4,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
+import com.bolaodamega.megasena.roles.NumbersGreaterThanThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
 import com.bolaodamega.megasena.roles.NumbersInTwoColumnRole;
 import com.bolaodamega.megasena.roles.NumbersInTwoRowRole;
@@ -55,6 +56,9 @@ public class RoleConverter implements AttributeConverter<Role, Integer> {
         }
         case 10: {
         	return new NumbersLessAndEqualsThirtyRole();
+        }
+        case 11: {
+        	return new NumbersGreaterThanThirtyRole();
         }
         default:
             return null;

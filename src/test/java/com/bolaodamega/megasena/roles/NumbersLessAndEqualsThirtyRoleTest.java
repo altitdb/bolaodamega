@@ -20,7 +20,7 @@ public class NumbersLessAndEqualsThirtyRoleTest {
 	private Role role = new NumbersLessAndEqualsThirtyRole();
 
 	@Test
-	public void shouldShowInvalidGroupSequenceTwoNumbers() {
+	public void shouldShowInvalidWithNumbersLessAndEqualsThirty() {
 		Game game = new Game();
 		game.setNumber01(1);
 		game.setNumber02(2);
@@ -33,7 +33,7 @@ public class NumbersLessAndEqualsThirtyRoleTest {
 	}
 	
 	@Test
-	public void shouldShowInvalidGroupSequenceThreeNumbers() {
+	public void shouldShowValidNumbers() {
 		Game game = new Game();
 		game.setNumber01(1);
 		game.setNumber02(2);
