@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -77,12 +78,17 @@ public class ExtractRaffledGameBean implements CommandLineRunner {
 				while (gameIterator.hasNext()) {
 					raffledGame.setTenderNumber(getInteger(gameIterator.next().text()));
 					raffledGame.setTenderDate(simpleDateFormat.parse(gameIterator.next().text()));
-					raffledGame.setNumber01(getInteger(gameIterator.next().text()));
-					raffledGame.setNumber02(getInteger(gameIterator.next().text()));
-					raffledGame.setNumber03(getInteger(gameIterator.next().text()));
-					raffledGame.setNumber04(getInteger(gameIterator.next().text()));
-					raffledGame.setNumber05(getInteger(gameIterator.next().text()));
-					raffledGame.setNumber06(getInteger(gameIterator.next().text()));
+					List<Integer> numbers = new ArrayList<>();
+					for (int i = 0; i < 6; i++) {
+						numbers.add(getInteger(gameIterator.next().text()));
+					}
+					Collections.sort(numbers);
+					raffledGame.setNumber01(numbers.get(0));
+					raffledGame.setNumber02(numbers.get(1));
+					raffledGame.setNumber03(numbers.get(2));
+					raffledGame.setNumber04(numbers.get(3));
+					raffledGame.setNumber05(numbers.get(4));
+					raffledGame.setNumber06(numbers.get(5));
 					raffledGame.setTaxRevenuesTotal(getBigDecimal(gameIterator.next().text()));
 					raffledGame.setWinnersSixth(getInteger(gameIterator.next().text()));
 					raffledGame.setCity(gameIterator.next().text());
