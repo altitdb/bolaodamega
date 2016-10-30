@@ -5,7 +5,8 @@ import java.util.Scanner;
 import java.util.Set;
 
 import com.bolaodamega.megasena.domain.Game;
-import com.bolaodamega.megasena.roles.NumberInQuadrantRole;
+import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
+import com.bolaodamega.megasena.roles.NumbersLessAndEqualsThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
 import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
@@ -42,7 +43,8 @@ public class Validate {
 		roles.add(new NumbersSameRowRole());
 		roles.add(new NumbersSameColumnRole());
 		roles.add(new NumbersLateralRole());
-		roles.add(new NumberInQuadrantRole());
+		roles.add(new NumbersInQuadrantRole());
+		roles.add(new NumbersLessAndEqualsThirtyRole());
 
 		for (Role role : roles) {
 			boolean isInvalid = role.validate(game);

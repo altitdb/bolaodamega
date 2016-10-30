@@ -19,7 +19,7 @@ import com.bolaodamega.megasena.domain.Game;
  */
 public class NumbersInQuadrantRoleTest {
 
-	private Role role = new NumberInQuadrantRole();
+	private Role role = new NumbersInQuadrantRole();
 	
 	@Test
 	public void shoudShowInvalidFirstQuadrant() {

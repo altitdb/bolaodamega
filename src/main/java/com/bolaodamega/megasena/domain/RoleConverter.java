@@ -3,8 +3,12 @@ package com.bolaodamega.megasena.domain;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.bolaodamega.megasena.roles.NumberInQuadrantRole;
+import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
+import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
+import com.bolaodamega.megasena.roles.NumbersInTwoColumnRole;
+import com.bolaodamega.megasena.roles.NumbersInTwoRowRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
+import com.bolaodamega.megasena.roles.NumbersLessAndEqualsThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
 import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
 import com.bolaodamega.megasena.roles.NumbersSameRowRole;
@@ -38,7 +42,19 @@ public class RoleConverter implements AttributeConverter<Role, Integer> {
         	return new NumbersLateralRole();
         }
         case 6: {
-        	return new NumberInQuadrantRole();
+        	return new NumbersInQuadrantRole();
+        }
+        case 7: {
+        	return new NumbersInTwoRowRole();
+        }
+        case 8: {
+        	return new NumbersInTwoColumnRole();
+        }
+        case 9: {
+        	return new NumberGroupSequentialRole();
+        }
+        case 10: {
+        	return new NumbersLessAndEqualsThirtyRole();
         }
         default:
             return null;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.bolaodamega.megasena.domain.Game;
 
-public class NumberInQuadrantRole implements Role {
+public class NumbersInQuadrantRole implements Role {
 
 	@Override
 	public boolean validate(Game game) {
