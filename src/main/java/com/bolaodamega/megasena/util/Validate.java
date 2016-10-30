@@ -5,7 +5,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 import com.bolaodamega.megasena.domain.Game;
+import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
+import com.bolaodamega.megasena.roles.NumbersGreaterThanThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
+import com.bolaodamega.megasena.roles.NumbersInTwoColumnRole;
+import com.bolaodamega.megasena.roles.NumbersInTwoRowRole;
 import com.bolaodamega.megasena.roles.NumbersLessAndEqualsThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
@@ -39,12 +43,16 @@ public class Validate {
 		
 		Set<Role> roles = new HashSet<>();
 		roles.add(new NumbersSequentialRole());
-		roles.add(new NumbersOddsAndEvenRole());
-		roles.add(new NumbersSameRowRole());
-		roles.add(new NumbersSameColumnRole());
-		roles.add(new NumbersLateralRole());
-		roles.add(new NumbersInQuadrantRole());
-		roles.add(new NumbersLessAndEqualsThirtyRole());
+        roles.add(new NumbersOddsAndEvenRole());
+        roles.add(new NumbersSameRowRole());
+        roles.add(new NumbersSameColumnRole());
+        roles.add(new NumbersLateralRole());
+        roles.add(new NumbersInQuadrantRole());
+        roles.add(new NumbersInTwoRowRole());
+        roles.add(new NumbersInTwoColumnRole());
+        roles.add(new NumberGroupSequentialRole());
+        roles.add(new NumbersLessAndEqualsThirtyRole());
+        roles.add(new NumbersGreaterThanThirtyRole());
 
 		for (Role role : roles) {
 			boolean isInvalid = role.validate(game);
