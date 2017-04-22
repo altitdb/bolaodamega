@@ -23,7 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public class PersistenceContext {
 
     @Bean(destroyMethod = "close")
-    DataSource dataSource(Environment env) {
+    public DataSource dataSource(Environment env) {
         HikariConfig dataSourceConfig = new HikariConfig();
         dataSourceConfig.setDriverClassName(env
                 .getRequiredProperty("db.driver"));
@@ -34,7 +34,7 @@ public class PersistenceContext {
     }
 
     @Bean
-    LocalContainerEntityManagerFactoryBean entityManagerFactory(
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(
             DataSource dataSource, Environment env) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource);
@@ -57,7 +57,7 @@ public class PersistenceContext {
     }
 
     @Bean
-    JpaTransactionManager transactionManager(
+    public JpaTransactionManager transactionManager(
             EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);

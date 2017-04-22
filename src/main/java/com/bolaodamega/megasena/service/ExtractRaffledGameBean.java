@@ -1,8 +1,8 @@
 package com.bolaodamega.megasena.service;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +19,8 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.RaffledGame;
@@ -30,14 +32,18 @@ import com.mysql.jdbc.StringUtils;
 public class ExtractRaffledGameBean implements CommandLineRunner {
 
 	private static final Logger LOG = Logger.getLogger(ExtractRaffledGameBean.class);
-	private static final String FILE = "src/main/resources/D_MEGA.HTM";
+	private static final String FILE = "classpath:/D_MEGA.HTM";
 	
 	@Autowired
 	private RaffledGameRepository raffledGameRepository;
 	
+	@Autowired
+	private ResourceLoader loader;
+	
 	public void start() {
 		delete();
-		try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
+		Resource resource = loader.getResource(FILE);
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
 			StringBuilder html = new StringBuilder();
 			String sCurrentLine;
 			
