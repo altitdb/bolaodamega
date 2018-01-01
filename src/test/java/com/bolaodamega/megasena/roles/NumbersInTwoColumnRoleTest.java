@@ -8,7 +8,7 @@ import org.junit.Test;
 import com.bolaodamega.megasena.domain.Game;
 
 /**
- * The numbers can't be only column rows.
+ * The numbers can't be only two columns.
  * 
  * @author ALM
  *
