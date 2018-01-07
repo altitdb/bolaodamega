@@ -1,6 +1,7 @@
 package com.bolaodamega.megasena.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,8 @@ public class Statistics implements Serializable {
 	private String description;
 	@Column
 	private Long value;
+	@Column(name = "LAST_UPDATE")
+	private LocalDateTime lastUpdate = LocalDateTime.now();
 
 	public Integer getId() {
 		return id;
@@ -40,6 +43,10 @@ public class Statistics implements Serializable {
 
 	public void setValue(Long value) {
 		this.value = value;
+	}
+
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
 	}
 
 }

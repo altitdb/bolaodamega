@@ -15,9 +15,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.ExcludedGame;
-import com.bolaodamega.megasena.domain.Game;
+import com.bolaodamega.megasena.domain.HandleGame;
 import com.bolaodamega.megasena.domain.MineGame;
 import com.bolaodamega.megasena.repository.ExcludedGameRepository;
+import com.bolaodamega.megasena.repository.HandleGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
 import com.bolaodamega.megasena.roles.NumbersGreaterThanThirtyRole;
@@ -41,6 +42,9 @@ public class MinerBean implements CommandLineRunner {
     
     @Autowired
     private ExcludedGameRepository excludedGameRepository;
+    
+    @Autowired
+    private HandleGameRepository handleGameRepository;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -67,25 +71,34 @@ public class MinerBean implements CommandLineRunner {
         LOG.debug("VALIDATING " + game);
         for (Role role : roles) {
             boolean isInvalid = role.validate(game);
-            entityManager.detach(game);
             if (isInvalid) {
                 LOG.debug("INVALID " + game);
-                removeGame(game, role);
+                entityManager.detach(game);
+                handleInvalidGame(game, role);
             }
             return isInvalid;
         }
         return false;
     }
 
-    private void removeGame(Game game, Role role) {
-        LOG.debug("SAVING EXCLUDED " + game);
-        ExcludedGame newGame = new ExcludedGame();
-        newGame.setGamePk(game.getGamePk());
-        newGame.setRole(role);
-        excludedGameRepository.save(newGame);
-        LOG.debug("EXCLUDING " + game);
-        mineGameRepository.delete(game.getGamePk());
-        entityManager.clear();
+    private void handleInvalidGame(MineGame game, Role role) {
+    	if (game.getUser() == null) {
+	        LOG.debug("SAVING EXCLUDED " + game);
+	        ExcludedGame newGame = new ExcludedGame();
+	        newGame.setGamePk(game.getGamePk());
+	        newGame.setRole(role);
+	        excludedGameRepository.save(newGame);
+	        LOG.debug("EXCLUDING " + game);
+	        mineGameRepository.delete(game.getGamePk());
+	        entityManager.clear();
+    	} else {
+    		LOG.debug("SAVING HANDLED " + game);
+	        HandleGame handleGame = new HandleGame();
+	        handleGame.setGamePk(game.getGamePk());
+	        handleGame.setRole(role);
+	        handleGameRepository.save(handleGame);
+	        entityManager.clear();
+    	}
     }
 
     public void start() {
