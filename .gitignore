@@ -10,5 +10,6 @@ target/
 *.iml
 .idea/
 .recommenders/
+.besouro
 src/main/resources/angular/node_modules
 src/main/resources/angular/dist

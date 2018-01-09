@@ -1,5 +1,6 @@
 package com.bolaodamega.megasena.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.RaffledGame;
 import com.bolaodamega.megasena.domain.Statistics;
+import com.bolaodamega.megasena.dto.StatisticsDTO;
 import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
@@ -23,7 +25,7 @@ import com.bolaodamega.megasena.repository.StatisticsRepository;
 public class StatisticsBean implements CommandLineRunner {
 
 	private static final Logger LOG = Logger.getLogger(StatisticsBean.class);
-	
+
 	@Autowired
 	private StatisticsRepository statisticsRepository;
 	@Autowired
@@ -32,7 +34,7 @@ public class StatisticsBean implements CommandLineRunner {
 	private ExcludedGameRepository excludedGameRepository;
 	@Autowired
 	private RaffledGameRepository raffledGameRepository;
-	
+
 	@Override
 	public void run(String... arg0) throws Exception {
 		LOG.info("STARTED");
@@ -66,7 +68,7 @@ public class StatisticsBean implements CommandLineRunner {
 		for (Entry<Integer, Integer> entry : total.entrySet()) {
 			Statistics statistics = new Statistics();
 			statistics.setId(entry.getKey() + 4);
-			statistics.setDescription("Total Sorteado do Número " + entry.getKey());
+			statistics.setDescription("Total Sorteado do NÃºmero " + entry.getKey());
 			statistics.setValue(entry.getValue().longValue());
 			statisticsRepository.save(statistics);
 		}
@@ -94,7 +96,7 @@ public class StatisticsBean implements CommandLineRunner {
 	private void amountExcludedGames() {
 		Statistics statistics = new Statistics();
 		statistics.setId(3);
-		statistics.setDescription("Total de Jogos Excluídos");
+		statistics.setDescription("Total de Jogos ExcluÃ­dos");
 		Long total = excludedGameRepository.count();
 		statistics.setValue(total);
 		statisticsRepository.save(statistics);
@@ -103,7 +105,7 @@ public class StatisticsBean implements CommandLineRunner {
 	private void amountAvailableGames() {
 		Statistics statistics = new Statistics();
 		statistics.setId(2);
-		statistics.setDescription("Total de Jogos Disponíveis");
+		statistics.setDescription("Total de Jogos DisponÃ­veis");
 		Long total = mineGameRepository.count();
 		statistics.setValue(total);
 		statisticsRepository.save(statistics);
@@ -115,5 +117,13 @@ public class StatisticsBean implements CommandLineRunner {
 		statistics.setDescription("Total de Jogos");
 		statistics.setValue(50063860L);
 		statisticsRepository.save(statistics);
+	}
+
+	public List<StatisticsDTO> findAll() {
+		List<Statistics> allStatistics = statisticsRepository.findAll();
+		List<StatisticsDTO> response = new ArrayList<>();
+		allStatistics.stream().forEach(
+				item -> response.add(new StatisticsDTO(item.getDescription(), item.getValue(), item.getLastUpdate())));
+		return response;
 	}
 }

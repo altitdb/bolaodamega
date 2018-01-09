@@ -10,11 +10,11 @@
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
-    	<artifactId>spring-boot-starter-parent</artifactId>
-    	<version>1.5.9.RELEASE</version>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
 		<relativePath />
 	</parent>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -59,10 +59,10 @@
 						<configuration>
 							<target>
 								<exec executable="cmd" osfamily="windows"
-								  dir="${project.basedir}/src/main/resources/angular">
-									<arg value="/c"/>
-									<arg value="ng"/>
-									<arg value="build"/>
+									dir="${project.basedir}/src/main/angular">
+									<arg value="/c" />
+									<arg value="ng" />
+									<arg value="build" />
 								</exec>
 							</target>
 						</configuration>
@@ -77,19 +77,21 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.0.2</version>
 				<executions>
-					  <execution>
-						  <id>copy-resources</id>
-						  <phase>validate</phase>
-						  <goals><goal>copy-resources</goal></goals>
-						  <configuration>
-							  <resources>
-								  <resource>
-									  <directory>${basedir}/src/main/resources/angular/dist</directory >
-								  </resource>
-							  </resources>
-							  <outputDirectory>${basedir}/target/classes/static</outputDirectory >
-						  </configuration>
-					  </execution>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/angular/dist</directory>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/src/main/resources/static</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -166,12 +168,17 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.11.2</version>
 		</dependency>
-		
+
 		<!-- Spring Boot Starter Web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
 	</dependencies>
 </project>
