@@ -1,12 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTableModule } from '@angular/material/table';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
+import { StatisticsModule } from "./statistics/statistics.module";
 
 @NgModule({
   declarations: [
@@ -15,9 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    MatTableModule,
-    HttpModule,
-    HttpClientModule
+    StatisticsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
