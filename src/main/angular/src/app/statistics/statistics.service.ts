@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class StatisticsService {
 
-  private url = environment.url + '/api/statistics';
+  private url = environment.url + '/api/v1/statistics';
   constructor(private httpClient: HttpClient) { }
 
   getAll() {

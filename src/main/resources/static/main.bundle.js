@@ -266,7 +266,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var StatisticsService = (function () {
     function StatisticsService(httpClient) {
         this.httpClient = httpClient;
-        this.url = __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].url + '/api/statistics';
+        this.url = __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].url + '/api/v1/statistics';
     }
     StatisticsService.prototype.getAll = function () {
         return this.httpClient.get(this.url);

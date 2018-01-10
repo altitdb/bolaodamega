@@ -15,7 +15,7 @@ public class StatisticsController {
 	@Autowired
 	private StatisticsBean statisticsBean;
 	
-	@RequestMapping("/api/statistics")
+	@RequestMapping("/api/v1/statistics")
 	public List<StatisticsDTO> getStatistics() {
 		return statisticsBean.findAll();
 	}
