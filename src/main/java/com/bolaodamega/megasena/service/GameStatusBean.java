@@ -47,6 +47,7 @@ public class GameStatusBean {
 		List<GameBaseDTO> response = new ArrayList<>();
 		games.stream().forEach(
 				item -> response.add(convert(item)));
+		response.remove(FIRST_NUMBER_RESPONSE);
 		return response;
 	}
 
