@@ -65,6 +65,8 @@ public class MinerBean implements CommandLineRunner {
         roles.add(new NumberGroupSequentialRole());
         roles.add(new NumbersLessAndEqualsThirtyRole());
         roles.add(new NumbersGreaterThanThirtyRole());
+        //roles.add(new NumbersPrimeRole());
+        //roles.add(new NumbersFoldedRole());
     }
 
     private boolean miner(MineGame game) {

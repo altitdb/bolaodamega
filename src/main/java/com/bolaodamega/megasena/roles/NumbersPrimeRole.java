@@ -2,7 +2,7 @@ package com.bolaodamega.megasena.roles;
 
 import com.bolaodamega.megasena.domain.Game;
 
-public class NumberPrimeRole implements Role {
+public class NumbersPrimeRole implements Role {
 
 	@Override
 	public boolean validate(Game game) {

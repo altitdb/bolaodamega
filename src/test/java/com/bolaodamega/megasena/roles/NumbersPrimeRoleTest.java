@@ -20,7 +20,7 @@ import com.bolaodamega.megasena.domain.Game;
  */
 public class NumbersPrimeRoleTest {
 
-	private Role role = new NumberPrimeRole();
+	private Role role = new NumbersPrimeRole();
 	
 	@Test
 	public void shoudShowInvalidWithFourPrimes() {
