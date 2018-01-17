@@ -1,0 +1,57 @@
+<div class="example-container mat-elevation-z8">
+  <mat-table #table [dataSource]="dataSource">
+
+    <ng-container matColumnDef="column01">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column01)}"> {{element.column01}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column02">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column02)}"> {{element.column02}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column03">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column03)}"> {{element.column03}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column04">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column04)}"> {{element.column04}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column05">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column05)}"> {{element.column05}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column06">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column06)}"> {{element.column06}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column07">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column07)}"> {{element.column07}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column08">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column08)}"> {{element.column08}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column09">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column09)}"> {{element.column09}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="column10">
+      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+      <mat-cell *matCellDef="let element" [ngClass]="{'raffled': verify(element.column10)}"> {{element.column10}} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>
