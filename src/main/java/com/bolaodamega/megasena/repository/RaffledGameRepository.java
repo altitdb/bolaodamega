@@ -13,4 +13,8 @@ public interface RaffledGameRepository extends JpaRepository<RaffledGame, GamePK
 
 	@Transactional(readOnly = true)
     Slice<RaffledGame> findAllBy(Pageable page);
+
+	RaffledGame findTopByOrderByTenderNumberDesc();
+
+	RaffledGame findByTenderNumber(Integer tenderNumber);
 }

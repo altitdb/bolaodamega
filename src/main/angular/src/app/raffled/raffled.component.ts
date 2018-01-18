@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from "@angular/material/table";
+import { RaffledService } from "./raffled.service";
 
 @Component({
   selector: 'app-raffled',
@@ -10,19 +11,76 @@ export class RaffledComponent implements OnInit {
 
   displayedColumns = ['column01', 'column02', 'column03', 'column04', 'column05', 'column06', 'column07', 'column08', 'column09', 'column10'];
   dataSource = new MatTableDataSource<Element>(ELEMENT_DATA);
-  game: Array<any>;
-  constructor() { }
+  game: Game = new Game();
+  gameNumber: string;
+  tenderNumber: number;
+  raffledGame: number[] = [];
+  constructor(private _raffledService: RaffledService) { }
 
   ngOnInit() {
-    this.game = ['10', '22', '23', '30', '51', '57'];
+    this._raffledService.findLastGame().subscribe(suc => {
+      this.game.number01 = suc.game.number01;
+      this.game.number02 = suc.game.number02;
+      this.game.number03 = suc.game.number03;
+      this.game.number04 = suc.game.number04;
+      this.game.number05 = suc.game.number05;
+      this.game.number06 = suc.game.number06;
+      this.tenderNumber = suc.tenderNumber;
+    });
+    this.formatGameNumber();
   }
 
   verify(number) {
-    return this.game.includes(number);
+    return this.raffledGame.includes(Number(number));
+  }
+
+  formatGameNumber() {
+    this.gameNumber = this.game.number01 + ' - ' + this.game.number02 + ' - ' + this.game.number03 + ' - ' + this.game.number04 + ' - ' + this.game.number05 + ' - ' + this.game.number06;
+    this.raffledGame = [];
+    this.raffledGame.push(this.game.number01);
+    this.raffledGame.push(this.game.number02);
+    this.raffledGame.push(this.game.number03);
+    this.raffledGame.push(this.game.number04);
+    this.raffledGame.push(this.game.number05);
+    this.raffledGame.push(this.game.number06);
+  }
+
+  previous(tenderNumber) {
+    this._raffledService.findPreviousGame(tenderNumber).subscribe(suc => {
+      this.game.number01 = suc.game.number01;
+      this.game.number02 = suc.game.number02;
+      this.game.number03 = suc.game.number03;
+      this.game.number04 = suc.game.number04;
+      this.game.number05 = suc.game.number05;
+      this.game.number06 = suc.game.number06;
+      this.tenderNumber = suc.tenderNumber;
+    });
+    this.formatGameNumber();
+  }
+
+  next(tenderNumber) {
+    this._raffledService.findNextGame(tenderNumber).subscribe(suc => {
+      this.game.number01 = suc.game.number01;
+      this.game.number02 = suc.game.number02;
+      this.game.number03 = suc.game.number03;
+      this.game.number04 = suc.game.number04;
+      this.game.number05 = suc.game.number05;
+      this.game.number06 = suc.game.number06;
+      this.tenderNumber = suc.tenderNumber;
+    });
+    this.formatGameNumber();
   }
 
 }
 
+export class Game {
+  number01: number;
+  number02: number;
+  number03: number;
+  number04: number;
+  number05: number;
+  number06: number;
+}
 
 export interface Element {
   column01: string;
