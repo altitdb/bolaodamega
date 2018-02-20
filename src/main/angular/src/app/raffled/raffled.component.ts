@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from "@angular/material/table";
 import { RaffledService } from "./raffled.service";
+import { Game } from "../model/models";
 
 @Component({
   selector: 'app-raffled',
@@ -11,7 +12,7 @@ export class RaffledComponent implements OnInit {
 
   displayedColumns = ['column01', 'column02', 'column03', 'column04', 'column05', 'column06', 'column07', 'column08', 'column09', 'column10'];
   dataSource = new MatTableDataSource<Element>(ELEMENT_DATA);
-  game: Game = new Game();
+  game: Game = null;
   gameNumber: string;
   tenderNumber: number;
   raffledGame: number[] = [];
@@ -19,15 +20,10 @@ export class RaffledComponent implements OnInit {
 
   ngOnInit() {
     this._raffledService.findLastGame().subscribe(suc => {
-      this.game.number01 = suc.game.number01;
-      this.game.number02 = suc.game.number02;
-      this.game.number03 = suc.game.number03;
-      this.game.number04 = suc.game.number04;
-      this.game.number05 = suc.game.number05;
-      this.game.number06 = suc.game.number06;
+      this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.formatGameNumber();
     });
-    this.formatGameNumber();
   }
 
   verify(number) {
@@ -47,39 +43,20 @@ export class RaffledComponent implements OnInit {
 
   previous(tenderNumber) {
     this._raffledService.findPreviousGame(tenderNumber).subscribe(suc => {
-      this.game.number01 = suc.game.number01;
-      this.game.number02 = suc.game.number02;
-      this.game.number03 = suc.game.number03;
-      this.game.number04 = suc.game.number04;
-      this.game.number05 = suc.game.number05;
-      this.game.number06 = suc.game.number06;
+      this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.formatGameNumber();
     });
-    this.formatGameNumber();
   }
 
   next(tenderNumber) {
     this._raffledService.findNextGame(tenderNumber).subscribe(suc => {
-      this.game.number01 = suc.game.number01;
-      this.game.number02 = suc.game.number02;
-      this.game.number03 = suc.game.number03;
-      this.game.number04 = suc.game.number04;
-      this.game.number05 = suc.game.number05;
-      this.game.number06 = suc.game.number06;
+      this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.formatGameNumber();
     });
-    this.formatGameNumber();
   }
 
-}
-
-export class Game {
-  number01: number;
-  number02: number;
-  number03: number;
-  number04: number;
-  number05: number;
-  number06: number;
 }
 
 export interface Element {

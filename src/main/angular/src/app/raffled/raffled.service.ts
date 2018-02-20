@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from "../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from 'rxjs/Observable';
+import { Raffled } from "../model/models";
 
 @Injectable()
 export class RaffledService {
@@ -23,18 +24,4 @@ export class RaffledService {
   findNextGame(tenderNumber) {
     return this._httpClient.get<Raffled>(this.urlRaffledNext + tenderNumber);
   }
-}
-
-export interface Raffled {
-  tenderNumber: number;
-  game: Game;
-}
-
-export interface Game {
-  number01: number;
-  number02: number;
-  number03: number;
-  number04: number;
-  number05: number;
-  number06: number;
 }
