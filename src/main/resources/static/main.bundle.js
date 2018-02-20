@@ -157,7 +157,6 @@ module.exports = module.exports.toString();
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RaffledComponent; });
-/* unused harmony export Game */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_material_table__ = __webpack_require__("../../../material/esm5/table.es5.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__raffled_service__ = __webpack_require__("../../../../../src/app/raffled/raffled.service.ts");
@@ -178,21 +177,16 @@ var RaffledComponent = (function () {
         this._raffledService = _raffledService;
         this.displayedColumns = ['column01', 'column02', 'column03', 'column04', 'column05', 'column06', 'column07', 'column08', 'column09', 'column10'];
         this.dataSource = new __WEBPACK_IMPORTED_MODULE_1__angular_material_table__["a" /* MatTableDataSource */](ELEMENT_DATA);
-        this.game = new Game();
+        this.game = null;
         this.raffledGame = [];
     }
     RaffledComponent.prototype.ngOnInit = function () {
         var _this = this;
         this._raffledService.findLastGame().subscribe(function (suc) {
-            _this.game.number01 = suc.game.number01;
-            _this.game.number02 = suc.game.number02;
-            _this.game.number03 = suc.game.number03;
-            _this.game.number04 = suc.game.number04;
-            _this.game.number05 = suc.game.number05;
-            _this.game.number06 = suc.game.number06;
+            _this.game = suc.game;
             _this.tenderNumber = suc.tenderNumber;
+            _this.formatGameNumber();
         });
-        this.formatGameNumber();
     };
     RaffledComponent.prototype.verify = function (number) {
         return this.raffledGame.includes(Number(number));
@@ -210,28 +204,18 @@ var RaffledComponent = (function () {
     RaffledComponent.prototype.previous = function (tenderNumber) {
         var _this = this;
         this._raffledService.findPreviousGame(tenderNumber).subscribe(function (suc) {
-            _this.game.number01 = suc.game.number01;
-            _this.game.number02 = suc.game.number02;
-            _this.game.number03 = suc.game.number03;
-            _this.game.number04 = suc.game.number04;
-            _this.game.number05 = suc.game.number05;
-            _this.game.number06 = suc.game.number06;
+            _this.game = suc.game;
             _this.tenderNumber = suc.tenderNumber;
+            _this.formatGameNumber();
         });
-        this.formatGameNumber();
     };
     RaffledComponent.prototype.next = function (tenderNumber) {
         var _this = this;
         this._raffledService.findNextGame(tenderNumber).subscribe(function (suc) {
-            _this.game.number01 = suc.game.number01;
-            _this.game.number02 = suc.game.number02;
-            _this.game.number03 = suc.game.number03;
-            _this.game.number04 = suc.game.number04;
-            _this.game.number05 = suc.game.number05;
-            _this.game.number06 = suc.game.number06;
+            _this.game = suc.game;
             _this.tenderNumber = suc.tenderNumber;
+            _this.formatGameNumber();
         });
-        this.formatGameNumber();
     };
     RaffledComponent = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
@@ -242,12 +226,6 @@ var RaffledComponent = (function () {
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__raffled_service__["a" /* RaffledService */]])
     ], RaffledComponent);
     return RaffledComponent;
-}());
-
-var Game = (function () {
-    function Game() {
-    }
-    return Game;
 }());
 
 var ELEMENT_DATA = [
