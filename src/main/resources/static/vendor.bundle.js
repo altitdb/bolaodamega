@@ -3353,6 +3353,66 @@ var OuterSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/Scheduler.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Scheduler; });
+/**
+ * An execution context and a data structure to order tasks and schedule their
+ * execution. Provides a notion of (potentially virtual) time, through the
+ * `now()` getter method.
+ *
+ * Each unit of work in a Scheduler is called an {@link Action}.
+ *
+ * ```ts
+ * class Scheduler {
+ *   now(): number;
+ *   schedule(work, delay?, state?): Subscription;
+ * }
+ * ```
+ *
+ * @class Scheduler
+ */
+var Scheduler = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function Scheduler(SchedulerAction, now) {
+        if (now === void 0) {
+            now = Scheduler.now;
+        }
+        this.SchedulerAction = SchedulerAction;
+        this.now = now;
+    }
+    /**
+     * Schedules a function, `work`, for execution. May happen at some point in
+     * the future, according to the `delay` parameter, if specified. May be passed
+     * some context object, `state`, which will be passed to the `work` function.
+     *
+     * The given arguments will be processed an stored as an Action object in a
+     * queue of actions.
+     *
+     * @param {function(state: ?T): ?Subscription} work A function representing a
+     * task, or some unit of work to be executed by the Scheduler.
+     * @param {number} [delay] Time to wait before executing the work, where the
+     * time unit is implicit and defined by the Scheduler itself.
+     * @param {T} [state] Some contextual data that the `work` function uses when
+     * called by the Scheduler.
+     * @return {Subscription} A subscription in order to be able to unsubscribe
+     * the scheduled work.
+     */
+    Scheduler.prototype.schedule = function (work, delay, state) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        return new this.SchedulerAction(this, work).schedule(state, delay);
+    };
+    Scheduler.now = Date.now ? Date.now : function () { return +new Date(); };
+    return Scheduler;
+}());
+//# sourceMappingURL=Scheduler.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/Subject.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -5886,6 +5946,136 @@ function concatMap(project, resultSelector) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/operators/debounceTime.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = debounceTime;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subscriber__ = __webpack_require__("../../../../rxjs/_esm5/Subscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scheduler_async__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/async.js");
+/** PURE_IMPORTS_START .._Subscriber,.._scheduler_async PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/**
+ * Emits a value from the source Observable only after a particular time span
+ * has passed without another source emission.
+ *
+ * <span class="informal">It's like {@link delay}, but passes only the most
+ * recent value from each burst of emissions.</span>
+ *
+ * <img src="./img/debounceTime.png" width="100%">
+ *
+ * `debounceTime` delays values emitted by the source Observable, but drops
+ * previous pending delayed emissions if a new value arrives on the source
+ * Observable. This operator keeps track of the most recent value from the
+ * source Observable, and emits that only when `dueTime` enough time has passed
+ * without any other value appearing on the source Observable. If a new value
+ * appears before `dueTime` silence occurs, the previous value will be dropped
+ * and will not be emitted on the output Observable.
+ *
+ * This is a rate-limiting operator, because it is impossible for more than one
+ * value to be emitted in any time window of duration `dueTime`, but it is also
+ * a delay-like operator since output emissions do not occur at the same time as
+ * they did on the source Observable. Optionally takes a {@link IScheduler} for
+ * managing timers.
+ *
+ * @example <caption>Emit the most recent click after a burst of clicks</caption>
+ * var clicks = Rx.Observable.fromEvent(document, 'click');
+ * var result = clicks.debounceTime(1000);
+ * result.subscribe(x => console.log(x));
+ *
+ * @see {@link auditTime}
+ * @see {@link debounce}
+ * @see {@link delay}
+ * @see {@link sampleTime}
+ * @see {@link throttleTime}
+ *
+ * @param {number} dueTime The timeout duration in milliseconds (or the time
+ * unit determined internally by the optional `scheduler`) for the window of
+ * time required to wait for emission silence before emitting the most recent
+ * source value.
+ * @param {Scheduler} [scheduler=async] The {@link IScheduler} to use for
+ * managing the timers that handle the timeout for each value.
+ * @return {Observable} An Observable that delays the emissions of the source
+ * Observable by the specified `dueTime`, and may drop some values if they occur
+ * too frequently.
+ * @method debounceTime
+ * @owner Observable
+ */
+function debounceTime(dueTime, scheduler) {
+    if (scheduler === void 0) {
+        scheduler = __WEBPACK_IMPORTED_MODULE_1__scheduler_async__["a" /* async */];
+    }
+    return function (source) { return source.lift(new DebounceTimeOperator(dueTime, scheduler)); };
+}
+var DebounceTimeOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function DebounceTimeOperator(dueTime, scheduler) {
+        this.dueTime = dueTime;
+        this.scheduler = scheduler;
+    }
+    DebounceTimeOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new DebounceTimeSubscriber(subscriber, this.dueTime, this.scheduler));
+    };
+    return DebounceTimeOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var DebounceTimeSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(DebounceTimeSubscriber, _super);
+    function DebounceTimeSubscriber(destination, dueTime, scheduler) {
+        _super.call(this, destination);
+        this.dueTime = dueTime;
+        this.scheduler = scheduler;
+        this.debouncedSubscription = null;
+        this.lastValue = null;
+        this.hasValue = false;
+    }
+    DebounceTimeSubscriber.prototype._next = function (value) {
+        this.clearDebounce();
+        this.lastValue = value;
+        this.hasValue = true;
+        this.add(this.debouncedSubscription = this.scheduler.schedule(dispatchNext, this.dueTime, this));
+    };
+    DebounceTimeSubscriber.prototype._complete = function () {
+        this.debouncedNext();
+        this.destination.complete();
+    };
+    DebounceTimeSubscriber.prototype.debouncedNext = function () {
+        this.clearDebounce();
+        if (this.hasValue) {
+            this.destination.next(this.lastValue);
+            this.lastValue = null;
+            this.hasValue = false;
+        }
+    };
+    DebounceTimeSubscriber.prototype.clearDebounce = function () {
+        var debouncedSubscription = this.debouncedSubscription;
+        if (debouncedSubscription !== null) {
+            this.remove(debouncedSubscription);
+            debouncedSubscription.unsubscribe();
+            this.debouncedSubscription = null;
+        }
+    };
+    return DebounceTimeSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */]));
+function dispatchNext(subscriber) {
+    subscriber.debouncedNext();
+}
+//# sourceMappingURL=debounceTime.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/operators/filter.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -6741,6 +6931,110 @@ function startWith() {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/operators/take.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = take;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subscriber__ = __webpack_require__("../../../../rxjs/_esm5/Subscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util_ArgumentOutOfRangeError__ = __webpack_require__("../../../../rxjs/_esm5/util/ArgumentOutOfRangeError.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__observable_EmptyObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/EmptyObservable.js");
+/** PURE_IMPORTS_START .._Subscriber,.._util_ArgumentOutOfRangeError,.._observable_EmptyObservable PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+/**
+ * Emits only the first `count` values emitted by the source Observable.
+ *
+ * <span class="informal">Takes the first `count` values from the source, then
+ * completes.</span>
+ *
+ * <img src="./img/take.png" width="100%">
+ *
+ * `take` returns an Observable that emits only the first `count` values emitted
+ * by the source Observable. If the source emits fewer than `count` values then
+ * all of its values are emitted. After that, it completes, regardless if the
+ * source completes.
+ *
+ * @example <caption>Take the first 5 seconds of an infinite 1-second interval Observable</caption>
+ * var interval = Rx.Observable.interval(1000);
+ * var five = interval.take(5);
+ * five.subscribe(x => console.log(x));
+ *
+ * @see {@link takeLast}
+ * @see {@link takeUntil}
+ * @see {@link takeWhile}
+ * @see {@link skip}
+ *
+ * @throws {ArgumentOutOfRangeError} When using `take(i)`, it delivers an
+ * ArgumentOutOrRangeError to the Observer's `error` callback if `i < 0`.
+ *
+ * @param {number} count The maximum number of `next` values to emit.
+ * @return {Observable<T>} An Observable that emits only the first `count`
+ * values emitted by the source Observable, or all of the values from the source
+ * if the source emits fewer than `count` values.
+ * @method take
+ * @owner Observable
+ */
+function take(count) {
+    return function (source) {
+        if (count === 0) {
+            return new __WEBPACK_IMPORTED_MODULE_2__observable_EmptyObservable__["a" /* EmptyObservable */]();
+        }
+        else {
+            return source.lift(new TakeOperator(count));
+        }
+    };
+}
+var TakeOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function TakeOperator(total) {
+        this.total = total;
+        if (this.total < 0) {
+            throw new __WEBPACK_IMPORTED_MODULE_1__util_ArgumentOutOfRangeError__["a" /* ArgumentOutOfRangeError */];
+        }
+    }
+    TakeOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new TakeSubscriber(subscriber, this.total));
+    };
+    return TakeOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var TakeSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(TakeSubscriber, _super);
+    function TakeSubscriber(destination, total) {
+        _super.call(this, destination);
+        this.total = total;
+        this.count = 0;
+    }
+    TakeSubscriber.prototype._next = function (value) {
+        var total = this.total;
+        var count = ++this.count;
+        if (count <= total) {
+            this.destination.next(value);
+            if (count === total) {
+                this.destination.complete();
+                this.unsubscribe();
+            }
+        }
+    };
+    return TakeSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */]));
+//# sourceMappingURL=take.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/operators/takeUntil.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -6824,6 +7118,467 @@ var TakeUntilSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
     return TakeUntilSubscriber;
 }(__WEBPACK_IMPORTED_MODULE_0__OuterSubscriber__["a" /* OuterSubscriber */]));
 //# sourceMappingURL=takeUntil.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/operators/tap.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = tap;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subscriber__ = __webpack_require__("../../../../rxjs/_esm5/Subscriber.js");
+/** PURE_IMPORTS_START .._Subscriber PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+/* tslint:enable:max-line-length */
+/**
+ * Perform a side effect for every emission on the source Observable, but return
+ * an Observable that is identical to the source.
+ *
+ * <span class="informal">Intercepts each emission on the source and runs a
+ * function, but returns an output which is identical to the source as long as errors don't occur.</span>
+ *
+ * <img src="./img/do.png" width="100%">
+ *
+ * Returns a mirrored Observable of the source Observable, but modified so that
+ * the provided Observer is called to perform a side effect for every value,
+ * error, and completion emitted by the source. Any errors that are thrown in
+ * the aforementioned Observer or handlers are safely sent down the error path
+ * of the output Observable.
+ *
+ * This operator is useful for debugging your Observables for the correct values
+ * or performing other side effects.
+ *
+ * Note: this is different to a `subscribe` on the Observable. If the Observable
+ * returned by `do` is not subscribed, the side effects specified by the
+ * Observer will never happen. `do` therefore simply spies on existing
+ * execution, it does not trigger an execution to happen like `subscribe` does.
+ *
+ * @example <caption>Map every click to the clientX position of that click, while also logging the click event</caption>
+ * var clicks = Rx.Observable.fromEvent(document, 'click');
+ * var positions = clicks
+ *   .do(ev => console.log(ev))
+ *   .map(ev => ev.clientX);
+ * positions.subscribe(x => console.log(x));
+ *
+ * @see {@link map}
+ * @see {@link subscribe}
+ *
+ * @param {Observer|function} [nextOrObserver] A normal Observer object or a
+ * callback for `next`.
+ * @param {function} [error] Callback for errors in the source.
+ * @param {function} [complete] Callback for the completion of the source.
+ * @return {Observable} An Observable identical to the source, but runs the
+ * specified Observer or callback(s) for each item.
+ * @name tap
+ */
+function tap(nextOrObserver, error, complete) {
+    return function tapOperatorFunction(source) {
+        return source.lift(new DoOperator(nextOrObserver, error, complete));
+    };
+}
+var DoOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function DoOperator(nextOrObserver, error, complete) {
+        this.nextOrObserver = nextOrObserver;
+        this.error = error;
+        this.complete = complete;
+    }
+    DoOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new DoSubscriber(subscriber, this.nextOrObserver, this.error, this.complete));
+    };
+    return DoOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var DoSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(DoSubscriber, _super);
+    function DoSubscriber(destination, nextOrObserver, error, complete) {
+        _super.call(this, destination);
+        var safeSubscriber = new __WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */](nextOrObserver, error, complete);
+        safeSubscriber.syncErrorThrowable = true;
+        this.add(safeSubscriber);
+        this.safeSubscriber = safeSubscriber;
+    }
+    DoSubscriber.prototype._next = function (value) {
+        var safeSubscriber = this.safeSubscriber;
+        safeSubscriber.next(value);
+        if (safeSubscriber.syncErrorThrown) {
+            this.destination.error(safeSubscriber.syncErrorValue);
+        }
+        else {
+            this.destination.next(value);
+        }
+    };
+    DoSubscriber.prototype._error = function (err) {
+        var safeSubscriber = this.safeSubscriber;
+        safeSubscriber.error(err);
+        if (safeSubscriber.syncErrorThrown) {
+            this.destination.error(safeSubscriber.syncErrorValue);
+        }
+        else {
+            this.destination.error(err);
+        }
+    };
+    DoSubscriber.prototype._complete = function () {
+        var safeSubscriber = this.safeSubscriber;
+        safeSubscriber.complete();
+        if (safeSubscriber.syncErrorThrown) {
+            this.destination.error(safeSubscriber.syncErrorValue);
+        }
+        else {
+            this.destination.complete();
+        }
+    };
+    return DoSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */]));
+//# sourceMappingURL=tap.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/Action.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Action; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/** PURE_IMPORTS_START .._Subscription PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+/**
+ * A unit of work to be executed in a {@link Scheduler}. An action is typically
+ * created from within a Scheduler and an RxJS user does not need to concern
+ * themselves about creating and manipulating an Action.
+ *
+ * ```ts
+ * class Action<T> extends Subscription {
+ *   new (scheduler: Scheduler, work: (state?: T) => void);
+ *   schedule(state?: T, delay: number = 0): Subscription;
+ * }
+ * ```
+ *
+ * @class Action<T>
+ */
+var Action = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(Action, _super);
+    function Action(scheduler, work) {
+        _super.call(this);
+    }
+    /**
+     * Schedules this action on its parent Scheduler for execution. May be passed
+     * some context object, `state`. May happen at some point in the future,
+     * according to the `delay` parameter, if specified.
+     * @param {T} [state] Some contextual data that the `work` function uses when
+     * called by the Scheduler.
+     * @param {number} [delay] Time to wait before executing the work, where the
+     * time unit is implicit and defined by the Scheduler.
+     * @return {void}
+     */
+    Action.prototype.schedule = function (state, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        return this;
+    };
+    return Action;
+}(__WEBPACK_IMPORTED_MODULE_0__Subscription__["a" /* Subscription */]));
+//# sourceMappingURL=Action.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/AsyncAction.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AsyncAction; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_root__ = __webpack_require__("../../../../rxjs/_esm5/util/root.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Action__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/Action.js");
+/** PURE_IMPORTS_START .._util_root,._Action PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var AsyncAction = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(AsyncAction, _super);
+    function AsyncAction(scheduler, work) {
+        _super.call(this, scheduler, work);
+        this.scheduler = scheduler;
+        this.work = work;
+        this.pending = false;
+    }
+    AsyncAction.prototype.schedule = function (state, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        if (this.closed) {
+            return this;
+        }
+        // Always replace the current state with the new state.
+        this.state = state;
+        // Set the pending flag indicating that this action has been scheduled, or
+        // has recursively rescheduled itself.
+        this.pending = true;
+        var id = this.id;
+        var scheduler = this.scheduler;
+        //
+        // Important implementation note:
+        //
+        // Actions only execute once by default, unless rescheduled from within the
+        // scheduled callback. This allows us to implement single and repeat
+        // actions via the same code path, without adding API surface area, as well
+        // as mimic traditional recursion but across asynchronous boundaries.
+        //
+        // However, JS runtimes and timers distinguish between intervals achieved by
+        // serial `setTimeout` calls vs. a single `setInterval` call. An interval of
+        // serial `setTimeout` calls can be individually delayed, which delays
+        // scheduling the next `setTimeout`, and so on. `setInterval` attempts to
+        // guarantee the interval callback will be invoked more precisely to the
+        // interval period, regardless of load.
+        //
+        // Therefore, we use `setInterval` to schedule single and repeat actions.
+        // If the action reschedules itself with the same delay, the interval is not
+        // canceled. If the action doesn't reschedule, or reschedules with a
+        // different delay, the interval will be canceled after scheduled callback
+        // execution.
+        //
+        if (id != null) {
+            this.id = this.recycleAsyncId(scheduler, id, delay);
+        }
+        this.delay = delay;
+        // If this action has already an async Id, don't request a new one.
+        this.id = this.id || this.requestAsyncId(scheduler, this.id, delay);
+        return this;
+    };
+    AsyncAction.prototype.requestAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        return __WEBPACK_IMPORTED_MODULE_0__util_root__["a" /* root */].setInterval(scheduler.flush.bind(scheduler, this), delay);
+    };
+    AsyncAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        // If this action is rescheduled with the same delay time, don't clear the interval id.
+        if (delay !== null && this.delay === delay && this.pending === false) {
+            return id;
+        }
+        // Otherwise, if the action's delay time is different from the current delay,
+        // or the action has been rescheduled before it's executed, clear the interval id
+        return __WEBPACK_IMPORTED_MODULE_0__util_root__["a" /* root */].clearInterval(id) && undefined || undefined;
+    };
+    /**
+     * Immediately executes this action and the `work` it contains.
+     * @return {any}
+     */
+    AsyncAction.prototype.execute = function (state, delay) {
+        if (this.closed) {
+            return new Error('executing a cancelled action');
+        }
+        this.pending = false;
+        var error = this._execute(state, delay);
+        if (error) {
+            return error;
+        }
+        else if (this.pending === false && this.id != null) {
+            // Dequeue if the action didn't reschedule itself. Don't call
+            // unsubscribe(), because the action could reschedule later.
+            // For example:
+            // ```
+            // scheduler.schedule(function doWork(counter) {
+            //   /* ... I'm a busy worker bee ... */
+            //   var originalAction = this;
+            //   /* wait 100ms before rescheduling the action */
+            //   setTimeout(function () {
+            //     originalAction.schedule(counter + 1);
+            //   }, 100);
+            // }, 1000);
+            // ```
+            this.id = this.recycleAsyncId(this.scheduler, this.id, null);
+        }
+    };
+    AsyncAction.prototype._execute = function (state, delay) {
+        var errored = false;
+        var errorValue = undefined;
+        try {
+            this.work(state);
+        }
+        catch (e) {
+            errored = true;
+            errorValue = !!e && e || new Error(e);
+        }
+        if (errored) {
+            this.unsubscribe();
+            return errorValue;
+        }
+    };
+    AsyncAction.prototype._unsubscribe = function () {
+        var id = this.id;
+        var scheduler = this.scheduler;
+        var actions = scheduler.actions;
+        var index = actions.indexOf(this);
+        this.work = null;
+        this.state = null;
+        this.pending = false;
+        this.scheduler = null;
+        if (index !== -1) {
+            actions.splice(index, 1);
+        }
+        if (id != null) {
+            this.id = this.recycleAsyncId(scheduler, id, null);
+        }
+        this.delay = null;
+    };
+    return AsyncAction;
+}(__WEBPACK_IMPORTED_MODULE_1__Action__["a" /* Action */]));
+//# sourceMappingURL=AsyncAction.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/AsyncScheduler.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AsyncScheduler; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Scheduler__ = __webpack_require__("../../../../rxjs/_esm5/Scheduler.js");
+/** PURE_IMPORTS_START .._Scheduler PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+var AsyncScheduler = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(AsyncScheduler, _super);
+    function AsyncScheduler() {
+        _super.apply(this, arguments);
+        this.actions = [];
+        /**
+         * A flag to indicate whether the Scheduler is currently executing a batch of
+         * queued actions.
+         * @type {boolean}
+         */
+        this.active = false;
+        /**
+         * An internal ID used to track the latest asynchronous task such as those
+         * coming from `setTimeout`, `setInterval`, `requestAnimationFrame`, and
+         * others.
+         * @type {any}
+         */
+        this.scheduled = undefined;
+    }
+    AsyncScheduler.prototype.flush = function (action) {
+        var actions = this.actions;
+        if (this.active) {
+            actions.push(action);
+            return;
+        }
+        var error;
+        this.active = true;
+        do {
+            if (error = action.execute(action.state, action.delay)) {
+                break;
+            }
+        } while (action = actions.shift()); // exhaust the scheduler queue
+        this.active = false;
+        if (error) {
+            while (action = actions.shift()) {
+                action.unsubscribe();
+            }
+            throw error;
+        }
+    };
+    return AsyncScheduler;
+}(__WEBPACK_IMPORTED_MODULE_0__Scheduler__["a" /* Scheduler */]));
+//# sourceMappingURL=AsyncScheduler.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/async.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return async; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__AsyncAction__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/AsyncAction.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AsyncScheduler__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/AsyncScheduler.js");
+/** PURE_IMPORTS_START ._AsyncAction,._AsyncScheduler PURE_IMPORTS_END */
+
+
+/**
+ *
+ * Async Scheduler
+ *
+ * <span class="informal">Schedule task as if you used setTimeout(task, duration)</span>
+ *
+ * `async` scheduler schedules tasks asynchronously, by putting them on the JavaScript
+ * event loop queue. It is best used to delay tasks in time or to schedule tasks repeating
+ * in intervals.
+ *
+ * If you just want to "defer" task, that is to perform it right after currently
+ * executing synchronous code ends (commonly achieved by `setTimeout(deferredTask, 0)`),
+ * better choice will be the {@link asap} scheduler.
+ *
+ * @example <caption>Use async scheduler to delay task</caption>
+ * const task = () => console.log('it works!');
+ *
+ * Rx.Scheduler.async.schedule(task, 2000);
+ *
+ * // After 2 seconds logs:
+ * // "it works!"
+ *
+ *
+ * @example <caption>Use async scheduler to repeat task in intervals</caption>
+ * function task(state) {
+ *   console.log(state);
+ *   this.schedule(state + 1, 1000); // `this` references currently executing Action,
+ *                                   // which we reschedule with new state and delay
+ * }
+ *
+ * Rx.Scheduler.async.schedule(task, 3000, 0);
+ *
+ * // Logs:
+ * // 0 after 3s
+ * // 1 after 4s
+ * // 2 after 5s
+ * // 3 after 6s
+ *
+ * @static true
+ * @name async
+ * @owner Scheduler
+ */
+var async = /*@__PURE__*/ new __WEBPACK_IMPORTED_MODULE_1__AsyncScheduler__["a" /* AsyncScheduler */](__WEBPACK_IMPORTED_MODULE_0__AsyncAction__["a" /* AsyncAction */]);
+//# sourceMappingURL=async.js.map 
 
 
 /***/ }),
@@ -6931,6 +7686,44 @@ var rxSubscriber = (typeof Symbol === 'function' && typeof Symbol.for === 'funct
  */
 var $$rxSubscriber = rxSubscriber;
 //# sourceMappingURL=rxSubscriber.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/util/ArgumentOutOfRangeError.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ArgumentOutOfRangeError; });
+/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+/**
+ * An error thrown when an element was queried at a certain index of an
+ * Observable, but no such index or position exists in that sequence.
+ *
+ * @see {@link elementAt}
+ * @see {@link take}
+ * @see {@link takeLast}
+ *
+ * @class ArgumentOutOfRangeError
+ */
+var ArgumentOutOfRangeError = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(ArgumentOutOfRangeError, _super);
+    function ArgumentOutOfRangeError() {
+        var err = _super.call(this, 'argument out of range');
+        this.name = err.name = 'ArgumentOutOfRangeError';
+        this.stack = err.stack;
+        this.message = err.message;
+    }
+    return ArgumentOutOfRangeError;
+}(Error));
+//# sourceMappingURL=ArgumentOutOfRangeError.js.map 
 
 
 /***/ }),
@@ -15478,6 +16271,2326 @@ function supportsWebAnimations() {
 
 /***/ }),
 
+/***/ "../../../cdk/esm5/a11y.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export FocusTrapDirective */
+/* unused harmony export ActiveDescendantKeyManager */
+/* unused harmony export MESSAGES_CONTAINER_ID */
+/* unused harmony export CDK_DESCRIBEDBY_ID_PREFIX */
+/* unused harmony export CDK_DESCRIBEDBY_HOST_ATTRIBUTE */
+/* unused harmony export AriaDescriber */
+/* unused harmony export ARIA_DESCRIBER_PROVIDER_FACTORY */
+/* unused harmony export ARIA_DESCRIBER_PROVIDER */
+/* unused harmony export isFakeMousedownFromScreenReader */
+/* unused harmony export FocusKeyManager */
+/* unused harmony export FocusTrap */
+/* unused harmony export FocusTrapFactory */
+/* unused harmony export FocusTrapDeprecatedDirective */
+/* unused harmony export CdkTrapFocus */
+/* unused harmony export InteractivityChecker */
+/* unused harmony export ListKeyManager */
+/* unused harmony export LIVE_ANNOUNCER_ELEMENT_TOKEN */
+/* unused harmony export LiveAnnouncer */
+/* unused harmony export LIVE_ANNOUNCER_PROVIDER_FACTORY */
+/* unused harmony export LIVE_ANNOUNCER_PROVIDER */
+/* unused harmony export TOUCH_BUFFER_MS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FocusMonitor; });
+/* unused harmony export CdkMonitorFocus */
+/* unused harmony export FOCUS_MONITOR_PROVIDER_FACTORY */
+/* unused harmony export FOCUS_MONITOR_PROVIDER */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return A11yModule; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__ = __webpack_require__("../../../cdk/esm5/coercion.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_operators_take__ = __webpack_require__("../../../../rxjs/_esm5/operators/take.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__ = __webpack_require__("../../../cdk/esm5/platform.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__ = __webpack_require__("../../../../rxjs/_esm5/Subject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__ = __webpack_require__("../../../cdk/esm5/keycodes.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operators_debounceTime__ = __webpack_require__("../../../../rxjs/_esm5/operators/debounceTime.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_rxjs_operators_filter__ = __webpack_require__("../../../../rxjs/_esm5/operators/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_rxjs_operators_map__ = __webpack_require__("../../../../rxjs/_esm5/operators/map.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_rxjs_operators_tap__ = __webpack_require__("../../../../rxjs/_esm5/operators/tap.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_rxjs_observable_of__ = __webpack_require__("../../../../rxjs/_esm5/observable/of.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Utility for checking the interactivity of an element, such as whether is is focusable or
+ * tabbable.
+ */
+var InteractivityChecker = /** @class */ (function () {
+    function InteractivityChecker(_platform) {
+        this._platform = _platform;
+    }
+    /**
+     * Gets whether an element is disabled.
+     *
+     * @param element Element to be checked.
+     * @returns Whether the element is disabled.
+     */
+    /**
+     * Gets whether an element is disabled.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is disabled.
+     */
+    InteractivityChecker.prototype.isDisabled = /**
+     * Gets whether an element is disabled.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is disabled.
+     */
+    function (element) {
+        // This does not capture some cases, such as a non-form control with a disabled attribute or
+        // a form control inside of a disabled form, but should capture the most common cases.
+        return element.hasAttribute('disabled');
+    };
+    /**
+     * Gets whether an element is visible for the purposes of interactivity.
+     *
+     * This will capture states like `display: none` and `visibility: hidden`, but not things like
+     * being clipped by an `overflow: hidden` parent or being outside the viewport.
+     *
+     * @returns Whether the element is visible.
+     */
+    /**
+     * Gets whether an element is visible for the purposes of interactivity.
+     *
+     * This will capture states like `display: none` and `visibility: hidden`, but not things like
+     * being clipped by an `overflow: hidden` parent or being outside the viewport.
+     *
+     * @param {?} element
+     * @return {?} Whether the element is visible.
+     */
+    InteractivityChecker.prototype.isVisible = /**
+     * Gets whether an element is visible for the purposes of interactivity.
+     *
+     * This will capture states like `display: none` and `visibility: hidden`, but not things like
+     * being clipped by an `overflow: hidden` parent or being outside the viewport.
+     *
+     * @param {?} element
+     * @return {?} Whether the element is visible.
+     */
+    function (element) {
+        return hasGeometry(element) && getComputedStyle(element).visibility === 'visible';
+    };
+    /**
+     * Gets whether an element can be reached via Tab key.
+     * Assumes that the element has already been checked with isFocusable.
+     *
+     * @param element Element to be checked.
+     * @returns Whether the element is tabbable.
+     */
+    /**
+     * Gets whether an element can be reached via Tab key.
+     * Assumes that the element has already been checked with isFocusable.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is tabbable.
+     */
+    InteractivityChecker.prototype.isTabbable = /**
+     * Gets whether an element can be reached via Tab key.
+     * Assumes that the element has already been checked with isFocusable.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is tabbable.
+     */
+    function (element) {
+        // Nothing is tabbable on the the server 😎
+        if (!this._platform.isBrowser) {
+            return false;
+        }
+        var /** @type {?} */ frameElement = /** @type {?} */ (getWindow(element).frameElement);
+        if (frameElement) {
+            var /** @type {?} */ frameType = frameElement && frameElement.nodeName.toLowerCase();
+            // Frame elements inherit their tabindex onto all child elements.
+            if (getTabIndexValue(frameElement) === -1) {
+                return false;
+            }
+            // Webkit and Blink consider anything inside of an <object> element as non-tabbable.
+            if ((this._platform.BLINK || this._platform.WEBKIT) && frameType === 'object') {
+                return false;
+            }
+            // Webkit and Blink disable tabbing to an element inside of an invisible frame.
+            if ((this._platform.BLINK || this._platform.WEBKIT) && !this.isVisible(frameElement)) {
+                return false;
+            }
+        }
+        var /** @type {?} */ nodeName = element.nodeName.toLowerCase();
+        var /** @type {?} */ tabIndexValue = getTabIndexValue(element);
+        if (element.hasAttribute('contenteditable')) {
+            return tabIndexValue !== -1;
+        }
+        if (nodeName === 'iframe') {
+            // The frames may be tabbable depending on content, but it's not possibly to reliably
+            // investigate the content of the frames.
+            return false;
+        }
+        if (nodeName === 'audio') {
+            if (!element.hasAttribute('controls')) {
+                // By default an <audio> element without the controls enabled is not tabbable.
+                return false;
+            }
+            else if (this._platform.BLINK) {
+                // In Blink <audio controls> elements are always tabbable.
+                return true;
+            }
+        }
+        if (nodeName === 'video') {
+            if (!element.hasAttribute('controls') && this._platform.TRIDENT) {
+                // In Trident a <video> element without the controls enabled is not tabbable.
+                return false;
+            }
+            else if (this._platform.BLINK || this._platform.FIREFOX) {
+                // In Chrome and Firefox <video controls> elements are always tabbable.
+                return true;
+            }
+        }
+        if (nodeName === 'object' && (this._platform.BLINK || this._platform.WEBKIT)) {
+            // In all Blink and WebKit based browsers <object> elements are never tabbable.
+            return false;
+        }
+        // In iOS the browser only considers some specific elements as tabbable.
+        if (this._platform.WEBKIT && this._platform.IOS && !isPotentiallyTabbableIOS(element)) {
+            return false;
+        }
+        return element.tabIndex >= 0;
+    };
+    /**
+     * Gets whether an element can be focused by the user.
+     *
+     * @param element Element to be checked.
+     * @returns Whether the element is focusable.
+     */
+    /**
+     * Gets whether an element can be focused by the user.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is focusable.
+     */
+    InteractivityChecker.prototype.isFocusable = /**
+     * Gets whether an element can be focused by the user.
+     *
+     * @param {?} element Element to be checked.
+     * @return {?} Whether the element is focusable.
+     */
+    function (element) {
+        // Perform checks in order of left to most expensive.
+        // Again, naive approach that does not capture many edge cases and browser quirks.
+        return isPotentiallyFocusable(element) && !this.isDisabled(element) && this.isVisible(element);
+    };
+    InteractivityChecker.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    InteractivityChecker.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */], },
+    ]; };
+    return InteractivityChecker;
+}());
+/**
+ * Checks whether the specified element has any geometry / rectangles.
+ * @param {?} element
+ * @return {?}
+ */
+function hasGeometry(element) {
+    // Use logic from jQuery to check for an invisible element.
+    // See https://github.com/jquery/jquery/blob/master/src/css/hiddenVisibleSelectors.js#L12
+    return !!(element.offsetWidth || element.offsetHeight ||
+        (typeof element.getClientRects === 'function' && element.getClientRects().length));
+}
+/**
+ * Gets whether an element's
+ * @param {?} element
+ * @return {?}
+ */
+function isNativeFormElement(element) {
+    var /** @type {?} */ nodeName = element.nodeName.toLowerCase();
+    return nodeName === 'input' ||
+        nodeName === 'select' ||
+        nodeName === 'button' ||
+        nodeName === 'textarea';
+}
+/**
+ * Gets whether an element is an <input type="hidden">.
+ * @param {?} element
+ * @return {?}
+ */
+function isHiddenInput(element) {
+    return isInputElement(element) && element.type == 'hidden';
+}
+/**
+ * Gets whether an element is an anchor that has an href attribute.
+ * @param {?} element
+ * @return {?}
+ */
+function isAnchorWithHref(element) {
+    return isAnchorElement(element) && element.hasAttribute('href');
+}
+/**
+ * Gets whether an element is an input element.
+ * @param {?} element
+ * @return {?}
+ */
+function isInputElement(element) {
+    return element.nodeName.toLowerCase() == 'input';
+}
+/**
+ * Gets whether an element is an anchor element.
+ * @param {?} element
+ * @return {?}
+ */
+function isAnchorElement(element) {
+    return element.nodeName.toLowerCase() == 'a';
+}
+/**
+ * Gets whether an element has a valid tabindex.
+ * @param {?} element
+ * @return {?}
+ */
+function hasValidTabIndex(element) {
+    if (!element.hasAttribute('tabindex') || element.tabIndex === undefined) {
+        return false;
+    }
+    var /** @type {?} */ tabIndex = element.getAttribute('tabindex');
+    // IE11 parses tabindex="" as the value "-32768"
+    if (tabIndex == '-32768') {
+        return false;
+    }
+    return !!(tabIndex && !isNaN(parseInt(tabIndex, 10)));
+}
+/**
+ * Returns the parsed tabindex from the element attributes instead of returning the
+ * evaluated tabindex from the browsers defaults.
+ * @param {?} element
+ * @return {?}
+ */
+function getTabIndexValue(element) {
+    if (!hasValidTabIndex(element)) {
+        return null;
+    }
+    // See browser issue in Gecko https://bugzilla.mozilla.org/show_bug.cgi?id=1128054
+    var /** @type {?} */ tabIndex = parseInt(element.getAttribute('tabindex') || '', 10);
+    return isNaN(tabIndex) ? -1 : tabIndex;
+}
+/**
+ * Checks whether the specified element is potentially tabbable on iOS
+ * @param {?} element
+ * @return {?}
+ */
+function isPotentiallyTabbableIOS(element) {
+    var /** @type {?} */ nodeName = element.nodeName.toLowerCase();
+    var /** @type {?} */ inputType = nodeName === 'input' && (/** @type {?} */ (element)).type;
+    return inputType === 'text'
+        || inputType === 'password'
+        || nodeName === 'select'
+        || nodeName === 'textarea';
+}
+/**
+ * Gets whether an element is potentially focusable without taking current visible/disabled state
+ * into account.
+ * @param {?} element
+ * @return {?}
+ */
+function isPotentiallyFocusable(element) {
+    // Inputs are potentially focusable *unless* they're type="hidden".
+    if (isHiddenInput(element)) {
+        return false;
+    }
+    return isNativeFormElement(element) ||
+        isAnchorWithHref(element) ||
+        element.hasAttribute('contenteditable') ||
+        hasValidTabIndex(element);
+}
+/**
+ * Gets the parent window of a DOM node with regards of being inside of an iframe.
+ * @param {?} node
+ * @return {?}
+ */
+function getWindow(node) {
+    return node.ownerDocument.defaultView || window;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Class that allows for trapping focus within a DOM element.
+ *
+ * This class currently uses a relatively simple approach to focus trapping.
+ * It assumes that the tab order is the same as DOM order, which is not necessarily true.
+ * Things like tabIndex > 0, flex `order`, and shadow roots can cause to two to misalign.
+ */
+var FocusTrap = /** @class */ (function () {
+    function FocusTrap(_element, _checker, _ngZone, _document, deferAnchors) {
+        if (deferAnchors === void 0) { deferAnchors = false; }
+        this._element = _element;
+        this._checker = _checker;
+        this._ngZone = _ngZone;
+        this._document = _document;
+        this._enabled = true;
+        if (!deferAnchors) {
+            this.attachAnchors();
+        }
+    }
+    Object.defineProperty(FocusTrap.prototype, "enabled", {
+        /** Whether the focus trap is active. */
+        get: /**
+         * Whether the focus trap is active.
+         * @return {?}
+         */
+        function () { return this._enabled; },
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) {
+            this._enabled = val;
+            if (this._startAnchor && this._endAnchor) {
+                this._startAnchor.tabIndex = this._endAnchor.tabIndex = this._enabled ? 0 : -1;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /** Destroys the focus trap by cleaning up the anchors. */
+    /**
+     * Destroys the focus trap by cleaning up the anchors.
+     * @return {?}
+     */
+    FocusTrap.prototype.destroy = /**
+     * Destroys the focus trap by cleaning up the anchors.
+     * @return {?}
+     */
+    function () {
+        if (this._startAnchor && this._startAnchor.parentNode) {
+            this._startAnchor.parentNode.removeChild(this._startAnchor);
+        }
+        if (this._endAnchor && this._endAnchor.parentNode) {
+            this._endAnchor.parentNode.removeChild(this._endAnchor);
+        }
+        this._startAnchor = this._endAnchor = null;
+    };
+    /**
+     * Inserts the anchors into the DOM. This is usually done automatically
+     * in the constructor, but can be deferred for cases like directives with `*ngIf`.
+     */
+    /**
+     * Inserts the anchors into the DOM. This is usually done automatically
+     * in the constructor, but can be deferred for cases like directives with `*ngIf`.
+     * @return {?}
+     */
+    FocusTrap.prototype.attachAnchors = /**
+     * Inserts the anchors into the DOM. This is usually done automatically
+     * in the constructor, but can be deferred for cases like directives with `*ngIf`.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!this._startAnchor) {
+            this._startAnchor = this._createAnchor();
+        }
+        if (!this._endAnchor) {
+            this._endAnchor = this._createAnchor();
+        }
+        this._ngZone.runOutsideAngular(function () {
+            /** @type {?} */ ((_this._startAnchor)).addEventListener('focus', function () {
+                _this.focusLastTabbableElement();
+            }); /** @type {?} */
+            ((_this._endAnchor)).addEventListener('focus', function () {
+                _this.focusFirstTabbableElement();
+            });
+            if (_this._element.parentNode) {
+                _this._element.parentNode.insertBefore(/** @type {?} */ ((_this._startAnchor)), _this._element);
+                _this._element.parentNode.insertBefore(/** @type {?} */ ((_this._endAnchor)), _this._element.nextSibling);
+            }
+        });
+    };
+    /**
+     * Waits for the zone to stabilize, then either focuses the first element that the
+     * user specified, or the first tabbable element.
+     * @returns Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    /**
+     * Waits for the zone to stabilize, then either focuses the first element that the
+     * user specified, or the first tabbable element.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusInitialElementWhenReady = /**
+     * Waits for the zone to stabilize, then either focuses the first element that the
+     * user specified, or the first tabbable element.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            _this._executeOnStable(function () { return resolve(_this.focusInitialElement()); });
+        });
+    };
+    /**
+     * Waits for the zone to stabilize, then focuses
+     * the first tabbable element within the focus trap region.
+     * @returns Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    /**
+     * Waits for the zone to stabilize, then focuses
+     * the first tabbable element within the focus trap region.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusFirstTabbableElementWhenReady = /**
+     * Waits for the zone to stabilize, then focuses
+     * the first tabbable element within the focus trap region.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            _this._executeOnStable(function () { return resolve(_this.focusFirstTabbableElement()); });
+        });
+    };
+    /**
+     * Waits for the zone to stabilize, then focuses
+     * the last tabbable element within the focus trap region.
+     * @returns Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    /**
+     * Waits for the zone to stabilize, then focuses
+     * the last tabbable element within the focus trap region.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusLastTabbableElementWhenReady = /**
+     * Waits for the zone to stabilize, then focuses
+     * the last tabbable element within the focus trap region.
+     * @return {?} Returns a promise that resolves with a boolean, depending
+     * on whether focus was moved successfuly.
+     */
+    function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            _this._executeOnStable(function () { return resolve(_this.focusLastTabbableElement()); });
+        });
+    };
+    /**
+     * Get the specified boundary element of the trapped region.
+     * @param {?} bound The boundary to get (start or end of trapped region).
+     * @return {?} The boundary element.
+     */
+    FocusTrap.prototype._getRegionBoundary = /**
+     * Get the specified boundary element of the trapped region.
+     * @param {?} bound The boundary to get (start or end of trapped region).
+     * @return {?} The boundary element.
+     */
+    function (bound) {
+        // Contains the deprecated version of selector, for temporary backwards comparability.
+        var /** @type {?} */ markers = /** @type {?} */ (this._element.querySelectorAll("[cdk-focus-region-" + bound + "], " +
+            ("[cdkFocusRegion" + bound + "], ") +
+            ("[cdk-focus-" + bound + "]")));
+        for (var /** @type {?} */ i = 0; i < markers.length; i++) {
+            if (markers[i].hasAttribute("cdk-focus-" + bound)) {
+                console.warn("Found use of deprecated attribute 'cdk-focus-" + bound + "'," +
+                    (" use 'cdkFocusRegion" + bound + "' instead."), markers[i]);
+            }
+            else if (markers[i].hasAttribute("cdk-focus-region-" + bound)) {
+                console.warn("Found use of deprecated attribute 'cdk-focus-region-" + bound + "'," +
+                    (" use 'cdkFocusRegion" + bound + "' instead."), markers[i]);
+            }
+        }
+        if (bound == 'start') {
+            return markers.length ? markers[0] : this._getFirstTabbableElement(this._element);
+        }
+        return markers.length ?
+            markers[markers.length - 1] : this._getLastTabbableElement(this._element);
+    };
+    /**
+     * Focuses the element that should be focused when the focus trap is initialized.
+     * @returns Whether focus was moved successfuly.
+     */
+    /**
+     * Focuses the element that should be focused when the focus trap is initialized.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusInitialElement = /**
+     * Focuses the element that should be focused when the focus trap is initialized.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    function () {
+        // Contains the deprecated version of selector, for temporary backwards comparability.
+        var /** @type {?} */ redirectToElement = /** @type {?} */ (this._element.querySelector("[cdk-focus-initial], " +
+            "[cdkFocusInitial]"));
+        if (this._element.hasAttribute("cdk-focus-initial")) {
+            console.warn("Found use of deprecated attribute 'cdk-focus-initial'," +
+                " use 'cdkFocusInitial' instead.", this._element);
+        }
+        if (redirectToElement) {
+            redirectToElement.focus();
+            return true;
+        }
+        return this.focusFirstTabbableElement();
+    };
+    /**
+     * Focuses the first tabbable element within the focus trap region.
+     * @returns Whether focus was moved successfuly.
+     */
+    /**
+     * Focuses the first tabbable element within the focus trap region.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusFirstTabbableElement = /**
+     * Focuses the first tabbable element within the focus trap region.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    function () {
+        var /** @type {?} */ redirectToElement = this._getRegionBoundary('start');
+        if (redirectToElement) {
+            redirectToElement.focus();
+        }
+        return !!redirectToElement;
+    };
+    /**
+     * Focuses the last tabbable element within the focus trap region.
+     * @returns Whether focus was moved successfuly.
+     */
+    /**
+     * Focuses the last tabbable element within the focus trap region.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    FocusTrap.prototype.focusLastTabbableElement = /**
+     * Focuses the last tabbable element within the focus trap region.
+     * @return {?} Whether focus was moved successfuly.
+     */
+    function () {
+        var /** @type {?} */ redirectToElement = this._getRegionBoundary('end');
+        if (redirectToElement) {
+            redirectToElement.focus();
+        }
+        return !!redirectToElement;
+    };
+    /**
+     * Get the first tabbable element from a DOM subtree (inclusive).
+     * @param {?} root
+     * @return {?}
+     */
+    FocusTrap.prototype._getFirstTabbableElement = /**
+     * Get the first tabbable element from a DOM subtree (inclusive).
+     * @param {?} root
+     * @return {?}
+     */
+    function (root) {
+        if (this._checker.isFocusable(root) && this._checker.isTabbable(root)) {
+            return root;
+        }
+        // Iterate in DOM order. Note that IE doesn't have `children` for SVG so we fall
+        // back to `childNodes` which includes text nodes, comments etc.
+        var /** @type {?} */ children = root.children || root.childNodes;
+        for (var /** @type {?} */ i = 0; i < children.length; i++) {
+            var /** @type {?} */ tabbableChild = children[i].nodeType === Node.ELEMENT_NODE ?
+                this._getFirstTabbableElement(/** @type {?} */ (children[i])) :
+                null;
+            if (tabbableChild) {
+                return tabbableChild;
+            }
+        }
+        return null;
+    };
+    /**
+     * Get the last tabbable element from a DOM subtree (inclusive).
+     * @param {?} root
+     * @return {?}
+     */
+    FocusTrap.prototype._getLastTabbableElement = /**
+     * Get the last tabbable element from a DOM subtree (inclusive).
+     * @param {?} root
+     * @return {?}
+     */
+    function (root) {
+        if (this._checker.isFocusable(root) && this._checker.isTabbable(root)) {
+            return root;
+        }
+        // Iterate in reverse DOM order.
+        var /** @type {?} */ children = root.children || root.childNodes;
+        for (var /** @type {?} */ i = children.length - 1; i >= 0; i--) {
+            var /** @type {?} */ tabbableChild = children[i].nodeType === Node.ELEMENT_NODE ?
+                this._getLastTabbableElement(/** @type {?} */ (children[i])) :
+                null;
+            if (tabbableChild) {
+                return tabbableChild;
+            }
+        }
+        return null;
+    };
+    /**
+     * Creates an anchor element.
+     * @return {?}
+     */
+    FocusTrap.prototype._createAnchor = /**
+     * Creates an anchor element.
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ anchor = this._document.createElement('div');
+        anchor.tabIndex = this._enabled ? 0 : -1;
+        anchor.classList.add('cdk-visually-hidden');
+        anchor.classList.add('cdk-focus-trap-anchor');
+        return anchor;
+    };
+    /**
+     * Executes a function when the zone is stable.
+     * @param {?} fn
+     * @return {?}
+     */
+    FocusTrap.prototype._executeOnStable = /**
+     * Executes a function when the zone is stable.
+     * @param {?} fn
+     * @return {?}
+     */
+    function (fn) {
+        if (this._ngZone.isStable) {
+            fn();
+        }
+        else {
+            this._ngZone.onStable.asObservable().pipe(Object(__WEBPACK_IMPORTED_MODULE_2_rxjs_operators_take__["a" /* take */])(1)).subscribe(fn);
+        }
+    };
+    return FocusTrap;
+}());
+/**
+ * Factory that allows easy instantiation of focus traps.
+ */
+var FocusTrapFactory = /** @class */ (function () {
+    function FocusTrapFactory(_checker, _ngZone, _document) {
+        this._checker = _checker;
+        this._ngZone = _ngZone;
+        this._document = _document;
+    }
+    /**
+     * Creates a focus-trapped region around the given element.
+     * @param element The element around which focus will be trapped.
+     * @param deferCaptureElements Defers the creation of focus-capturing elements to be done
+     *     manually by the user.
+     * @returns The created focus trap instance.
+     */
+    /**
+     * Creates a focus-trapped region around the given element.
+     * @param {?} element The element around which focus will be trapped.
+     * @param {?=} deferCaptureElements Defers the creation of focus-capturing elements to be done
+     *     manually by the user.
+     * @return {?} The created focus trap instance.
+     */
+    FocusTrapFactory.prototype.create = /**
+     * Creates a focus-trapped region around the given element.
+     * @param {?} element The element around which focus will be trapped.
+     * @param {?=} deferCaptureElements Defers the creation of focus-capturing elements to be done
+     *     manually by the user.
+     * @return {?} The created focus trap instance.
+     */
+    function (element, deferCaptureElements) {
+        if (deferCaptureElements === void 0) { deferCaptureElements = false; }
+        return new FocusTrap(element, this._checker, this._ngZone, this._document, deferCaptureElements);
+    };
+    FocusTrapFactory.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    FocusTrapFactory.ctorParameters = function () { return [
+        { type: InteractivityChecker, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return FocusTrapFactory;
+}());
+/**
+ * Directive for trapping focus within a region.
+ * \@docs-private
+ * @deprecated
+ */
+var FocusTrapDeprecatedDirective = /** @class */ (function () {
+    function FocusTrapDeprecatedDirective(_elementRef, _focusTrapFactory) {
+        this._elementRef = _elementRef;
+        this._focusTrapFactory = _focusTrapFactory;
+        this.focusTrap = this._focusTrapFactory.create(this._elementRef.nativeElement, true);
+    }
+    Object.defineProperty(FocusTrapDeprecatedDirective.prototype, "disabled", {
+        get: /**
+         * Whether the focus trap is active.
+         * @return {?}
+         */
+        function () { return !this.focusTrap.enabled; },
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) {
+            this.focusTrap.enabled = !Object(__WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(val);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    FocusTrapDeprecatedDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this.focusTrap.destroy();
+    };
+    /**
+     * @return {?}
+     */
+    FocusTrapDeprecatedDirective.prototype.ngAfterContentInit = /**
+     * @return {?}
+     */
+    function () {
+        this.focusTrap.attachAnchors();
+    };
+    FocusTrapDeprecatedDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'cdk-focus-trap',
+                },] },
+    ];
+    /** @nocollapse */
+    FocusTrapDeprecatedDirective.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: FocusTrapFactory, },
+    ]; };
+    FocusTrapDeprecatedDirective.propDecorators = {
+        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+    };
+    return FocusTrapDeprecatedDirective;
+}());
+/**
+ * Directive for trapping focus within a region.
+ */
+var CdkTrapFocus = /** @class */ (function () {
+    function CdkTrapFocus(_elementRef, _focusTrapFactory, _document) {
+        this._elementRef = _elementRef;
+        this._focusTrapFactory = _focusTrapFactory;
+        /**
+         * Previously focused element to restore focus to upon destroy when using autoCapture.
+         */
+        this._previouslyFocusedElement = null;
+        this._document = _document;
+        this.focusTrap = this._focusTrapFactory.create(this._elementRef.nativeElement, true);
+    }
+    Object.defineProperty(CdkTrapFocus.prototype, "enabled", {
+        get: /**
+         * Whether the focus trap is active.
+         * @return {?}
+         */
+        function () { return this.focusTrap.enabled; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) { this.focusTrap.enabled = Object(__WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkTrapFocus.prototype, "autoCapture", {
+        get: /**
+         * Whether the directive should automatially move focus into the trapped region upon
+         * initialization and return focus to the previous activeElement upon destruction.
+         * @return {?}
+         */
+        function () { return this._autoCapture; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) { this._autoCapture = Object(__WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value); },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    CdkTrapFocus.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this.focusTrap.destroy();
+        // If we stored a previously focused element when using autoCapture, return focus to that
+        // element now that the trapped region is being destroyed.
+        if (this._previouslyFocusedElement) {
+            this._previouslyFocusedElement.focus();
+            this._previouslyFocusedElement = null;
+        }
+    };
+    /**
+     * @return {?}
+     */
+    CdkTrapFocus.prototype.ngAfterContentInit = /**
+     * @return {?}
+     */
+    function () {
+        this.focusTrap.attachAnchors();
+        if (this.autoCapture) {
+            this._previouslyFocusedElement = /** @type {?} */ (this._document.activeElement);
+            this.focusTrap.focusInitialElementWhenReady();
+        }
+    };
+    CdkTrapFocus.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[cdkTrapFocus]',
+                    exportAs: 'cdkTrapFocus',
+                },] },
+    ];
+    /** @nocollapse */
+    CdkTrapFocus.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: FocusTrapFactory, },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    CdkTrapFocus.propDecorators = {
+        "enabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['cdkTrapFocus',] },],
+        "autoCapture": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['cdkTrapFocusAutoCapture',] },],
+    };
+    return CdkTrapFocus;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * This interface is for items that can be passed to a ListKeyManager.
+ * @record
+ */
+
+/**
+ * This class manages keyboard events for selectable lists. If you pass it a query list
+ * of items, it will set the active item correctly when arrow events occur.
+ */
+var ListKeyManager = /** @class */ (function () {
+    function ListKeyManager(_items) {
+        this._items = _items;
+        this._activeItemIndex = -1;
+        this._wrap = false;
+        this._letterKeyStream = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        this._typeaheadSubscription = __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._pressedLetters = [];
+        /**
+         * Stream that emits any time the TAB key is pressed, so components can react
+         * when focus is shifted off of the list.
+         */
+        this.tabOut = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        /**
+         * Stream that emits whenever the active item of the list manager changes.
+         */
+        this.change = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+    }
+    /**
+     * Turns on wrapping mode, which ensures that the active item will wrap to
+     * the other end of list when there are no more items in the given direction.
+     */
+    /**
+     * Turns on wrapping mode, which ensures that the active item will wrap to
+     * the other end of list when there are no more items in the given direction.
+     * @return {?}
+     */
+    ListKeyManager.prototype.withWrap = /**
+     * Turns on wrapping mode, which ensures that the active item will wrap to
+     * the other end of list when there are no more items in the given direction.
+     * @return {?}
+     */
+    function () {
+        this._wrap = true;
+        return this;
+    };
+    /**
+     * Turns on typeahead mode which allows users to set the active item by typing.
+     * @param debounceInterval Time to wait after the last keystroke before setting the active item.
+     */
+    /**
+     * Turns on typeahead mode which allows users to set the active item by typing.
+     * @param {?=} debounceInterval Time to wait after the last keystroke before setting the active item.
+     * @return {?}
+     */
+    ListKeyManager.prototype.withTypeAhead = /**
+     * Turns on typeahead mode which allows users to set the active item by typing.
+     * @param {?=} debounceInterval Time to wait after the last keystroke before setting the active item.
+     * @return {?}
+     */
+    function (debounceInterval) {
+        var _this = this;
+        if (debounceInterval === void 0) { debounceInterval = 200; }
+        if (this._items.length && this._items.some(function (item) { return typeof item.getLabel !== 'function'; })) {
+            throw Error('ListKeyManager items in typeahead mode must implement the `getLabel` method.');
+        }
+        this._typeaheadSubscription.unsubscribe();
+        // Debounce the presses of non-navigational keys, collect the ones that correspond to letters
+        // and convert those letters back into a string. Afterwards find the first item that starts
+        // with that string and select it.
+        this._typeaheadSubscription = this._letterKeyStream.pipe(Object(__WEBPACK_IMPORTED_MODULE_12_rxjs_operators_tap__["a" /* tap */])(function (keyCode) { return _this._pressedLetters.push(keyCode); }), Object(__WEBPACK_IMPORTED_MODULE_9_rxjs_operators_debounceTime__["a" /* debounceTime */])(debounceInterval), Object(__WEBPACK_IMPORTED_MODULE_10_rxjs_operators_filter__["a" /* filter */])(function () { return _this._pressedLetters.length > 0; }), Object(__WEBPACK_IMPORTED_MODULE_11_rxjs_operators_map__["a" /* map */])(function () { return _this._pressedLetters.join(''); })).subscribe(function (inputString) {
+            var /** @type {?} */ items = _this._items.toArray();
+            // Start at 1 because we want to start searching at the item immediately
+            // following the current active item.
+            for (var /** @type {?} */ i = 1; i < items.length + 1; i++) {
+                var /** @type {?} */ index = (_this._activeItemIndex + i) % items.length;
+                var /** @type {?} */ item = items[index];
+                if (!item.disabled && /** @type {?} */ ((item.getLabel))().toUpperCase().trim().indexOf(inputString) === 0) {
+                    _this.setActiveItem(index);
+                    break;
+                }
+            }
+            _this._pressedLetters = [];
+        });
+        return this;
+    };
+    /**
+     * Sets the active item to the item at the index specified.
+     * @param index The index of the item to be set as active.
+     */
+    /**
+     * Sets the active item to the item at the index specified.
+     * @param {?} index The index of the item to be set as active.
+     * @return {?}
+     */
+    ListKeyManager.prototype.setActiveItem = /**
+     * Sets the active item to the item at the index specified.
+     * @param {?} index The index of the item to be set as active.
+     * @return {?}
+     */
+    function (index) {
+        var /** @type {?} */ previousIndex = this._activeItemIndex;
+        this._activeItemIndex = index;
+        this._activeItem = this._items.toArray()[index];
+        if (this._activeItemIndex !== previousIndex) {
+            this.change.next(index);
+        }
+    };
+    /**
+     * Sets the active item depending on the key event passed in.
+     * @param event Keyboard event to be used for determining which element should be active.
+     */
+    /**
+     * Sets the active item depending on the key event passed in.
+     * @param {?} event Keyboard event to be used for determining which element should be active.
+     * @return {?}
+     */
+    ListKeyManager.prototype.onKeydown = /**
+     * Sets the active item depending on the key event passed in.
+     * @param {?} event Keyboard event to be used for determining which element should be active.
+     * @return {?}
+     */
+    function (event) {
+        switch (event.keyCode) {
+            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["b" /* DOWN_ARROW */]:
+                this.setNextItemActive();
+                break;
+            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["g" /* UP_ARROW */]:
+                this.setPreviousItemActive();
+                break;
+            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["f" /* TAB */]:
+                this.tabOut.next();
+                return;
+            default:
+                var /** @type {?} */ keyCode = event.keyCode;
+                // Attempt to use the `event.key` which also maps it to the user's keyboard language,
+                // otherwise fall back to resolving alphanumeric characters via the keyCode.
+                if (event.key && event.key.length === 1) {
+                    this._letterKeyStream.next(event.key.toLocaleUpperCase());
+                }
+                else if ((keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["a" /* A */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["h" /* Z */]) || (keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["i" /* ZERO */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["d" /* NINE */])) {
+                    this._letterKeyStream.next(String.fromCharCode(keyCode));
+                }
+                // Note that we return here, in order to avoid preventing
+                // the default action of non-navigational keys.
+                return;
+        }
+        this._pressedLetters = [];
+        event.preventDefault();
+    };
+    Object.defineProperty(ListKeyManager.prototype, "activeItemIndex", {
+        /** Index of the currently active item. */
+        get: /**
+         * Index of the currently active item.
+         * @return {?}
+         */
+        function () {
+            return this._activeItemIndex;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ListKeyManager.prototype, "activeItem", {
+        /** The active item. */
+        get: /**
+         * The active item.
+         * @return {?}
+         */
+        function () {
+            return this._activeItem;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /** Sets the active item to the first enabled item in the list. */
+    /**
+     * Sets the active item to the first enabled item in the list.
+     * @return {?}
+     */
+    ListKeyManager.prototype.setFirstItemActive = /**
+     * Sets the active item to the first enabled item in the list.
+     * @return {?}
+     */
+    function () {
+        this._setActiveItemByIndex(0, 1);
+    };
+    /** Sets the active item to the last enabled item in the list. */
+    /**
+     * Sets the active item to the last enabled item in the list.
+     * @return {?}
+     */
+    ListKeyManager.prototype.setLastItemActive = /**
+     * Sets the active item to the last enabled item in the list.
+     * @return {?}
+     */
+    function () {
+        this._setActiveItemByIndex(this._items.length - 1, -1);
+    };
+    /** Sets the active item to the next enabled item in the list. */
+    /**
+     * Sets the active item to the next enabled item in the list.
+     * @return {?}
+     */
+    ListKeyManager.prototype.setNextItemActive = /**
+     * Sets the active item to the next enabled item in the list.
+     * @return {?}
+     */
+    function () {
+        this._activeItemIndex < 0 ? this.setFirstItemActive() : this._setActiveItemByDelta(1);
+    };
+    /** Sets the active item to a previous enabled item in the list. */
+    /**
+     * Sets the active item to a previous enabled item in the list.
+     * @return {?}
+     */
+    ListKeyManager.prototype.setPreviousItemActive = /**
+     * Sets the active item to a previous enabled item in the list.
+     * @return {?}
+     */
+    function () {
+        this._activeItemIndex < 0 && this._wrap ? this.setLastItemActive()
+            : this._setActiveItemByDelta(-1);
+    };
+    /**
+     * Allows setting of the activeItemIndex without any other effects.
+     * @param index The new activeItemIndex.
+     */
+    /**
+     * Allows setting of the activeItemIndex without any other effects.
+     * @param {?} index The new activeItemIndex.
+     * @return {?}
+     */
+    ListKeyManager.prototype.updateActiveItemIndex = /**
+     * Allows setting of the activeItemIndex without any other effects.
+     * @param {?} index The new activeItemIndex.
+     * @return {?}
+     */
+    function (index) {
+        this._activeItemIndex = index;
+    };
+    /**
+     * This method sets the active item, given a list of items and the delta between the
+     * currently active item and the new active item. It will calculate differently
+     * depending on whether wrap mode is turned on.
+     * @param {?} delta
+     * @param {?=} items
+     * @return {?}
+     */
+    ListKeyManager.prototype._setActiveItemByDelta = /**
+     * This method sets the active item, given a list of items and the delta between the
+     * currently active item and the new active item. It will calculate differently
+     * depending on whether wrap mode is turned on.
+     * @param {?} delta
+     * @param {?=} items
+     * @return {?}
+     */
+    function (delta, items) {
+        if (items === void 0) { items = this._items.toArray(); }
+        this._wrap ? this._setActiveInWrapMode(delta, items)
+            : this._setActiveInDefaultMode(delta, items);
+    };
+    /**
+     * Sets the active item properly given "wrap" mode. In other words, it will continue to move
+     * down the list until it finds an item that is not disabled, and it will wrap if it
+     * encounters either end of the list.
+     * @param {?} delta
+     * @param {?} items
+     * @return {?}
+     */
+    ListKeyManager.prototype._setActiveInWrapMode = /**
+     * Sets the active item properly given "wrap" mode. In other words, it will continue to move
+     * down the list until it finds an item that is not disabled, and it will wrap if it
+     * encounters either end of the list.
+     * @param {?} delta
+     * @param {?} items
+     * @return {?}
+     */
+    function (delta, items) {
+        // when active item would leave menu, wrap to beginning or end
+        this._activeItemIndex =
+            (this._activeItemIndex + delta + items.length) % items.length;
+        // skip all disabled menu items recursively until an enabled one is reached
+        if (items[this._activeItemIndex].disabled) {
+            this._setActiveInWrapMode(delta, items);
+        }
+        else {
+            this.setActiveItem(this._activeItemIndex);
+        }
+    };
+    /**
+     * Sets the active item properly given the default mode. In other words, it will
+     * continue to move down the list until it finds an item that is not disabled. If
+     * it encounters either end of the list, it will stop and not wrap.
+     * @param {?} delta
+     * @param {?} items
+     * @return {?}
+     */
+    ListKeyManager.prototype._setActiveInDefaultMode = /**
+     * Sets the active item properly given the default mode. In other words, it will
+     * continue to move down the list until it finds an item that is not disabled. If
+     * it encounters either end of the list, it will stop and not wrap.
+     * @param {?} delta
+     * @param {?} items
+     * @return {?}
+     */
+    function (delta, items) {
+        this._setActiveItemByIndex(this._activeItemIndex + delta, delta, items);
+    };
+    /**
+     * Sets the active item to the first enabled item starting at the index specified. If the
+     * item is disabled, it will move in the fallbackDelta direction until it either
+     * finds an enabled item or encounters the end of the list.
+     * @param {?} index
+     * @param {?} fallbackDelta
+     * @param {?=} items
+     * @return {?}
+     */
+    ListKeyManager.prototype._setActiveItemByIndex = /**
+     * Sets the active item to the first enabled item starting at the index specified. If the
+     * item is disabled, it will move in the fallbackDelta direction until it either
+     * finds an enabled item or encounters the end of the list.
+     * @param {?} index
+     * @param {?} fallbackDelta
+     * @param {?=} items
+     * @return {?}
+     */
+    function (index, fallbackDelta, items) {
+        if (items === void 0) { items = this._items.toArray(); }
+        if (!items[index]) {
+            return;
+        }
+        while (items[index].disabled) {
+            index += fallbackDelta;
+            if (!items[index]) {
+                return;
+            }
+        }
+        this.setActiveItem(index);
+    };
+    return ListKeyManager;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * This is the interface for highlightable items (used by the ActiveDescendantKeyManager).
+ * Each item must know how to style itself as active or inactive and whether or not it is
+ * currently disabled.
+ * @record
+ */
+
+var ActiveDescendantKeyManager = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_5_tslib__["b" /* __extends */])(ActiveDescendantKeyManager, _super);
+    function ActiveDescendantKeyManager() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds active styles to the newly active item and removes active
+     * styles from the previously active item.
+     */
+    /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds active styles to the newly active item and removes active
+     * styles from the previously active item.
+     * @param {?} index
+     * @return {?}
+     */
+    ActiveDescendantKeyManager.prototype.setActiveItem = /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds active styles to the newly active item and removes active
+     * styles from the previously active item.
+     * @param {?} index
+     * @return {?}
+     */
+    function (index) {
+        if (this.activeItem) {
+            this.activeItem.setInactiveStyles();
+        }
+        _super.prototype.setActiveItem.call(this, index);
+        if (this.activeItem) {
+            this.activeItem.setActiveStyles();
+        }
+    };
+    return ActiveDescendantKeyManager;
+}(ListKeyManager));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * IDs are deliminated by an empty space, as per the spec.
+ */
+var ID_DELIMINATOR = ' ';
+/**
+ * Adds the given ID to the specified ARIA attribute on an element.
+ * Used for attributes such as aria-labelledby, aria-owns, etc.
+ * @param {?} el
+ * @param {?} attr
+ * @param {?} id
+ * @return {?}
+ */
+function addAriaReferencedId(el, attr, id) {
+    var /** @type {?} */ ids = getAriaReferenceIds(el, attr);
+    if (ids.some(function (existingId) { return existingId.trim() == id.trim(); })) {
+        return;
+    }
+    ids.push(id.trim());
+    el.setAttribute(attr, ids.join(ID_DELIMINATOR));
+}
+/**
+ * Removes the given ID from the specified ARIA attribute on an element.
+ * Used for attributes such as aria-labelledby, aria-owns, etc.
+ * @param {?} el
+ * @param {?} attr
+ * @param {?} id
+ * @return {?}
+ */
+function removeAriaReferencedId(el, attr, id) {
+    var /** @type {?} */ ids = getAriaReferenceIds(el, attr);
+    var /** @type {?} */ filteredIds = ids.filter(function (val) { return val != id.trim(); });
+    el.setAttribute(attr, filteredIds.join(ID_DELIMINATOR));
+}
+/**
+ * Gets the list of IDs referenced by the given ARIA attribute on an element.
+ * Used for attributes such as aria-labelledby, aria-owns, etc.
+ * @param {?} el
+ * @param {?} attr
+ * @return {?}
+ */
+function getAriaReferenceIds(el, attr) {
+    // Get string array of all individual ids (whitespace deliminated) in the attribute value
+    return (el.getAttribute(attr) || '').match(/\S+/g) || [];
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Interface used to register message elements and keep a count of how many registrations have
+ * the same message and the reference to the message element used for the `aria-describedby`.
+ * @record
+ */
+
+/**
+ * ID used for the body container where all messages are appended.
+ */
+var MESSAGES_CONTAINER_ID = 'cdk-describedby-message-container';
+/**
+ * ID prefix used for each created message element.
+ */
+var CDK_DESCRIBEDBY_ID_PREFIX = 'cdk-describedby-message';
+/**
+ * Attribute given to each host element that is described by a message element.
+ */
+var CDK_DESCRIBEDBY_HOST_ATTRIBUTE = 'cdk-describedby-host';
+/**
+ * Global incremental identifier for each registered message element.
+ */
+var nextId = 0;
+/**
+ * Global map of all registered message elements that have been placed into the document.
+ */
+var messageRegistry = new Map();
+/**
+ * Container for all registered messages.
+ */
+var messagesContainer = null;
+/**
+ * Utility that creates visually hidden elements with a message content. Useful for elements that
+ * want to use aria-describedby to further describe themselves without adding additional visual
+ * content.
+ * \@docs-private
+ */
+var AriaDescriber = /** @class */ (function () {
+    function AriaDescriber(_document) {
+        this._document = _document;
+    }
+    /**
+     * Adds to the host element an aria-describedby reference to a hidden element that contains
+     * the message. If the same message has already been registered, then it will reuse the created
+     * message element.
+     */
+    /**
+     * Adds to the host element an aria-describedby reference to a hidden element that contains
+     * the message. If the same message has already been registered, then it will reuse the created
+     * message element.
+     * @param {?} hostElement
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype.describe = /**
+     * Adds to the host element an aria-describedby reference to a hidden element that contains
+     * the message. If the same message has already been registered, then it will reuse the created
+     * message element.
+     * @param {?} hostElement
+     * @param {?} message
+     * @return {?}
+     */
+    function (hostElement, message) {
+        if (!message.trim()) {
+            return;
+        }
+        if (!messageRegistry.has(message)) {
+            this._createMessageElement(message);
+        }
+        if (!this._isElementDescribedByMessage(hostElement, message)) {
+            this._addMessageReference(hostElement, message);
+        }
+    };
+    /** Removes the host element's aria-describedby reference to the message element. */
+    /**
+     * Removes the host element's aria-describedby reference to the message element.
+     * @param {?} hostElement
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype.removeDescription = /**
+     * Removes the host element's aria-describedby reference to the message element.
+     * @param {?} hostElement
+     * @param {?} message
+     * @return {?}
+     */
+    function (hostElement, message) {
+        if (!message.trim()) {
+            return;
+        }
+        if (this._isElementDescribedByMessage(hostElement, message)) {
+            this._removeMessageReference(hostElement, message);
+        }
+        var /** @type {?} */ registeredMessage = messageRegistry.get(message);
+        if (registeredMessage && registeredMessage.referenceCount === 0) {
+            this._deleteMessageElement(message);
+        }
+        if (messagesContainer && messagesContainer.childNodes.length === 0) {
+            this._deleteMessagesContainer();
+        }
+    };
+    /** Unregisters all created message elements and removes the message container. */
+    /**
+     * Unregisters all created message elements and removes the message container.
+     * @return {?}
+     */
+    AriaDescriber.prototype.ngOnDestroy = /**
+     * Unregisters all created message elements and removes the message container.
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ describedElements = this._document.querySelectorAll("[" + CDK_DESCRIBEDBY_HOST_ATTRIBUTE + "]");
+        for (var /** @type {?} */ i = 0; i < describedElements.length; i++) {
+            this._removeCdkDescribedByReferenceIds(describedElements[i]);
+            describedElements[i].removeAttribute(CDK_DESCRIBEDBY_HOST_ATTRIBUTE);
+        }
+        if (messagesContainer) {
+            this._deleteMessagesContainer();
+        }
+        messageRegistry.clear();
+    };
+    /**
+     * Creates a new element in the visually hidden message container element with the message
+     * as its content and adds it to the message registry.
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype._createMessageElement = /**
+     * Creates a new element in the visually hidden message container element with the message
+     * as its content and adds it to the message registry.
+     * @param {?} message
+     * @return {?}
+     */
+    function (message) {
+        var /** @type {?} */ messageElement = this._document.createElement('div');
+        messageElement.setAttribute('id', CDK_DESCRIBEDBY_ID_PREFIX + "-" + nextId++);
+        messageElement.appendChild(/** @type {?} */ ((this._document.createTextNode(message))));
+        if (!messagesContainer) {
+            this._createMessagesContainer();
+        } /** @type {?} */
+        ((messagesContainer)).appendChild(messageElement);
+        messageRegistry.set(message, { messageElement: messageElement, referenceCount: 0 });
+    };
+    /**
+     * Deletes the message element from the global messages container.
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype._deleteMessageElement = /**
+     * Deletes the message element from the global messages container.
+     * @param {?} message
+     * @return {?}
+     */
+    function (message) {
+        var /** @type {?} */ registeredMessage = messageRegistry.get(message);
+        var /** @type {?} */ messageElement = registeredMessage && registeredMessage.messageElement;
+        if (messagesContainer && messageElement) {
+            messagesContainer.removeChild(messageElement);
+        }
+        messageRegistry.delete(message);
+    };
+    /**
+     * Creates the global container for all aria-describedby messages.
+     * @return {?}
+     */
+    AriaDescriber.prototype._createMessagesContainer = /**
+     * Creates the global container for all aria-describedby messages.
+     * @return {?}
+     */
+    function () {
+        messagesContainer = this._document.createElement('div');
+        messagesContainer.setAttribute('id', MESSAGES_CONTAINER_ID);
+        messagesContainer.setAttribute('aria-hidden', 'true');
+        messagesContainer.style.display = 'none';
+        this._document.body.appendChild(messagesContainer);
+    };
+    /**
+     * Deletes the global messages container.
+     * @return {?}
+     */
+    AriaDescriber.prototype._deleteMessagesContainer = /**
+     * Deletes the global messages container.
+     * @return {?}
+     */
+    function () {
+        if (messagesContainer && messagesContainer.parentNode) {
+            messagesContainer.parentNode.removeChild(messagesContainer);
+            messagesContainer = null;
+        }
+    };
+    /**
+     * Removes all cdk-describedby messages that are hosted through the element.
+     * @param {?} element
+     * @return {?}
+     */
+    AriaDescriber.prototype._removeCdkDescribedByReferenceIds = /**
+     * Removes all cdk-describedby messages that are hosted through the element.
+     * @param {?} element
+     * @return {?}
+     */
+    function (element) {
+        // Remove all aria-describedby reference IDs that are prefixed by CDK_DESCRIBEDBY_ID_PREFIX
+        var /** @type {?} */ originalReferenceIds = getAriaReferenceIds(element, 'aria-describedby')
+            .filter(function (id) { return id.indexOf(CDK_DESCRIBEDBY_ID_PREFIX) != 0; });
+        element.setAttribute('aria-describedby', originalReferenceIds.join(' '));
+    };
+    /**
+     * Adds a message reference to the element using aria-describedby and increments the registered
+     * message's reference count.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype._addMessageReference = /**
+     * Adds a message reference to the element using aria-describedby and increments the registered
+     * message's reference count.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    function (element, message) {
+        var /** @type {?} */ registeredMessage = /** @type {?} */ ((messageRegistry.get(message)));
+        // Add the aria-describedby reference and set the
+        // describedby_host attribute to mark the element.
+        addAriaReferencedId(element, 'aria-describedby', registeredMessage.messageElement.id);
+        element.setAttribute(CDK_DESCRIBEDBY_HOST_ATTRIBUTE, '');
+        registeredMessage.referenceCount++;
+    };
+    /**
+     * Removes a message reference from the element using aria-describedby
+     * and decrements the registered message's reference count.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype._removeMessageReference = /**
+     * Removes a message reference from the element using aria-describedby
+     * and decrements the registered message's reference count.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    function (element, message) {
+        var /** @type {?} */ registeredMessage = /** @type {?} */ ((messageRegistry.get(message)));
+        registeredMessage.referenceCount--;
+        removeAriaReferencedId(element, 'aria-describedby', registeredMessage.messageElement.id);
+        element.removeAttribute(CDK_DESCRIBEDBY_HOST_ATTRIBUTE);
+    };
+    /**
+     * Returns true if the element has been described by the provided message ID.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    AriaDescriber.prototype._isElementDescribedByMessage = /**
+     * Returns true if the element has been described by the provided message ID.
+     * @param {?} element
+     * @param {?} message
+     * @return {?}
+     */
+    function (element, message) {
+        var /** @type {?} */ referenceIds = getAriaReferenceIds(element, 'aria-describedby');
+        var /** @type {?} */ registeredMessage = messageRegistry.get(message);
+        var /** @type {?} */ messageId = registeredMessage && registeredMessage.messageElement.id;
+        return !!messageId && referenceIds.indexOf(messageId) != -1;
+    };
+    AriaDescriber.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    AriaDescriber.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return AriaDescriber;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentDispatcher
+ * @param {?} _document
+ * @return {?}
+ */
+function ARIA_DESCRIBER_PROVIDER_FACTORY(parentDispatcher, _document) {
+    return parentDispatcher || new AriaDescriber(_document);
+}
+/**
+ * \@docs-private
+ */
+var ARIA_DESCRIBER_PROVIDER = {
+    // If there is already an AriaDescriber available, use that. Otherwise, provide a new one.
+    provide: AriaDescriber,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), AriaDescriber],
+        /** @type {?} */ (__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */])
+    ],
+    useFactory: ARIA_DESCRIBER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Screenreaders will often fire fake mousedown events when a focusable element
+ * is activated using the keyboard. We can typically distinguish between these faked
+ * mousedown events and real mousedown events using the "buttons" property. While
+ * real mousedowns will indicate the mouse button that was pressed (e.g. "1" for
+ * the left mouse button), faked mousedowns will usually set the property value to 0.
+ * @param {?} event
+ * @return {?}
+ */
+function isFakeMousedownFromScreenReader(event) {
+    return event.buttons === 0;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * This is the interface for focusable items (used by the FocusKeyManager).
+ * Each item must know how to focus itself, whether or not it is currently disabled
+ * and be able to supply it's label.
+ * @record
+ */
+
+var FocusKeyManager = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_5_tslib__["b" /* __extends */])(FocusKeyManager, _super);
+    function FocusKeyManager() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds focuses the newly active item.
+     */
+    /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds focuses the newly active item.
+     * @param {?} index
+     * @return {?}
+     */
+    FocusKeyManager.prototype.setActiveItem = /**
+     * This method sets the active item to the item at the specified index.
+     * It also adds focuses the newly active item.
+     * @param {?} index
+     * @return {?}
+     */
+    function (index) {
+        _super.prototype.setActiveItem.call(this, index);
+        if (this.activeItem) {
+            this.activeItem.focus();
+        }
+    };
+    return FocusKeyManager;
+}(ListKeyManager));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var LIVE_ANNOUNCER_ELEMENT_TOKEN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('liveAnnouncerElement');
+var LiveAnnouncer = /** @class */ (function () {
+    function LiveAnnouncer(elementToken, _document) {
+        this._document = _document;
+        // We inject the live element as `any` because the constructor signature cannot reference
+        // browser globals (HTMLElement) on non-browser environments, since having a class decorator
+        // causes TypeScript to preserve the constructor signature types.
+        this._liveElement = elementToken || this._createLiveElement();
+    }
+    /**
+     * Announces a message to screenreaders.
+     * @param message Message to be announced to the screenreader
+     * @param politeness The politeness of the announcer element
+     */
+    /**
+     * Announces a message to screenreaders.
+     * @param {?} message Message to be announced to the screenreader
+     * @param {?=} politeness The politeness of the announcer element
+     * @return {?}
+     */
+    LiveAnnouncer.prototype.announce = /**
+     * Announces a message to screenreaders.
+     * @param {?} message Message to be announced to the screenreader
+     * @param {?=} politeness The politeness of the announcer element
+     * @return {?}
+     */
+    function (message, politeness) {
+        var _this = this;
+        if (politeness === void 0) { politeness = 'polite'; }
+        this._liveElement.textContent = '';
+        // TODO: ensure changing the politeness works on all environments we support.
+        this._liveElement.setAttribute('aria-live', politeness);
+        // This 100ms timeout is necessary for some browser + screen-reader combinations:
+        // - Both JAWS and NVDA over IE11 will not announce anything without a non-zero timeout.
+        // - With Chrome and IE11 with NVDA or JAWS, a repeated (identical) message won't be read a
+        //   second time without clearing and then using a non-zero delay.
+        // (using JAWS 17 at time of this writing).
+        setTimeout(function () { return _this._liveElement.textContent = message; }, 100);
+    };
+    /**
+     * @return {?}
+     */
+    LiveAnnouncer.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        if (this._liveElement && this._liveElement.parentNode) {
+            this._liveElement.parentNode.removeChild(this._liveElement);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    LiveAnnouncer.prototype._createLiveElement = /**
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ liveEl = this._document.createElement('div');
+        liveEl.classList.add('cdk-visually-hidden');
+        liveEl.setAttribute('aria-atomic', 'true');
+        liveEl.setAttribute('aria-live', 'polite');
+        this._document.body.appendChild(liveEl);
+        return liveEl;
+    };
+    LiveAnnouncer.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    LiveAnnouncer.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [LIVE_ANNOUNCER_ELEMENT_TOKEN,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return LiveAnnouncer;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentDispatcher
+ * @param {?} liveElement
+ * @param {?} _document
+ * @return {?}
+ */
+function LIVE_ANNOUNCER_PROVIDER_FACTORY(parentDispatcher, liveElement, _document) {
+    return parentDispatcher || new LiveAnnouncer(liveElement, _document);
+}
+/**
+ * \@docs-private
+ */
+var LIVE_ANNOUNCER_PROVIDER = {
+    // If there is already a LiveAnnouncer available, use that. Otherwise, provide a new one.
+    provide: LiveAnnouncer,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), LiveAnnouncer],
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */](LIVE_ANNOUNCER_ELEMENT_TOKEN)],
+        __WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],
+    ],
+    useFactory: LIVE_ANNOUNCER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+// This is the value used by AngularJS Material. Through trial and error (on iPhone 6S) they found
+// that a value of around 650ms seems appropriate.
+var TOUCH_BUFFER_MS = 650;
+/**
+ * Monitors mouse and keyboard events to determine the cause of focus events.
+ */
+var FocusMonitor = /** @class */ (function () {
+    function FocusMonitor(_ngZone, _platform) {
+        this._ngZone = _ngZone;
+        this._platform = _platform;
+        /**
+         * The focus origin that the next focus event is a result of.
+         */
+        this._origin = null;
+        /**
+         * Whether the window has just been focused.
+         */
+        this._windowFocused = false;
+        /**
+         * Weak map of elements being monitored to their info.
+         */
+        this._elementInfo = new WeakMap();
+        /**
+         * A map of global objects to lists of current listeners.
+         */
+        this._unregisterGlobalListeners = function () { };
+        /**
+         * The number of elements currently being monitored.
+         */
+        this._monitoredElementCount = 0;
+    }
+    /**
+     * @param {?} element
+     * @param {?} renderer
+     * @param {?=} checkChildren
+     * @return {?}
+     */
+    FocusMonitor.prototype.monitor = /**
+     * @param {?} element
+     * @param {?} renderer
+     * @param {?=} checkChildren
+     * @return {?}
+     */
+    function (element, renderer, checkChildren) {
+        var _this = this;
+        // TODO(mmalerba): clean up after deprecated signature is removed.
+        if (!(renderer instanceof __WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Renderer2 */])) {
+            checkChildren = renderer;
+        }
+        checkChildren = !!checkChildren;
+        // Do nothing if we're not on the browser platform.
+        if (!this._platform.isBrowser) {
+            return Object(__WEBPACK_IMPORTED_MODULE_13_rxjs_observable_of__["a" /* of */])(null);
+        }
+        // Check if we're already monitoring this element.
+        if (this._elementInfo.has(element)) {
+            var /** @type {?} */ cachedInfo = this._elementInfo.get(element); /** @type {?} */
+            ((cachedInfo)).checkChildren = checkChildren;
+            return /** @type {?} */ ((cachedInfo)).subject.asObservable();
+        }
+        // Create monitored element info.
+        var /** @type {?} */ info = {
+            unlisten: function () { },
+            checkChildren: checkChildren,
+            subject: new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]()
+        };
+        this._elementInfo.set(element, info);
+        this._incrementMonitoredElementCount();
+        // Start listening. We need to listen in capture phase since focus events don't bubble.
+        var /** @type {?} */ focusListener = function (event) { return _this._onFocus(event, element); };
+        var /** @type {?} */ blurListener = function (event) { return _this._onBlur(event, element); };
+        this._ngZone.runOutsideAngular(function () {
+            element.addEventListener('focus', focusListener, true);
+            element.addEventListener('blur', blurListener, true);
+        });
+        // Create an unlisten function for later.
+        info.unlisten = function () {
+            element.removeEventListener('focus', focusListener, true);
+            element.removeEventListener('blur', blurListener, true);
+        };
+        return info.subject.asObservable();
+    };
+    /**
+     * Stops monitoring an element and removes all focus classes.
+     * @param element The element to stop monitoring.
+     */
+    /**
+     * Stops monitoring an element and removes all focus classes.
+     * @param {?} element The element to stop monitoring.
+     * @return {?}
+     */
+    FocusMonitor.prototype.stopMonitoring = /**
+     * Stops monitoring an element and removes all focus classes.
+     * @param {?} element The element to stop monitoring.
+     * @return {?}
+     */
+    function (element) {
+        var /** @type {?} */ elementInfo = this._elementInfo.get(element);
+        if (elementInfo) {
+            elementInfo.unlisten();
+            elementInfo.subject.complete();
+            this._setClasses(element);
+            this._elementInfo.delete(element);
+            this._decrementMonitoredElementCount();
+        }
+    };
+    /**
+     * Focuses the element via the specified focus origin.
+     * @param element The element to focus.
+     * @param origin The focus origin.
+     */
+    /**
+     * Focuses the element via the specified focus origin.
+     * @param {?} element The element to focus.
+     * @param {?} origin The focus origin.
+     * @return {?}
+     */
+    FocusMonitor.prototype.focusVia = /**
+     * Focuses the element via the specified focus origin.
+     * @param {?} element The element to focus.
+     * @param {?} origin The focus origin.
+     * @return {?}
+     */
+    function (element, origin) {
+        this._setOriginForCurrentEventQueue(origin);
+        element.focus();
+    };
+    /**
+     * Register necessary event listeners on the document and window.
+     * @return {?}
+     */
+    FocusMonitor.prototype._registerGlobalListeners = /**
+     * Register necessary event listeners on the document and window.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        // Do nothing if we're not on the browser platform.
+        if (!this._platform.isBrowser) {
+            return;
+        }
+        // On keydown record the origin and clear any touch event that may be in progress.
+        var /** @type {?} */ documentKeydownListener = function () {
+            _this._lastTouchTarget = null;
+            _this._setOriginForCurrentEventQueue('keyboard');
+        };
+        // On mousedown record the origin only if there is not touch target, since a mousedown can
+        // happen as a result of a touch event.
+        var /** @type {?} */ documentMousedownListener = function () {
+            if (!_this._lastTouchTarget) {
+                _this._setOriginForCurrentEventQueue('mouse');
+            }
+        };
+        // When the touchstart event fires the focus event is not yet in the event queue. This means
+        // we can't rely on the trick used above (setting timeout of 0ms). Instead we wait 650ms to
+        // see if a focus happens.
+        var /** @type {?} */ documentTouchstartListener = function (event) {
+            if (_this._touchTimeout != null) {
+                clearTimeout(_this._touchTimeout);
+            }
+            _this._lastTouchTarget = event.target;
+            _this._touchTimeout = setTimeout(function () { return _this._lastTouchTarget = null; }, TOUCH_BUFFER_MS);
+        };
+        // Make a note of when the window regains focus, so we can restore the origin info for the
+        // focused element.
+        var /** @type {?} */ windowFocusListener = function () {
+            _this._windowFocused = true;
+            setTimeout(function () { return _this._windowFocused = false; }, 0);
+        };
+        // Note: we listen to events in the capture phase so we can detect them even if the user stops
+        // propagation.
+        this._ngZone.runOutsideAngular(function () {
+            document.addEventListener('keydown', documentKeydownListener, true);
+            document.addEventListener('mousedown', documentMousedownListener, true);
+            document.addEventListener('touchstart', documentTouchstartListener, Object(__WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["c" /* supportsPassiveEventListeners */])() ? (/** @type {?} */ ({ passive: true, capture: true })) : true);
+            window.addEventListener('focus', windowFocusListener);
+        });
+        this._unregisterGlobalListeners = function () {
+            document.removeEventListener('keydown', documentKeydownListener, true);
+            document.removeEventListener('mousedown', documentMousedownListener, true);
+            document.removeEventListener('touchstart', documentTouchstartListener, Object(__WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["c" /* supportsPassiveEventListeners */])() ? (/** @type {?} */ ({ passive: true, capture: true })) : true);
+            window.removeEventListener('focus', windowFocusListener);
+        };
+    };
+    /**
+     * @param {?} element
+     * @param {?} className
+     * @param {?} shouldSet
+     * @return {?}
+     */
+    FocusMonitor.prototype._toggleClass = /**
+     * @param {?} element
+     * @param {?} className
+     * @param {?} shouldSet
+     * @return {?}
+     */
+    function (element, className, shouldSet) {
+        if (shouldSet) {
+            element.classList.add(className);
+        }
+        else {
+            element.classList.remove(className);
+        }
+    };
+    /**
+     * Sets the focus classes on the element based on the given focus origin.
+     * @param {?} element The element to update the classes on.
+     * @param {?=} origin The focus origin.
+     * @return {?}
+     */
+    FocusMonitor.prototype._setClasses = /**
+     * Sets the focus classes on the element based on the given focus origin.
+     * @param {?} element The element to update the classes on.
+     * @param {?=} origin The focus origin.
+     * @return {?}
+     */
+    function (element, origin) {
+        var /** @type {?} */ elementInfo = this._elementInfo.get(element);
+        if (elementInfo) {
+            this._toggleClass(element, 'cdk-focused', !!origin);
+            this._toggleClass(element, 'cdk-touch-focused', origin === 'touch');
+            this._toggleClass(element, 'cdk-keyboard-focused', origin === 'keyboard');
+            this._toggleClass(element, 'cdk-mouse-focused', origin === 'mouse');
+            this._toggleClass(element, 'cdk-program-focused', origin === 'program');
+        }
+    };
+    /**
+     * Sets the origin and schedules an async function to clear it at the end of the event queue.
+     * @param {?} origin The origin to set.
+     * @return {?}
+     */
+    FocusMonitor.prototype._setOriginForCurrentEventQueue = /**
+     * Sets the origin and schedules an async function to clear it at the end of the event queue.
+     * @param {?} origin The origin to set.
+     * @return {?}
+     */
+    function (origin) {
+        var _this = this;
+        this._origin = origin;
+        setTimeout(function () { return _this._origin = null; }, 0);
+    };
+    /**
+     * Checks whether the given focus event was caused by a touchstart event.
+     * @param {?} event The focus event to check.
+     * @return {?} Whether the event was caused by a touch.
+     */
+    FocusMonitor.prototype._wasCausedByTouch = /**
+     * Checks whether the given focus event was caused by a touchstart event.
+     * @param {?} event The focus event to check.
+     * @return {?} Whether the event was caused by a touch.
+     */
+    function (event) {
+        // Note(mmalerba): This implementation is not quite perfect, there is a small edge case.
+        // Consider the following dom structure:
+        //
+        // <div #parent tabindex="0" cdkFocusClasses>
+        //   <div #child (click)="#parent.focus()"></div>
+        // </div>
+        //
+        // If the user touches the #child element and the #parent is programmatically focused as a
+        // result, this code will still consider it to have been caused by the touch event and will
+        // apply the cdk-touch-focused class rather than the cdk-program-focused class. This is a
+        // relatively small edge-case that can be worked around by using
+        // focusVia(parentEl, 'program') to focus the parent element.
+        //
+        // If we decide that we absolutely must handle this case correctly, we can do so by listening
+        // for the first focus event after the touchstart, and then the first blur event after that
+        // focus event. When that blur event fires we know that whatever follows is not a result of the
+        // touchstart.
+        var /** @type {?} */ focusTarget = event.target;
+        return this._lastTouchTarget instanceof Node && focusTarget instanceof Node &&
+            (focusTarget === this._lastTouchTarget || focusTarget.contains(this._lastTouchTarget));
+    };
+    /**
+     * Handles focus events on a registered element.
+     * @param {?} event The focus event.
+     * @param {?} element The monitored element.
+     * @return {?}
+     */
+    FocusMonitor.prototype._onFocus = /**
+     * Handles focus events on a registered element.
+     * @param {?} event The focus event.
+     * @param {?} element The monitored element.
+     * @return {?}
+     */
+    function (event, element) {
+        // NOTE(mmalerba): We currently set the classes based on the focus origin of the most recent
+        // focus event affecting the monitored element. If we want to use the origin of the first event
+        // instead we should check for the cdk-focused class here and return if the element already has
+        // it. (This only matters for elements that have includesChildren = true).
+        // If we are not counting child-element-focus as focused, make sure that the event target is the
+        // monitored element itself.
+        var /** @type {?} */ elementInfo = this._elementInfo.get(element);
+        if (!elementInfo || (!elementInfo.checkChildren && element !== event.target)) {
+            return;
+        }
+        // If we couldn't detect a cause for the focus event, it's due to one of three reasons:
+        // 1) The window has just regained focus, in which case we want to restore the focused state of
+        //    the element from before the window blurred.
+        // 2) It was caused by a touch event, in which case we mark the origin as 'touch'.
+        // 3) The element was programmatically focused, in which case we should mark the origin as
+        //    'program'.
+        if (!this._origin) {
+            if (this._windowFocused && this._lastFocusOrigin) {
+                this._origin = this._lastFocusOrigin;
+            }
+            else if (this._wasCausedByTouch(event)) {
+                this._origin = 'touch';
+            }
+            else {
+                this._origin = 'program';
+            }
+        }
+        this._setClasses(element, this._origin);
+        elementInfo.subject.next(this._origin);
+        this._lastFocusOrigin = this._origin;
+        this._origin = null;
+    };
+    /**
+     * Handles blur events on a registered element.
+     * @param event The blur event.
+     * @param element The monitored element.
+     */
+    /**
+     * Handles blur events on a registered element.
+     * @param {?} event The blur event.
+     * @param {?} element The monitored element.
+     * @return {?}
+     */
+    FocusMonitor.prototype._onBlur = /**
+     * Handles blur events on a registered element.
+     * @param {?} event The blur event.
+     * @param {?} element The monitored element.
+     * @return {?}
+     */
+    function (event, element) {
+        // If we are counting child-element-focus as focused, make sure that we aren't just blurring in
+        // order to focus another child of the monitored element.
+        var /** @type {?} */ elementInfo = this._elementInfo.get(element);
+        if (!elementInfo || (elementInfo.checkChildren && event.relatedTarget instanceof Node &&
+            element.contains(event.relatedTarget))) {
+            return;
+        }
+        this._setClasses(element);
+        elementInfo.subject.next(null);
+    };
+    /**
+     * @return {?}
+     */
+    FocusMonitor.prototype._incrementMonitoredElementCount = /**
+     * @return {?}
+     */
+    function () {
+        // Register global listeners when first element is monitored.
+        if (++this._monitoredElementCount == 1) {
+            this._registerGlobalListeners();
+        }
+    };
+    /**
+     * @return {?}
+     */
+    FocusMonitor.prototype._decrementMonitoredElementCount = /**
+     * @return {?}
+     */
+    function () {
+        // Unregister global listeners when last element is unmonitored.
+        if (!--this._monitoredElementCount) {
+            this._unregisterGlobalListeners();
+            this._unregisterGlobalListeners = function () { };
+        }
+    };
+    FocusMonitor.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    FocusMonitor.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */], },
+    ]; };
+    return FocusMonitor;
+}());
+/**
+ * Directive that determines how a particular element was focused (via keyboard, mouse, touch, or
+ * programmatically) and adds corresponding classes to the element.
+ *
+ * There are two variants of this directive:
+ * 1) cdkMonitorElementFocus: does not consider an element to be focused if one of its children is
+ *    focused.
+ * 2) cdkMonitorSubtreeFocus: considers an element focused if it or any of its children are focused.
+ */
+var CdkMonitorFocus = /** @class */ (function () {
+    function CdkMonitorFocus(_elementRef, _focusMonitor) {
+        var _this = this;
+        this._elementRef = _elementRef;
+        this._focusMonitor = _focusMonitor;
+        this.cdkFocusChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this._monitorSubscription = this._focusMonitor.monitor(this._elementRef.nativeElement, this._elementRef.nativeElement.hasAttribute('cdkMonitorSubtreeFocus'))
+            .subscribe(function (origin) { return _this.cdkFocusChange.emit(origin); });
+    }
+    /**
+     * @return {?}
+     */
+    CdkMonitorFocus.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._focusMonitor.stopMonitoring(this._elementRef.nativeElement);
+        this._monitorSubscription.unsubscribe();
+    };
+    CdkMonitorFocus.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[cdkMonitorElementFocus], [cdkMonitorSubtreeFocus]',
+                },] },
+    ];
+    /** @nocollapse */
+    CdkMonitorFocus.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: FocusMonitor, },
+    ]; };
+    CdkMonitorFocus.propDecorators = {
+        "cdkFocusChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Output */] },],
+    };
+    return CdkMonitorFocus;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentDispatcher
+ * @param {?} ngZone
+ * @param {?} platform
+ * @return {?}
+ */
+function FOCUS_MONITOR_PROVIDER_FACTORY(parentDispatcher, ngZone, platform) {
+    return parentDispatcher || new FocusMonitor(ngZone, platform);
+}
+/**
+ * \@docs-private
+ */
+var FOCUS_MONITOR_PROVIDER = {
+    // If there is already a FocusMonitor available, use that. Otherwise, provide a new one.
+    provide: FocusMonitor,
+    deps: [[new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), FocusMonitor], __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */]],
+    useFactory: FOCUS_MONITOR_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var A11yModule = /** @class */ (function () {
+    function A11yModule() {
+    }
+    A11yModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["a" /* CommonModule */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["b" /* PlatformModule */]],
+                    declarations: [CdkTrapFocus, FocusTrapDeprecatedDirective, CdkMonitorFocus],
+                    exports: [CdkTrapFocus, FocusTrapDeprecatedDirective, CdkMonitorFocus],
+                    providers: [
+                        InteractivityChecker,
+                        FocusTrapFactory,
+                        AriaDescriber,
+                        LIVE_ANNOUNCER_PROVIDER,
+                        ARIA_DESCRIBER_PROVIDER,
+                        FOCUS_MONITOR_PROVIDER,
+                    ]
+                },] },
+    ];
+    /** @nocollapse */
+    A11yModule.ctorParameters = function () { return []; };
+    return A11yModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=a11y.es5.js.map
+
+
+/***/ }),
+
 /***/ "../../../cdk/esm5/bidi.es5.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -16182,7 +19295,7 @@ function UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY(parentDispatcher) {
 var UNIQUE_SELECTION_DISPATCHER_PROVIDER = {
     // If there is already a dispatcher available, use that. Otherwise, provide a new one.
     provide: UniqueSelectionDispatcher,
-    deps: [[new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SkipSelf */](), UniqueSelectionDispatcher]],
+    deps: [[new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_0" /* SkipSelf */](), UniqueSelectionDispatcher]],
     useFactory: UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY
 };
 
@@ -16209,24 +19322,24 @@ var UNIQUE_SELECTION_DISPATCHER_PROVIDER = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* unused harmony export UP_ARROW */
-/* unused harmony export DOWN_ARROW */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return UP_ARROW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return DOWN_ARROW; });
 /* unused harmony export RIGHT_ARROW */
 /* unused harmony export LEFT_ARROW */
 /* unused harmony export PAGE_UP */
 /* unused harmony export PAGE_DOWN */
 /* unused harmony export HOME */
 /* unused harmony export END */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENTER; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SPACE; });
-/* unused harmony export TAB */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return ENTER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return SPACE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return TAB; });
 /* unused harmony export ESCAPE */
 /* unused harmony export BACKSPACE */
 /* unused harmony export DELETE */
-/* unused harmony export A */
-/* unused harmony export Z */
-/* unused harmony export ZERO */
-/* unused harmony export NINE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return A; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return Z; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return ZERO; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NINE; });
 /* unused harmony export COMMA */
 /**
  * @license
@@ -16595,7 +19708,7 @@ var CdkHeaderRowDef = /** @class */ (function (_super) {
     ];
     /** @nocollapse */
     CdkHeaderRowDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
         { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* IterableDiffers */], },
     ]; };
     return CdkHeaderRowDef;
@@ -16620,7 +19733,7 @@ var CdkRowDef = /** @class */ (function (_super) {
     ];
     /** @nocollapse */
     CdkRowDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
         { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* IterableDiffers */], },
     ]; };
     return CdkRowDef;
@@ -16652,7 +19765,7 @@ var CdkCellOutlet = /** @class */ (function () {
     ];
     /** @nocollapse */
     CdkCellOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
     ]; };
     return CdkCellOutlet;
 }());
@@ -16670,7 +19783,7 @@ var CdkHeaderRow = /** @class */ (function () {
                         'role': 'row',
                     },
                     changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                 },] },
     ];
@@ -16692,7 +19805,7 @@ var CdkRow = /** @class */ (function () {
                         'role': 'row',
                     },
                     changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                 },] },
     ];
@@ -16719,7 +19832,7 @@ var CdkCellDef = /** @class */ (function () {
     ];
     /** @nocollapse */
     CdkCellDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
     ]; };
     return CdkCellDef;
 }());
@@ -16736,7 +19849,7 @@ var CdkHeaderCellDef = /** @class */ (function () {
     ];
     /** @nocollapse */
     CdkHeaderCellDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
     ]; };
     return CdkHeaderCellDef;
 }());
@@ -16895,7 +20008,7 @@ var RowPlaceholder = /** @class */ (function () {
     ];
     /** @nocollapse */
     RowPlaceholder.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
     ]; };
     return RowPlaceholder;
 }());
@@ -16912,7 +20025,7 @@ var HeaderRowPlaceholder = /** @class */ (function () {
     ];
     /** @nocollapse */
     HeaderRowPlaceholder.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
     ]; };
     return HeaderRowPlaceholder;
 }());
@@ -16991,7 +20104,7 @@ var CdkTable = /** @class */ (function () {
          * @return {?}
          */
         function (fn) {
-            if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* isDevMode */])() &&
+            if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])() &&
                 fn != null && typeof fn !== 'function' && /** @type {?} */ (console) && /** @type {?} */ (console.warn)) {
                 console.warn("trackBy must be a function, but received " + JSON.stringify(fn) + ".");
             }
@@ -17477,7 +20590,7 @@ var CdkTable = /** @class */ (function () {
                     host: {
                         'class': 'cdk-table',
                     },
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                     changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
                 },] },
@@ -17492,8 +20605,8 @@ var CdkTable = /** @class */ (function () {
     CdkTable.propDecorators = {
         "trackBy": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Input */] },],
         "dataSource": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Input */] },],
-        "_rowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* ViewChild */], args: [RowPlaceholder,] },],
-        "_headerRowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* ViewChild */], args: [HeaderRowPlaceholder,] },],
+        "_rowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewChild */], args: [RowPlaceholder,] },],
+        "_headerRowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewChild */], args: [HeaderRowPlaceholder,] },],
         "_contentColumnDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChildren */], args: [CdkColumnDef,] },],
         "_contentRowDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChildren */], args: [CdkRowDef,] },],
         "_headerRowDef": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["q" /* ContentChild */], args: [CdkHeaderRowDef,] },],
@@ -19736,7 +22849,7 @@ var NgClass = /** @class */ (function () {
             this._keyValueDiffer = null;
             this._rawClass = typeof v === 'string' ? v.split(/\s+/) : v;
             if (this._rawClass) {
-                if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_29" /* ɵisListLikeIterable */])(this._rawClass)) {
+                if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_31" /* ɵisListLikeIterable */])(this._rawClass)) {
                     this._iterableDiffer = this._iterableDiffers.find(this._rawClass).create();
                 }
                 else {
@@ -19812,7 +22925,7 @@ var NgClass = /** @class */ (function () {
                 _this._toggleClass(record.item, true);
             }
             else {
-                throw new Error("NgClass can only toggle CSS classes expressed as strings, got " + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_43" /* ɵstringify */])(record.item));
+                throw new Error("NgClass can only toggle CSS classes expressed as strings, got " + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_45" /* ɵstringify */])(record.item));
             }
         });
         changes.forEachRemovedItem(function (record) { return _this._toggleClass(record.item, false); });
@@ -20010,7 +23123,7 @@ var NgComponentOutlet = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgComponentOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
     ]; };
     NgComponentOutlet.propDecorators = {
         "ngComponentOutlet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
@@ -20163,7 +23276,7 @@ var NgForOf = /** @class */ (function () {
          * @return {?}
          */
         function (fn) {
-            if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* isDevMode */])() && fn != null && typeof fn !== 'function') {
+            if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* isDevMode */])() && fn != null && typeof fn !== 'function') {
                 // TODO(vicb): use a log service once there is a public one available
                 if (/** @type {?} */ (console) && /** @type {?} */ (console.warn)) {
                     console.warn("trackBy must be a function, but received " + JSON.stringify(fn) + ". " +
@@ -20284,8 +23397,8 @@ var NgForOf = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgForOf.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
         { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* IterableDiffers */], },
     ]; };
     NgForOf.propDecorators = {
@@ -20491,8 +23604,8 @@ var NgIf = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgIf.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
     ]; };
     NgIf.propDecorators = {
         "ngIf": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
@@ -20747,8 +23860,8 @@ var NgSwitchCase = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgSwitchCase.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
         { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
     ]; };
     NgSwitchCase.propDecorators = {
@@ -20788,8 +23901,8 @@ var NgSwitchDefault = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgSwitchDefault.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
         { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
     ]; };
     return NgSwitchDefault;
@@ -20943,8 +24056,8 @@ var NgPluralCase = /** @class */ (function () {
     /** @nocollapse */
     NgPluralCase.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["g" /* Attribute */], args: ['ngPluralCase',] },] },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* TemplateRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
         { type: NgPlural, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
     ]; };
     return NgPluralCase;
@@ -21195,7 +24308,7 @@ var NgTemplateOutlet = /** @class */ (function () {
     ];
     /** @nocollapse */
     NgTemplateOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_6" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
     ]; };
     NgTemplateOutlet.propDecorators = {
         "ngTemplateOutletContext": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
@@ -21904,7 +25017,7 @@ function convertTimezoneToLocal(date, timezone, reverse) {
  * @return {?}
  */
 function invalidPipeArgumentError(type, value) {
-    return Error("InvalidPipeArgument: '" + value + "' for pipe '" + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_43" /* ɵstringify */])(type) + "'");
+    return Error("InvalidPipeArgument: '" + value + "' for pipe '" + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_45" /* ɵstringify */])(type) + "'");
 }
 
 /**
@@ -23329,7 +26442,7 @@ var AsyncPipe = /** @class */ (function () {
             return this._latestReturnedValue;
         }
         this._latestReturnedValue = this._latestValue;
-        return __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* WrappedValue */].wrap(this._latestValue);
+        return __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* WrappedValue */].wrap(this._latestValue);
     };
     /**
      * @param {?} obj
@@ -23354,10 +26467,10 @@ var AsyncPipe = /** @class */ (function () {
      * @return {?}
      */
     function (obj) {
-        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_31" /* ɵisPromise */])(obj)) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_33" /* ɵisPromise */])(obj)) {
             return _promiseStrategy;
         }
-        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_30" /* ɵisObservable */])(obj)) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_32" /* ɵisObservable */])(obj)) {
             return _observableStrategy;
         }
         throw invalidPipeArgumentError(AsyncPipe, obj);
@@ -24178,7 +27291,7 @@ function isPlatformWorkerUi(platformId) {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_4" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle
@@ -62351,9 +65464,9 @@ var Extractor = /** @class */ (function () {
 /* unused harmony export getPlatform */
 /* unused harmony export PlatformRef */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return ApplicationRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_10", function() { return enableProdMode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_12", function() { return isDevMode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_9", function() { return createPlatformFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_11", function() { return enableProdMode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_14", function() { return isDevMode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_10", function() { return createPlatformFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "K", function() { return NgProbeToken; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return APP_ID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "O", function() { return PACKAGE_ROOT_URL; });
@@ -62365,12 +65478,12 @@ var Extractor = /** @class */ (function () {
 /* unused harmony export DebugElement */
 /* unused harmony export DebugNode */
 /* unused harmony export asNativeElements */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_11", function() { return getDebugNode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_3", function() { return Testability; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_13", function() { return getDebugNode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_4", function() { return Testability; });
 /* unused harmony export TestabilityRegistry */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_14", function() { return setTestabilityGetter; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_0", function() { return TRANSLATIONS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_1", function() { return TRANSLATIONS_FORMAT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_16", function() { return setTestabilityGetter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_1", function() { return TRANSLATIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_2", function() { return TRANSLATIONS_FORMAT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "F", function() { return LOCALE_ID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "G", function() { return MissingTranslationStrategy; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return ApplicationModule; });
@@ -62388,7 +65501,7 @@ var Extractor = /** @class */ (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return ContentChild; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return ContentChildren; });
 /* unused harmony export Query */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_5", function() { return ViewChild; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_6", function() { return ViewChild; });
 /* unused harmony export ViewChildren */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return Component; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return Directive; });
@@ -62400,10 +65513,10 @@ var Extractor = /** @class */ (function () {
 /* unused harmony export CUSTOM_ELEMENTS_SCHEMA */
 /* unused harmony export NO_ERRORS_SCHEMA */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "H", function() { return NgModule; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_7", function() { return ViewEncapsulation; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_4", function() { return Version; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_8", function() { return ViewEncapsulation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_5", function() { return Version; });
 /* unused harmony export VERSION */
-/* unused harmony export forwardRef */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_12", function() { return forwardRef; });
 /* unused harmony export resolveForwardRef */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "B", function() { return Injector; });
 /* unused harmony export ReflectiveInjector */
@@ -62413,8 +65526,8 @@ var Extractor = /** @class */ (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return Inject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "M", function() { return Optional; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return Injectable; });
-/* unused harmony export Self */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Z", function() { return SkipSelf; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Z", function() { return Self; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_0", function() { return SkipSelf; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return Host; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "L", function() { return NgZone; });
 /* unused harmony export RenderComponentType */
@@ -62438,8 +65551,8 @@ var Extractor = /** @class */ (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "S", function() { return QueryList; });
 /* unused harmony export SystemJsNgModuleLoader */
 /* unused harmony export SystemJsNgModuleLoaderConfig */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_2", function() { return TemplateRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_6", function() { return ViewContainerRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_3", function() { return TemplateRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_7", function() { return ViewContainerRef; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return EmbeddedViewRef; });
 /* unused harmony export ViewRef */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return ChangeDetectionStrategy; });
@@ -62448,56 +65561,56 @@ var Extractor = /** @class */ (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "D", function() { return IterableDiffers; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "E", function() { return KeyValueDiffers; });
 /* unused harmony export SimpleChange */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_8", function() { return WrappedValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_13", function() { return platformCore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_9", function() { return WrappedValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_15", function() { return platformCore; });
 /* unused harmony export ɵALLOW_MULTIPLE_PLATFORMS */
 /* unused harmony export ɵAPP_ID_RANDOM_PROVIDER */
 /* unused harmony export ɵValueUnwrapper */
 /* unused harmony export ɵdevModeEqual */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_29", function() { return isListLikeIterable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_31", function() { return isListLikeIterable; });
 /* unused harmony export ɵChangeDetectorStatus */
 /* unused harmony export ɵisDefaultChangeDetectionStrategy */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_16", function() { return Console; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_18", function() { return Console; });
 /* unused harmony export ɵComponentFactory */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_15", function() { return CodegenComponentFactoryResolver; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_19", function() { return ReflectionCapabilities; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_17", function() { return CodegenComponentFactoryResolver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_21", function() { return ReflectionCapabilities; });
 /* unused harmony export ɵRenderDebugInfo */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_26", function() { return _global; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_28", function() { return _global; });
 /* unused harmony export ɵlooseIdentical */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_43", function() { return stringify; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_45", function() { return stringify; });
 /* unused harmony export ɵmakeDecorator */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_30", function() { return isObservable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_31", function() { return isPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_32", function() { return isObservable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_33", function() { return isPromise; });
 /* unused harmony export ɵclearOverrides */
 /* unused harmony export ɵoverrideComponentView */
 /* unused harmony export ɵoverrideProvider */
 /* unused harmony export ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_42", function() { return registerModuleFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_17", function() { return EMPTY_ARRAY; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_18", function() { return EMPTY_MAP; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_20", function() { return anchorDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_21", function() { return createComponentFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_22", function() { return createNgModuleFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_23", function() { return createRendererType2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_24", function() { return directiveDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_25", function() { return elementDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_44", function() { return registerModuleFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_19", function() { return EMPTY_ARRAY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_20", function() { return EMPTY_MAP; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_22", function() { return anchorDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_23", function() { return createComponentFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_24", function() { return createNgModuleFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_25", function() { return createRendererType2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_26", function() { return directiveDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_27", function() { return elementDef; });
 /* unused harmony export ɵelementEventFullName */
 /* unused harmony export ɵgetComponentViewDefinitionFactory */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_27", function() { return inlineInterpolate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_28", function() { return interpolate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_32", function() { return moduleDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_33", function() { return moduleProvideDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_34", function() { return ngContentDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_35", function() { return nodeValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_37", function() { return pipeDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_40", function() { return providerDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_36", function() { return pureArrayDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_38", function() { return pureObjectDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_39", function() { return purePipeDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_41", function() { return queryDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_44", function() { return textDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_45", function() { return unwrapValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_46", function() { return viewDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_29", function() { return inlineInterpolate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_30", function() { return interpolate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_34", function() { return moduleDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_35", function() { return moduleProvideDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_36", function() { return ngContentDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_37", function() { return nodeValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_39", function() { return pipeDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_42", function() { return providerDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_38", function() { return pureArrayDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_40", function() { return pureObjectDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_41", function() { return purePipeDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_43", function() { return queryDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_46", function() { return textDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_47", function() { return unwrapValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_48", function() { return viewDef; });
 /* unused harmony export AUTO_STYLE */
 /* unused harmony export trigger */
 /* unused harmony export animate */
@@ -79399,6 +82512,741 @@ function transition$$1(stateChangeExpr, steps) {
 
 /***/ }),
 
+/***/ "../../../material/esm5/button.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatButtonModule; });
+/* unused harmony export MatButtonCssMatStyler */
+/* unused harmony export MatRaisedButtonCssMatStyler */
+/* unused harmony export MatIconButtonCssMatStyler */
+/* unused harmony export MatFab */
+/* unused harmony export MatMiniFab */
+/* unused harmony export MatButtonBase */
+/* unused harmony export _MatButtonMixinBase */
+/* unused harmony export MatButton */
+/* unused harmony export MatAnchor */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__ = __webpack_require__("../../../cdk/esm5/a11y.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_cdk_platform__ = __webpack_require__("../../../cdk/esm5/platform.es5.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Default color palette for round buttons (mat-fab and mat-mini-fab)
+ */
+var DEFAULT_ROUND_BUTTON_COLOR = 'accent';
+/**
+ * Directive whose purpose is to add the mat- CSS styling to this selector.
+ * \@docs-private
+ */
+var MatButtonCssMatStyler = /** @class */ (function () {
+    function MatButtonCssMatStyler() {
+    }
+    MatButtonCssMatStyler.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'button[mat-button], a[mat-button]',
+                    host: { 'class': 'mat-button' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatButtonCssMatStyler.ctorParameters = function () { return []; };
+    return MatButtonCssMatStyler;
+}());
+/**
+ * Directive whose purpose is to add the mat- CSS styling to this selector.
+ * \@docs-private
+ */
+var MatRaisedButtonCssMatStyler = /** @class */ (function () {
+    function MatRaisedButtonCssMatStyler() {
+    }
+    MatRaisedButtonCssMatStyler.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'button[mat-raised-button], a[mat-raised-button]',
+                    host: { 'class': 'mat-raised-button' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatRaisedButtonCssMatStyler.ctorParameters = function () { return []; };
+    return MatRaisedButtonCssMatStyler;
+}());
+/**
+ * Directive whose purpose is to add the mat- CSS styling to this selector.
+ * \@docs-private
+ */
+var MatIconButtonCssMatStyler = /** @class */ (function () {
+    function MatIconButtonCssMatStyler() {
+    }
+    MatIconButtonCssMatStyler.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'button[mat-icon-button], a[mat-icon-button]',
+                    host: { 'class': 'mat-icon-button' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatIconButtonCssMatStyler.ctorParameters = function () { return []; };
+    return MatIconButtonCssMatStyler;
+}());
+/**
+ * Directive whose purpose is to add the mat- CSS styling to this selector.
+ * \@docs-private
+ */
+var MatFab = /** @class */ (function () {
+    function MatFab(button, anchor) {
+        // Set the default color palette for the mat-fab components.
+        (button || anchor).color = DEFAULT_ROUND_BUTTON_COLOR;
+    }
+    MatFab.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'button[mat-fab], a[mat-fab]',
+                    host: { 'class': 'mat-fab' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatFab.ctorParameters = function () { return [
+        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatButton; }),] },] },
+        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatAnchor; }),] },] },
+    ]; };
+    return MatFab;
+}());
+/**
+ * Directive that targets mini-fab buttons and anchors. It's used to apply the `mat-` class
+ * to all mini-fab buttons and also is responsible for setting the default color palette.
+ * \@docs-private
+ */
+var MatMiniFab = /** @class */ (function () {
+    function MatMiniFab(button, anchor) {
+        // Set the default color palette for the mat-mini-fab components.
+        (button || anchor).color = DEFAULT_ROUND_BUTTON_COLOR;
+    }
+    MatMiniFab.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'button[mat-mini-fab], a[mat-mini-fab]',
+                    host: { 'class': 'mat-mini-fab' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatMiniFab.ctorParameters = function () { return [
+        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatButton; }),] },] },
+        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatAnchor; }),] },] },
+    ]; };
+    return MatMiniFab;
+}());
+/**
+ * \@docs-private
+ */
+var MatButtonBase = /** @class */ (function () {
+    function MatButtonBase(_elementRef) {
+        this._elementRef = _elementRef;
+    }
+    return MatButtonBase;
+}());
+var _MatButtonMixinBase = Object(__WEBPACK_IMPORTED_MODULE_2__angular_material_core__["c" /* mixinColor */])(Object(__WEBPACK_IMPORTED_MODULE_2__angular_material_core__["e" /* mixinDisabled */])(Object(__WEBPACK_IMPORTED_MODULE_2__angular_material_core__["d" /* mixinDisableRipple */])(MatButtonBase)));
+/**
+ * Material design button.
+ */
+var MatButton = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["b" /* __extends */])(MatButton, _super);
+    function MatButton(elementRef, _platform, _focusMonitor) {
+        var _this = _super.call(this, elementRef) || this;
+        _this._platform = _platform;
+        _this._focusMonitor = _focusMonitor;
+        /**
+         * Whether the button is round.
+         */
+        _this._isRoundButton = _this._hasHostAttributes('mat-fab', 'mat-mini-fab');
+        /**
+         * Whether the button is icon button.
+         */
+        _this._isIconButton = _this._hasHostAttributes('mat-icon-button');
+        _this._focusMonitor.monitor(_this._elementRef.nativeElement, true);
+        return _this;
+    }
+    /**
+     * @return {?}
+     */
+    MatButton.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._focusMonitor.stopMonitoring(this._elementRef.nativeElement);
+    };
+    /** Focuses the button. */
+    /**
+     * Focuses the button.
+     * @return {?}
+     */
+    MatButton.prototype.focus = /**
+     * Focuses the button.
+     * @return {?}
+     */
+    function () {
+        this._getHostElement().focus();
+    };
+    /**
+     * @return {?}
+     */
+    MatButton.prototype._getHostElement = /**
+     * @return {?}
+     */
+    function () {
+        return this._elementRef.nativeElement;
+    };
+    /**
+     * @return {?}
+     */
+    MatButton.prototype._isRippleDisabled = /**
+     * @return {?}
+     */
+    function () {
+        return this.disableRipple || this.disabled;
+    };
+    /** Gets whether the button has one of the given attributes. */
+    /**
+     * Gets whether the button has one of the given attributes.
+     * @param {...?} attributes
+     * @return {?}
+     */
+    MatButton.prototype._hasHostAttributes = /**
+     * Gets whether the button has one of the given attributes.
+     * @param {...?} attributes
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var attributes = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            attributes[_i] = arguments[_i];
+        }
+        // If not on the browser, say that there are none of the attributes present.
+        // Since these only affect how the ripple displays (and ripples only happen on the client),
+        // detecting these attributes isn't necessary when not on the browser.
+        if (!this._platform.isBrowser) {
+            return false;
+        }
+        return attributes.some(function (attribute) { return _this._getHostElement().hasAttribute(attribute); });
+    };
+    MatButton.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: "button[mat-button], button[mat-raised-button], button[mat-icon-button],\n             button[mat-fab], button[mat-mini-fab]",
+                    exportAs: 'matButton',
+                    host: {
+                        '[disabled]': 'disabled || null',
+                    },
+                    template: "<span class=\"mat-button-wrapper\"><ng-content></ng-content></span><div matRipple class=\"mat-button-ripple\" [class.mat-button-ripple-round]=\"_isRoundButton || _isIconButton\" [matRippleDisabled]=\"_isRippleDisabled()\" [matRippleCentered]=\"_isIconButton\" [matRippleTrigger]=\"_getHostElement()\"></div><div class=\"mat-button-focus-overlay\"></div>",
+                    styles: [".mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{box-sizing:border-box;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;outline:0;border:none;-webkit-tap-highlight-color:transparent;display:inline-block;white-space:nowrap;text-decoration:none;vertical-align:baseline;text-align:center;margin:0;min-width:88px;line-height:36px;padding:0 16px;border-radius:2px}[disabled].mat-button,[disabled].mat-fab,[disabled].mat-icon-button,[disabled].mat-mini-fab,[disabled].mat-raised-button{cursor:default}.cdk-keyboard-focused.mat-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-icon-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-raised-button .mat-button-focus-overlay,.cdk-program-focused.mat-button .mat-button-focus-overlay,.cdk-program-focused.mat-fab .mat-button-focus-overlay,.cdk-program-focused.mat-icon-button .mat-button-focus-overlay,.cdk-program-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-program-focused.mat-raised-button .mat-button-focus-overlay{opacity:1}.mat-button::-moz-focus-inner,.mat-fab::-moz-focus-inner,.mat-icon-button::-moz-focus-inner,.mat-mini-fab::-moz-focus-inner,.mat-raised-button::-moz-focus-inner{border:0}.mat-fab,.mat-mini-fab,.mat-raised-button{transform:translate3d(0,0,0);transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.mat-fab:not([class*=mat-elevation-z]),.mat-mini-fab:not([class*=mat-elevation-z]),.mat-raised-button:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-raised-button:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}[disabled].mat-fab,[disabled].mat-mini-fab,[disabled].mat-raised-button{box-shadow:none}.mat-button .mat-button-focus-overlay,.mat-icon-button .mat-button-focus-overlay{transition:none;opacity:0}.mat-button:hover .mat-button-focus-overlay{opacity:1}.mat-fab{min-width:0;border-radius:50%;width:56px;height:56px;padding:0;flex-shrink:0}.mat-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-fab .mat-button-wrapper{padding:16px 0;display:inline-block;line-height:24px}.mat-mini-fab{min-width:0;border-radius:50%;width:40px;height:40px;padding:0;flex-shrink:0}.mat-mini-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-mini-fab .mat-button-wrapper{padding:8px 0;display:inline-block;line-height:24px}.mat-icon-button{padding:0;min-width:0;width:40px;height:40px;flex-shrink:0;line-height:40px;border-radius:50%}.mat-icon-button .mat-icon,.mat-icon-button i{line-height:24px}.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{color:currentColor}.mat-button .mat-button-wrapper>*,.mat-fab .mat-button-wrapper>*,.mat-icon-button .mat-button-wrapper>*,.mat-mini-fab .mat-button-wrapper>*,.mat-raised-button .mat-button-wrapper>*{vertical-align:middle}.mat-button-focus-overlay,.mat-button-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}.mat-button-focus-overlay{background-color:rgba(0,0,0,.12);border-radius:inherit;opacity:0;transition:opacity .2s cubic-bezier(.35,0,.25,1),background-color .2s cubic-bezier(.35,0,.25,1)}@media screen and (-ms-high-contrast:active){.mat-button-focus-overlay{background-color:rgba(255,255,255,.5)}}.mat-button-ripple-round{border-radius:50%;z-index:1}@media screen and (-ms-high-contrast:active){.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{outline:solid 1px}}"],
+                    inputs: ['disabled', 'disableRipple', 'color'],
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                },] },
+    ];
+    /** @nocollapse */
+    MatButton.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_5__angular_cdk_platform__["a" /* Platform */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["b" /* FocusMonitor */], },
+    ]; };
+    return MatButton;
+}(_MatButtonMixinBase));
+/**
+ * Raised Material design button.
+ */
+var MatAnchor = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["b" /* __extends */])(MatAnchor, _super);
+    function MatAnchor(platform, focusMonitor, elementRef) {
+        return _super.call(this, elementRef, platform, focusMonitor) || this;
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    MatAnchor.prototype._haltDisabledEvents = /**
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        // A disabled button shouldn't apply any actions
+        if (this.disabled) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+    };
+    MatAnchor.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: "a[mat-button], a[mat-raised-button], a[mat-icon-button], a[mat-fab], a[mat-mini-fab]",
+                    exportAs: 'matButton, matAnchor',
+                    host: {
+                        '[attr.tabindex]': 'disabled ? -1 : 0',
+                        '[attr.disabled]': 'disabled || null',
+                        '[attr.aria-disabled]': 'disabled.toString()',
+                        '(click)': '_haltDisabledEvents($event)',
+                    },
+                    inputs: ['disabled', 'disableRipple', 'color'],
+                    template: "<span class=\"mat-button-wrapper\"><ng-content></ng-content></span><div matRipple class=\"mat-button-ripple\" [class.mat-button-ripple-round]=\"_isRoundButton || _isIconButton\" [matRippleDisabled]=\"_isRippleDisabled()\" [matRippleCentered]=\"_isIconButton\" [matRippleTrigger]=\"_getHostElement()\"></div><div class=\"mat-button-focus-overlay\"></div>",
+                    styles: [".mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{box-sizing:border-box;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;outline:0;border:none;-webkit-tap-highlight-color:transparent;display:inline-block;white-space:nowrap;text-decoration:none;vertical-align:baseline;text-align:center;margin:0;min-width:88px;line-height:36px;padding:0 16px;border-radius:2px}[disabled].mat-button,[disabled].mat-fab,[disabled].mat-icon-button,[disabled].mat-mini-fab,[disabled].mat-raised-button{cursor:default}.cdk-keyboard-focused.mat-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-icon-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-raised-button .mat-button-focus-overlay,.cdk-program-focused.mat-button .mat-button-focus-overlay,.cdk-program-focused.mat-fab .mat-button-focus-overlay,.cdk-program-focused.mat-icon-button .mat-button-focus-overlay,.cdk-program-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-program-focused.mat-raised-button .mat-button-focus-overlay{opacity:1}.mat-button::-moz-focus-inner,.mat-fab::-moz-focus-inner,.mat-icon-button::-moz-focus-inner,.mat-mini-fab::-moz-focus-inner,.mat-raised-button::-moz-focus-inner{border:0}.mat-fab,.mat-mini-fab,.mat-raised-button{transform:translate3d(0,0,0);transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.mat-fab:not([class*=mat-elevation-z]),.mat-mini-fab:not([class*=mat-elevation-z]),.mat-raised-button:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-raised-button:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}[disabled].mat-fab,[disabled].mat-mini-fab,[disabled].mat-raised-button{box-shadow:none}.mat-button .mat-button-focus-overlay,.mat-icon-button .mat-button-focus-overlay{transition:none;opacity:0}.mat-button:hover .mat-button-focus-overlay{opacity:1}.mat-fab{min-width:0;border-radius:50%;width:56px;height:56px;padding:0;flex-shrink:0}.mat-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-fab .mat-button-wrapper{padding:16px 0;display:inline-block;line-height:24px}.mat-mini-fab{min-width:0;border-radius:50%;width:40px;height:40px;padding:0;flex-shrink:0}.mat-mini-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-mini-fab .mat-button-wrapper{padding:8px 0;display:inline-block;line-height:24px}.mat-icon-button{padding:0;min-width:0;width:40px;height:40px;flex-shrink:0;line-height:40px;border-radius:50%}.mat-icon-button .mat-icon,.mat-icon-button i{line-height:24px}.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{color:currentColor}.mat-button .mat-button-wrapper>*,.mat-fab .mat-button-wrapper>*,.mat-icon-button .mat-button-wrapper>*,.mat-mini-fab .mat-button-wrapper>*,.mat-raised-button .mat-button-wrapper>*{vertical-align:middle}.mat-button-focus-overlay,.mat-button-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}.mat-button-focus-overlay{background-color:rgba(0,0,0,.12);border-radius:inherit;opacity:0;transition:opacity .2s cubic-bezier(.35,0,.25,1),background-color .2s cubic-bezier(.35,0,.25,1)}@media screen and (-ms-high-contrast:active){.mat-button-focus-overlay{background-color:rgba(255,255,255,.5)}}.mat-button-ripple-round{border-radius:50%;z-index:1}@media screen and (-ms-high-contrast:active){.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{outline:solid 1px}}"],
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                },] },
+    ];
+    /** @nocollapse */
+    MatAnchor.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_5__angular_cdk_platform__["a" /* Platform */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["b" /* FocusMonitor */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+    ]; };
+    return MatAnchor;
+}(MatButton));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatButtonModule = /** @class */ (function () {
+    function MatButtonModule() {
+    }
+    MatButtonModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+                    imports: [
+                        __WEBPACK_IMPORTED_MODULE_1__angular_common__["a" /* CommonModule */],
+                        __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["b" /* MatRippleModule */],
+                        __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["a" /* MatCommonModule */],
+                        __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["a" /* A11yModule */],
+                    ],
+                    exports: [
+                        MatButton,
+                        MatAnchor,
+                        MatMiniFab,
+                        MatFab,
+                        __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["a" /* MatCommonModule */],
+                        MatButtonCssMatStyler,
+                        MatRaisedButtonCssMatStyler,
+                        MatIconButtonCssMatStyler,
+                    ],
+                    declarations: [
+                        MatButton,
+                        MatAnchor,
+                        MatMiniFab,
+                        MatFab,
+                        MatButtonCssMatStyler,
+                        MatRaisedButtonCssMatStyler,
+                        MatIconButtonCssMatStyler,
+                    ],
+                },] },
+    ];
+    /** @nocollapse */
+    MatButtonModule.ctorParameters = function () { return []; };
+    return MatButtonModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=button.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../material/esm5/card.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export MatCardContent */
+/* unused harmony export MatCardTitle */
+/* unused harmony export MatCardSubtitle */
+/* unused harmony export MatCardActions */
+/* unused harmony export MatCardFooter */
+/* unused harmony export MatCardImage */
+/* unused harmony export MatCardSmImage */
+/* unused harmony export MatCardMdImage */
+/* unused harmony export MatCardLgImage */
+/* unused harmony export MatCardXlImage */
+/* unused harmony export MatCardAvatar */
+/* unused harmony export MatCard */
+/* unused harmony export MatCardHeader */
+/* unused harmony export MatCardTitleGroup */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatCardModule; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Content of a card, needed as it's used as a selector in the API.
+ * \@docs-private
+ */
+var MatCardContent = /** @class */ (function () {
+    function MatCardContent() {
+    }
+    MatCardContent.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'mat-card-content',
+                    host: { 'class': 'mat-card-content' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardContent.ctorParameters = function () { return []; };
+    return MatCardContent;
+}());
+/**
+ * Title of a card, needed as it's used as a selector in the API.
+ * \@docs-private
+ */
+var MatCardTitle = /** @class */ (function () {
+    function MatCardTitle() {
+    }
+    MatCardTitle.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: "mat-card-title, [mat-card-title], [matCardTitle]",
+                    host: {
+                        'class': 'mat-card-title'
+                    }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardTitle.ctorParameters = function () { return []; };
+    return MatCardTitle;
+}());
+/**
+ * Sub-title of a card, needed as it's used as a selector in the API.
+ * \@docs-private
+ */
+var MatCardSubtitle = /** @class */ (function () {
+    function MatCardSubtitle() {
+    }
+    MatCardSubtitle.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: "mat-card-subtitle, [mat-card-subtitle], [matCardSubtitle]",
+                    host: {
+                        'class': 'mat-card-subtitle'
+                    }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardSubtitle.ctorParameters = function () { return []; };
+    return MatCardSubtitle;
+}());
+/**
+ * Action section of a card, needed as it's used as a selector in the API.
+ * \@docs-private
+ */
+var MatCardActions = /** @class */ (function () {
+    function MatCardActions() {
+        /**
+         * Position of the actions inside the card.
+         */
+        this.align = 'start';
+    }
+    MatCardActions.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'mat-card-actions',
+                    exportAs: 'matCardActions',
+                    host: {
+                        'class': 'mat-card-actions',
+                        '[class.mat-card-actions-align-end]': 'align === "end"',
+                    }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardActions.ctorParameters = function () { return []; };
+    MatCardActions.propDecorators = {
+        "align": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+    };
+    return MatCardActions;
+}());
+/**
+ * Footer of a card, needed as it's used as a selector in the API.
+ * \@docs-private
+ */
+var MatCardFooter = /** @class */ (function () {
+    function MatCardFooter() {
+    }
+    MatCardFooter.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: 'mat-card-footer',
+                    host: { 'class': 'mat-card-footer' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardFooter.ctorParameters = function () { return []; };
+    return MatCardFooter;
+}());
+/**
+ * Image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardImage = /** @class */ (function () {
+    function MatCardImage() {
+    }
+    MatCardImage.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-image], [matCardImage]',
+                    host: { 'class': 'mat-card-image' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardImage.ctorParameters = function () { return []; };
+    return MatCardImage;
+}());
+/**
+ * Image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardSmImage = /** @class */ (function () {
+    function MatCardSmImage() {
+    }
+    MatCardSmImage.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-sm-image], [matCardImageSmall]',
+                    host: { 'class': 'mat-card-sm-image' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardSmImage.ctorParameters = function () { return []; };
+    return MatCardSmImage;
+}());
+/**
+ * Image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardMdImage = /** @class */ (function () {
+    function MatCardMdImage() {
+    }
+    MatCardMdImage.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-md-image], [matCardImageMedium]',
+                    host: { 'class': 'mat-card-md-image' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardMdImage.ctorParameters = function () { return []; };
+    return MatCardMdImage;
+}());
+/**
+ * Image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardLgImage = /** @class */ (function () {
+    function MatCardLgImage() {
+    }
+    MatCardLgImage.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-lg-image], [matCardImageLarge]',
+                    host: { 'class': 'mat-card-lg-image' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardLgImage.ctorParameters = function () { return []; };
+    return MatCardLgImage;
+}());
+/**
+ * Large image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardXlImage = /** @class */ (function () {
+    function MatCardXlImage() {
+    }
+    MatCardXlImage.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-xl-image], [matCardImageXLarge]',
+                    host: { 'class': 'mat-card-xl-image' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardXlImage.ctorParameters = function () { return []; };
+    return MatCardXlImage;
+}());
+/**
+ * Avatar image used in a card, needed to add the mat- CSS styling.
+ * \@docs-private
+ */
+var MatCardAvatar = /** @class */ (function () {
+    function MatCardAvatar() {
+    }
+    MatCardAvatar.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+                    selector: '[mat-card-avatar], [matCardAvatar]',
+                    host: { 'class': 'mat-card-avatar' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardAvatar.ctorParameters = function () { return []; };
+    return MatCardAvatar;
+}());
+/**
+ * A basic content container component that adds the styles of a Material design card.
+ *
+ * While this component can be used alone, it also provides a number
+ * of preset styles for common card sections, including:
+ * - mat-card-title
+ * - mat-card-subtitle
+ * - mat-card-content
+ * - mat-card-actions
+ * - mat-card-footer
+ */
+var MatCard = /** @class */ (function () {
+    function MatCard() {
+    }
+    MatCard.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card',
+                    exportAs: 'matCard',
+                    template: "<ng-content></ng-content><ng-content select=\"mat-card-footer\"></ng-content>",
+                    styles: [".mat-card{transition:box-shadow 280ms cubic-bezier(.4,0,.2,1);display:block;position:relative;padding:24px;border-radius:2px}.mat-card:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-card .mat-divider{position:absolute;left:0;width:100%}[dir=rtl] .mat-card .mat-divider{left:auto;right:0}.mat-card .mat-divider.mat-divider-inset{position:static;margin:0}@media screen and (-ms-high-contrast:active){.mat-card{outline:solid 1px}}.mat-card-flat{box-shadow:none}.mat-card-actions,.mat-card-content,.mat-card-subtitle,.mat-card-title{display:block;margin-bottom:16px}.mat-card-actions{margin-left:-16px;margin-right:-16px;padding:8px 0}.mat-card-actions-align-end{display:flex;justify-content:flex-end}.mat-card-image{width:calc(100% + 48px);margin:0 -24px 16px -24px}.mat-card-xl-image{width:240px;height:240px;margin:-8px}.mat-card-footer{display:block;margin:0 -24px -24px -24px}.mat-card-actions .mat-button,.mat-card-actions .mat-raised-button{margin:0 4px}.mat-card-header{display:flex;flex-direction:row}.mat-card-header-text{margin:0 8px}.mat-card-avatar{height:40px;width:40px;border-radius:50%;flex-shrink:0}.mat-card-lg-image,.mat-card-md-image,.mat-card-sm-image{margin:-8px 0}.mat-card-title-group{display:flex;justify-content:space-between;margin:0 -8px}.mat-card-sm-image{width:80px;height:80px}.mat-card-md-image{width:112px;height:112px}.mat-card-lg-image{width:152px;height:152px}@media (max-width:600px){.mat-card{padding:24px 16px}.mat-card-actions{margin-left:-8px;margin-right:-8px}.mat-card-image{width:calc(100% + 32px);margin:16px -16px}.mat-card-title-group{margin:0}.mat-card-xl-image{margin-left:0;margin-right:0}.mat-card-header{margin:-8px 0 0 0}.mat-card-footer{margin-left:-16px;margin-right:-16px}}.mat-card-content>:first-child,.mat-card>:first-child{margin-top:0}.mat-card-content>:last-child:not(.mat-card-footer),.mat-card>:last-child:not(.mat-card-footer){margin-bottom:0}.mat-card-image:first-child{margin-top:-24px}.mat-card>.mat-card-actions:last-child{margin-bottom:-16px;padding-bottom:0}.mat-card-actions .mat-button:first-child,.mat-card-actions .mat-raised-button:first-child{margin-left:0;margin-right:0}.mat-card-subtitle:not(:first-child),.mat-card-title:not(:first-child){margin-top:-4px}.mat-card-header .mat-card-subtitle:not(:first-child){margin-top:-8px}.mat-card>.mat-card-xl-image:first-child{margin-top:-8px}.mat-card>.mat-card-xl-image:last-child{margin-bottom:-8px}"],
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    host: { 'class': 'mat-card' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCard.ctorParameters = function () { return []; };
+    return MatCard;
+}());
+/**
+ * Component intended to be used within the `<mat-card>` component. It adds styles for a
+ * preset header section (i.e. a title, subtitle, and avatar layout).
+ * \@docs-private
+ */
+var MatCardHeader = /** @class */ (function () {
+    function MatCardHeader() {
+    }
+    MatCardHeader.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card-header',
+                    template: "<ng-content select=\"[mat-card-avatar], [matCardAvatar]\"></ng-content><div class=\"mat-card-header-text\"><ng-content select=\"mat-card-title, mat-card-subtitle, [mat-card-title], [mat-card-subtitle]\"></ng-content></div><ng-content></ng-content>",
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    host: { 'class': 'mat-card-header' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardHeader.ctorParameters = function () { return []; };
+    return MatCardHeader;
+}());
+/**
+ * Component intended to be used within the <mat-card> component. It adds styles for a preset
+ * layout that groups an image with a title section.
+ * \@docs-private
+ */
+var MatCardTitleGroup = /** @class */ (function () {
+    function MatCardTitleGroup() {
+    }
+    MatCardTitleGroup.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card-title-group',
+                    template: "<div><ng-content select=\"mat-card-title, mat-card-subtitle, [mat-card-title], [mat-card-subtitle]\"></ng-content></div><ng-content select=\"img\"></ng-content><ng-content></ng-content>",
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    host: { 'class': 'mat-card-title-group' }
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardTitleGroup.ctorParameters = function () { return []; };
+    return MatCardTitleGroup;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatCardModule = /** @class */ (function () {
+    function MatCardModule() {
+    }
+    MatCardModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */]],
+                    exports: [
+                        MatCard,
+                        MatCardHeader,
+                        MatCardTitleGroup,
+                        MatCardContent,
+                        MatCardTitle,
+                        MatCardSubtitle,
+                        MatCardActions,
+                        MatCardFooter,
+                        MatCardSmImage,
+                        MatCardMdImage,
+                        MatCardLgImage,
+                        MatCardImage,
+                        MatCardXlImage,
+                        MatCardAvatar,
+                        __WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */],
+                    ],
+                    declarations: [
+                        MatCard, MatCardHeader, MatCardTitleGroup, MatCardContent, MatCardTitle, MatCardSubtitle,
+                        MatCardActions, MatCardFooter, MatCardSmImage, MatCardMdImage, MatCardLgImage, MatCardImage,
+                        MatCardXlImage, MatCardAvatar,
+                    ],
+                },] },
+    ];
+    /** @nocollapse */
+    MatCardModule.ctorParameters = function () { return []; };
+    return MatCardModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=card.es5.js.map
+
+
+/***/ }),
+
 /***/ "../../../material/esm5/core.es5.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -79408,9 +83256,9 @@ function transition$$1(stateChangeExpr, steps) {
 /* unused harmony export AnimationDurations */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatCommonModule; });
 /* unused harmony export MATERIAL_SANITY_CHECKS */
-/* unused harmony export mixinDisabled */
-/* unused harmony export mixinColor */
-/* unused harmony export mixinDisableRipple */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return mixinDisabled; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return mixinColor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return mixinDisableRipple; });
 /* unused harmony export mixinTabIndex */
 /* unused harmony export mixinErrorState */
 /* unused harmony export NativeDateModule */
@@ -79442,7 +83290,7 @@ function transition$$1(stateChangeExpr, steps) {
 /* unused harmony export RippleState */
 /* unused harmony export RIPPLE_FADE_IN_DURATION */
 /* unused harmony export RIPPLE_FADE_OUT_DURATION */
-/* unused harmony export MatRippleModule */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return MatRippleModule; });
 /* unused harmony export MatPseudoCheckboxModule */
 /* unused harmony export MatPseudoCheckbox */
 /* unused harmony export applyCssTransform */
@@ -79564,7 +83412,7 @@ var MatCommonModule = /** @class */ (function () {
      * @return {?}
      */
     function () {
-        return this._sanityChecksEnabled && Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* isDevMode */])() && !this._isTestEnv();
+        return this._sanityChecksEnabled && Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* isDevMode */])() && !this._isTestEnv();
     };
     /**
      * Whether the code is running in tests.
@@ -81441,7 +85289,7 @@ var MatPseudoCheckbox = /** @class */ (function () {
         this.disabled = false;
     }
     MatPseudoCheckbox.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
                     selector: 'mat-pseudo-checkbox',
@@ -81516,7 +85364,7 @@ var MatOptgroup = /** @class */ (function (_super) {
         { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-optgroup',
                     exportAs: 'matOptgroup',
                     template: "<label class=\"mat-optgroup-label\" [id]=\"_labelId\">{{ label }}</label><ng-content select=\"mat-option\"></ng-content>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
                     inputs: ['disabled'],
@@ -81791,7 +85639,7 @@ var MatOption = /** @class */ (function () {
      * @return {?}
      */
     function (event) {
-        if (event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["a" /* ENTER */] || event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["b" /* SPACE */]) {
+        if (event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["c" /* ENTER */] || event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["e" /* SPACE */]) {
             this._selectViaInteraction();
             // Prevent the page from scrolling down and form submits.
             event.preventDefault();
@@ -81908,7 +85756,7 @@ var MatOption = /** @class */ (function () {
                         'class': 'mat-option',
                     },
                     template: "<mat-pseudo-checkbox *ngIf=\"multiple\" class=\"mat-option-pseudo-checkbox\" [state]=\"selected ? 'checked' : ''\" [disabled]=\"disabled\"></mat-pseudo-checkbox><span class=\"mat-option-text\"><ng-content></ng-content></span><div class=\"mat-option-ripple\" mat-ripple [matRippleTrigger]=\"_getHostElement()\" [matRippleDisabled]=\"disabled || disableRipple\"></div>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
                 },] },
@@ -82093,7 +85941,7 @@ var MatTable = /** @class */ (function (_super) {
                     host: {
                         'class': 'mat-table',
                     },
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
                 },] },
@@ -82283,7 +86131,7 @@ var MatHeaderRow = /** @class */ (function (_super) {
                         'role': 'row',
                     },
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     exportAs: 'matHeaderRow',
                     preserveWhitespaces: false,
                 },] },
@@ -82308,7 +86156,7 @@ var MatRow = /** @class */ (function (_super) {
                         'role': 'row',
                     },
                     changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
                     exportAs: 'matRow',
                     preserveWhitespaces: false,
                 },] },
@@ -82754,7 +86602,7 @@ var builtinExternalReferences = createBuiltinExternalReferencesMap();
 var JitReflector = /** @class */ (function () {
     function JitReflector() {
         this.builtinExternalReferences = new Map();
-        this.reflectionCapabilities = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_19" /* ɵReflectionCapabilities */]();
+        this.reflectionCapabilities = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_21" /* ɵReflectionCapabilities */]();
     }
     /**
      * @param {?} type
@@ -82773,10 +86621,10 @@ var JitReflector = /** @class */ (function () {
             return scheme ? moduleId : "package:" + moduleId + MODULE_SUFFIX;
         }
         else if (moduleId !== null && moduleId !== void 0) {
-            throw Object(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["A" /* syntaxError */])("moduleId should be a string in \"" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_43" /* ɵstringify */])(type) + "\". See https://goo.gl/wIDDiL for more information.\n" +
+            throw Object(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["A" /* syntaxError */])("moduleId should be a string in \"" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵstringify */])(type) + "\". See https://goo.gl/wIDDiL for more information.\n" +
                 "If you're using Webpack you should inline the template and the styles, see https://goo.gl/X2J8zc.");
         }
-        return "./" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_43" /* ɵstringify */])(type);
+        return "./" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵstringify */])(type);
     };
     /**
      * @param {?} typeOrFunc
@@ -82845,46 +86693,46 @@ function createBuiltinExternalReferencesMap() {
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ANALYZE_FOR_ENTRY_COMPONENTS, __WEBPACK_IMPORTED_MODULE_1__angular_core__["a" /* ANALYZE_FOR_ENTRY_COMPONENTS */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ElementRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* ElementRef */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["J" /* NgModuleRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewContainerRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewContainerRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewContainerRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectorRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectorRef */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].QueryList, __WEBPACK_IMPORTED_MODULE_1__angular_core__["S" /* QueryList */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TemplateRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TemplateRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].CodegenComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* ɵCodegenComponentFactoryResolver */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TemplateRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].CodegenComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_17" /* ɵCodegenComponentFactoryResolver */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["o" /* ComponentFactoryResolver */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["n" /* ComponentFactory */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["p" /* ComponentRef */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModuleFactory */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_22" /* ɵcmf */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_32" /* ɵmod */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleProviderDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_33" /* ɵmpd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].RegisterModuleFactoryFn, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_42" /* ɵregisterModuleFactory */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_24" /* ɵcmf */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_34" /* ɵmod */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleProviderDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_35" /* ɵmpd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].RegisterModuleFactoryFn, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_44" /* ɵregisterModuleFactory */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Injector, __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* Injector */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewEncapsulation, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewEncapsulation, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectionStrategy, __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].SecurityContext, __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].LOCALE_ID, __WEBPACK_IMPORTED_MODULE_1__angular_core__["F" /* LOCALE_ID */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TRANSLATIONS_FORMAT, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_1" /* TRANSLATIONS_FORMAT */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].inlineInterpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_27" /* ɵinlineInterpolate */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].interpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵinterpolate */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_ARRAY, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_17" /* ɵEMPTY_ARRAY */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_MAP, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵEMPTY_MAP */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TRANSLATIONS_FORMAT, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TRANSLATIONS_FORMAT */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].inlineInterpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_29" /* ɵinlineInterpolate */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].interpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵinterpolate */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_ARRAY, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_19" /* ɵEMPTY_ARRAY */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_MAP, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵEMPTY_MAP */]);
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Renderer, __WEBPACK_IMPORTED_MODULE_1__angular_core__["T" /* Renderer */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].viewDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_46" /* ɵvid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].elementDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_25" /* ɵeld */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].anchorDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵand */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].textDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_44" /* ɵted */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].directiveDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_24" /* ɵdid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].providerDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_40" /* ɵprd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].queryDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_41" /* ɵqud */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureArrayDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_36" /* ɵpad */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureObjectDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_38" /* ɵpod */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].purePipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_39" /* ɵppd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_37" /* ɵpid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].nodeValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_35" /* ɵnov */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ngContentDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_34" /* ɵncd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].unwrapValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵunv */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createRendererType2, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_23" /* ɵcrt */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_21" /* ɵccf */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].viewDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_48" /* ɵvid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].elementDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_27" /* ɵeld */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].anchorDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_22" /* ɵand */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].textDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_46" /* ɵted */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].directiveDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵdid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].providerDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_42" /* ɵprd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].queryDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_43" /* ɵqud */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureArrayDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_38" /* ɵpad */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureObjectDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_40" /* ɵpod */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].purePipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_41" /* ɵppd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_39" /* ɵpid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].nodeValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_37" /* ɵnov */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ngContentDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_36" /* ɵncd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].unwrapValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_47" /* ɵunv */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createRendererType2, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_25" /* ɵcrt */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_23" /* ɵccf */]);
     return map;
 }
 
@@ -83052,7 +86900,7 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["s" /* ResourceLoader */], useValue: _NO_RESOURCE_LOADER },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["l" /* JitSummaryResolver */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */], useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["l" /* JitSummaryResolver */] },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* ɵConsole */], deps: [] },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["m" /* Lexer */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["p" /* Parser */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["m" /* Lexer */]] },
     {
@@ -83069,10 +86917,10 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
         },
         deps: [
             baseHtmlParser,
-            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_0" /* TRANSLATIONS */])],
-            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_1" /* TRANSLATIONS_FORMAT */])],
+            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_1" /* TRANSLATIONS */])],
+            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TRANSLATIONS_FORMAT */])],
             [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */]],
-            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* ɵConsole */]],
+            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]],
         ]
     },
     {
@@ -83082,14 +86930,14 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
     {
         provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["w" /* TemplateParser */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["p" /* Parser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */],
-            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* ɵConsole */]]
+            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]]
     },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["s" /* ResourceLoader */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["h" /* HtmlParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["a" /* CompileMetadataResolver */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["h" /* HtmlParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["o" /* NgModuleResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["e" /* DirectiveResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["q" /* PipeResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */],
-            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* ɵConsole */],
+            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */],
             [__WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["t" /* StaticSymbolCache */]],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */],
             [__WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */], ERROR_COLLECTOR_TOKEN]] },
@@ -83102,7 +86950,7 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["w" /* TemplateParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["u" /* StyleCompiler */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["y" /* ViewCompiler */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["n" /* NgModuleCompiler */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */],
-            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* ɵConsole */]] },
+            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["f" /* DomElementSchemaRegistry */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */], useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["f" /* DomElementSchemaRegistry */] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */], deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["O" /* PACKAGE_ROOT_URL */]] },
@@ -83118,7 +86966,7 @@ var JitCompilerFactory = /** @class */ (function () {
     function JitCompilerFactory(defaultOptions) {
         var /** @type {?} */ compilerOptions = {
             useJit: true,
-            defaultEncapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].Emulated,
+            defaultEncapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Emulated,
             missingTranslation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["G" /* MissingTranslationStrategy */].Warning,
             enableLegacyTemplate: false,
         };
@@ -83143,7 +86991,7 @@ var JitCompilerFactory = /** @class */ (function () {
                         // let explicit values from the compiler options overwrite options
                         // from the app providers
                         useJit: opts.useJit,
-                        jitDevMode: Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* isDevMode */])(),
+                        jitDevMode: Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])(),
                         // let explicit values from the compiler options overwrite options
                         // from the app providers
                         defaultEncapsulation: opts.defaultEncapsulation,
@@ -83213,7 +87061,7 @@ function _mergeArrays(parts) {
  *
  * \@experimental
  */
-var platformCoreDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_13" /* platformCore */], 'coreDynamic', [
+var platformCoreDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* platformCore */], 'coreDynamic', [
     { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* COMPILER_OPTIONS */], useValue: {}, multi: true },
     { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["l" /* CompilerFactory */], useClass: JitCompilerFactory, deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* COMPILER_OPTIONS */]] },
 ]);
@@ -83327,7 +87175,7 @@ var CachedResourceLoader = /** @class */ (function (_super) {
     Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["b" /* __extends */])(CachedResourceLoader, _super);
     function CachedResourceLoader() {
         var _this = _super.call(this) || this;
-        _this._cache = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */])).$templateCache;
+        _this._cache = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */])).$templateCache;
         if (_this._cache == null) {
             throw new Error('CachedResourceLoader: Template cache was not found in $templateCache.');
         }
@@ -83383,7 +87231,7 @@ var CachedResourceLoader = /** @class */ (function (_super) {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle
@@ -83403,7 +87251,7 @@ var RESOURCE_CACHE_PROVIDER = [{ provide: __WEBPACK_IMPORTED_MODULE_0__angular_c
 /**
  * \@stable
  */
-var platformBrowserDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* createPlatformFactory */])(platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
+var platformBrowserDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
 
 /**
  * @fileoverview added by tsickle
@@ -83489,7 +87337,7 @@ var BrowserAnimationBuilder = /** @class */ (function (_super) {
         _this._nextAnimationId = 0;
         var /** @type {?} */ typeData = /** @type {?} */ ({
             id: '0',
-            encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewEncapsulation */].None,
+            encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
             styles: [],
             data: { animation: [] }
         });
@@ -84706,8 +88554,8 @@ var _chromeNumKeyPadMap = {
     '\x90': 'NumLock'
 };
 var nodeContains;
-if (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['Node']) {
-    nodeContains = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['Node'].prototype.contains || function (node) {
+if (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['Node']) {
+    nodeContains = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['Node'].prototype.contains || function (node) {
         return !!(this.compareDocumentPosition(node) & 16);
     };
 }
@@ -86520,7 +90368,7 @@ var BrowserGetTestability = /** @class */ (function () {
     BrowserGetTestability.init = /**
      * @return {?}
      */
-    function () { Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* setTestabilityGetter */])(new BrowserGetTestability()); };
+    function () { Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* setTestabilityGetter */])(new BrowserGetTestability()); };
     /**
      * @param {?} registry
      * @return {?}
@@ -86530,7 +90378,7 @@ var BrowserGetTestability = /** @class */ (function () {
      * @return {?}
      */
     function (registry) {
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['getAngularTestability'] = function (elem, findInAncestors) {
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAngularTestability'] = function (elem, findInAncestors) {
             if (findInAncestors === void 0) { findInAncestors = true; }
             var /** @type {?} */ testability = registry.findTestabilityInTree(elem, findInAncestors);
             if (testability == null) {
@@ -86538,10 +90386,10 @@ var BrowserGetTestability = /** @class */ (function () {
             }
             return testability;
         };
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
         var /** @type {?} */ whenAllStable = function (callback /** TODO #9100 */) {
-            var /** @type {?} */ testabilities = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['getAllAngularTestabilities']();
+            var /** @type {?} */ testabilities = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularTestabilities']();
             var /** @type {?} */ count = testabilities.length;
             var /** @type {?} */ didWork = false;
             var /** @type {?} */ decrement = function (didWork_ /** TODO #9100 */) {
@@ -86555,10 +90403,10 @@ var BrowserGetTestability = /** @class */ (function () {
                 testability.whenStable(decrement);
             });
         };
-        if (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['frameworkStabilizers']) {
-            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['frameworkStabilizers'] = [];
+        if (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers']) {
+            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers'] = [];
         }
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['frameworkStabilizers'].push(whenAllStable);
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers'].push(whenAllStable);
     };
     /**
      * @param {?} registry
@@ -86688,7 +90536,7 @@ function exportNgVar(name, value) {
         // - closure declares globals itself for minified names, which sometimes clobber our `ng` global
         // - we can't declare a closure extern as the namespace `ng` is already used within Google
         //   for typings for angularJS (via `goog.provide('ng....')`).
-        var /** @type {?} */ ng = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['ng'] = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵglobal */]['ng'])) || {};
+        var /** @type {?} */ ng = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['ng'] = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['ng'])) || {};
         ng[name] = value;
     }
 }
@@ -86718,7 +90566,7 @@ var CORE_TOKENS_GLOBAL_NAME = 'coreTokens';
  * @return {?}
  */
 function inspectNativeElement(element) {
-    return Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_11" /* getDebugNode */])(element);
+    return Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_13" /* getDebugNode */])(element);
 }
 /**
  * @param {?} coreTokens
@@ -87109,7 +90957,7 @@ var DomRendererFactory2 = /** @class */ (function () {
             return this.defaultRenderer;
         }
         switch (type.encapsulation) {
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].Emulated: {
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Emulated: {
                 var /** @type {?} */ renderer = this.rendererByCompId.get(type.id);
                 if (!renderer) {
                     renderer =
@@ -87119,7 +90967,7 @@ var DomRendererFactory2 = /** @class */ (function () {
                 (/** @type {?} */ (renderer)).applyToHost(element);
                 return renderer;
             }
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewEncapsulation */].Native:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Native:
                 return new ShadowDomRenderer(this.eventManager, this.sharedStylesHost, element, type);
             default: {
                 if (!this.rendererByCompId.has(type.id)) {
@@ -88222,7 +92070,7 @@ function sanitizeUrl(url) {
     url = String(url);
     if (url.match(SAFE_URL_PATTERN) || url.match(DATA_URL_PATTERN))
         return url;
-    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* isDevMode */])()) {
+    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])()) {
         getDOM().log("WARNING: sanitizing unsafe URL value " + url + " (see http://g.co/ng/security#xss)");
     }
     return 'unsafe:' + url;
@@ -88552,7 +92400,7 @@ function sanitizeHtml(defaultDoc, unsafeHtmlInput) {
             var child = _a[_i];
             DOM.removeChild(parent_1, child);
         }
-        if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* isDevMode */])() && sanitizer.sanitizedSomething) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])() && sanitizer.sanitizedSomething) {
             DOM.log('WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).');
         }
         return safeHtml;
@@ -88658,7 +92506,7 @@ function sanitizeStyle(value) {
         value.match(SAFE_STYLE_VALUE) && hasBalancedQuotes(value)) {
         return value; // Safe style values.
     }
-    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* isDevMode */])()) {
+    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])()) {
         getDOM().log("WARNING: sanitizing unsafe style value " + value + " (see http://g.co/ng/security#xss).");
     }
     return 'unsafe';
@@ -89002,7 +92850,7 @@ var BROWSER_SANITIZATION_PROVIDERS = [
 /**
  * \@stable
  */
-var platformBrowser = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_13" /* platformCore */], 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
+var platformBrowser = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* platformCore */], 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
 /**
  * @return {?}
  */
@@ -89081,7 +92929,7 @@ var BrowserModule = /** @class */ (function () {
                         { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["V" /* RendererFactory2 */], useExisting: DomRendererFactory2 },
                         { provide: SharedStylesHost, useExisting: DomSharedStylesHost },
                         DomSharedStylesHost,
-                        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* Testability */],
+                        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* Testability */],
                         EventManager,
                         ELEMENT_PROBE_PROVIDERS,
                         Meta,
@@ -89092,7 +92940,7 @@ var BrowserModule = /** @class */ (function () {
     ];
     /** @nocollapse */
     BrowserModule.ctorParameters = function () { return [
-        { type: BrowserModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SkipSelf */] },] },
+        { type: BrowserModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_0" /* SkipSelf */] },] },
     ]; };
     return BrowserModule;
 }());
@@ -89650,7 +93498,7 @@ var By = /** @class */ (function () {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle
