@@ -1,0 +1,30 @@
+mat-toolbar {
+    position: relative;
+    bottom: 0;
+}
+
+mat-toolbar span {
+    margin: auto;
+}
+
+#menu button {
+    margin: auto;
+}
+
+.card {
+  max-width: 400px;
+}
+
+.altieres-header-image {
+  background-image: url('/assets/img/altieres-profile.png');
+  background-size: cover;
+}
+
+.ricardo-header-image {
+  background-image: url('/assets/img/ricardo-profile.png');
+  background-size: cover;
+}
+
+mat-divider {
+    margin: 50px;
+}
