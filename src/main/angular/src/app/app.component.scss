@@ -28,3 +28,12 @@ mat-toolbar span {
 mat-divider {
     margin: 50px;
 }
+
+section div h1 {
+    font-family: Roboto,"Helvetica Neue",sans-serif;
+    font-weight: 600;
+}
+
+mat-card-content {
+    min-height: 115px;
+}
