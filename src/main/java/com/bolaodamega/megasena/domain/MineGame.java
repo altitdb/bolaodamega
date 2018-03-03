@@ -1,23 +1,10 @@
 package com.bolaodamega.megasena.domain;
 
-import java.time.LocalDateTime;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-@Entity(name = "MINE_GAME")
+@Document(collection = "MineGame")
+@TypeAlias("MineGame")
 public class MineGame extends Game {
-
-	@ManyToOne
-	@JoinColumn(name = "USER_ID")
-	private User user;
-	@Column(name = "LAST_UPDATE")
-	private LocalDateTime lastUpdate = LocalDateTime.now();
-
-	public User getUser() {
-		return user;
-	}
 
 }

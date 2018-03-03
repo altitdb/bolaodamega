@@ -1,22 +1,18 @@
 package com.bolaodamega.megasena.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "User")
+@TypeAlias("User")
 public class User {
 
 	@Id
-	@Column
 	private Long id;
-	@Column
 	private String email;
-	@Column
 	private String name;
-	@Column(name = "TAX_IDENTIFIER")
 	private String taxIdentifier;
-	@Column(name = "FACEBOOK_ID")
 	private String facebookId;
 
 	public Long getId() {

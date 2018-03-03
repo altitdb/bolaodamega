@@ -5,44 +5,27 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity(name = "RAFFLED_GAME")
+@Document(collection = "RaffledGame")
+@TypeAlias("RaffledGame")
 public class RaffledGame extends Game {
 
-	@Column(name = "TENDER_NUMBER")
 	private Integer tenderNumber;
-	@Column
 	private String city;
-	@Column
 	private String state;
-	@Column
 	private String accumulated;
-	@Column(name = "ACCUMULATED_VALUE")
 	private BigDecimal accumulatedValue;
-	@Column(name = "ACCUMULATED_TURNING")
 	private BigDecimal accumulatedTurning;
-	@Column(name = "TAX_REVENUES_TOTAL")
 	private BigDecimal taxRevenuesTotal;
-	@Temporal(TemporalType.DATE)
-	@Column(name = "TENDER_DATE")
 	private Date tenderDate;
-	@Column(name = "ESTIMATED_PRIZE")
 	private BigDecimal estimatedPrize;
-	@Column(name = "WINNERS_FOURTH")
 	private Integer winnersFourth;
-	@Column(name = "WINNERS_FIFTH")
 	private Integer winnersFifth;
-	@Column(name = "WINNERS_SIXTH")
 	private Integer winnersSixth;
-	@Column(name = "VALUE_FOURTH")
 	private BigDecimal valueFourth;
-	@Column(name = "VALUE_FIFTH")
 	private BigDecimal valueFifth;
-	@Column(name = "VALUE_SIXTH")
 	private BigDecimal valuesSixth;
 
 	public Boolean getAccumulated() {
@@ -165,17 +148,16 @@ public class RaffledGame extends Game {
 		this.valuesSixth = valuesSixth;
 	}
 
-	@Override
-	public GamePK getGamePk() {
+	public Game getGame() {
 		List<Integer> numbers = this.getNumbers();
 		Collections.sort(numbers);
-		GamePK newGamePK = new GamePK();
-		newGamePK.setNumber01(numbers.get(0));
-		newGamePK.setNumber02(numbers.get(1));
-		newGamePK.setNumber03(numbers.get(2));
-		newGamePK.setNumber04(numbers.get(3));
-		newGamePK.setNumber05(numbers.get(4));
-		newGamePK.setNumber06(numbers.get(5));
-        return newGamePK;
+		super.setNumber01(numbers.get(0));
+		super.setNumber02(numbers.get(1));
+		super.setNumber03(numbers.get(2));
+		super.setNumber04(numbers.get(3));
+		super.setNumber05(numbers.get(4));
+		super.setNumber06(numbers.get(5));
+        return this;
     }
+
 }

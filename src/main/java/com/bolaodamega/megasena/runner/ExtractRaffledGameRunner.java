@@ -1,4 +1,4 @@
-package com.bolaodamega.megasena.service;
+package com.bolaodamega.megasena.runner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,27 +22,55 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.RaffledGame;
+import com.bolaodamega.megasena.repository.ExcludedGameRepository;
+import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
-import com.mysql.jdbc.StringUtils;
+import com.bolaodamega.megasena.service.StatisticsServiceBean;
 
-@Order(value = -1)
+@Order(value = 20)
 @Controller
-public class ExtractRaffledGameBean implements CommandLineRunner {
+public class ExtractRaffledGameRunner implements CommandLineRunner {
 
-	private static final Logger LOG = Logger.getLogger(ExtractRaffledGameBean.class);
+	private static final Logger LOG = Logger.getLogger(ExtractRaffledGameRunner.class);
 	private static final String FILE = "classpath:/D_MEGA.HTM";
 	
 	@Autowired
 	private RaffledGameRepository raffledGameRepository;
 	
 	@Autowired
+    private MineGameRepository mineGameRepository;
+    
+    @Autowired
+    private ExcludedGameRepository excludedGameRepository;
+	
+	@Autowired
 	private ResourceLoader loader;
 	
-	public void start() {
-		delete();
+	@Autowired
+	private StatisticsServiceBean statisticsServiceBean;
+	
+	private void start() {
+		clearDatabase();
+		fillDatabase();
+		updateDatabase();
+		updateStatistics();
+	}
+	
+	private void updateStatistics() {
+		statisticsServiceBean.update();		
+	}
+
+	private void clearDatabase() {
+		raffledGameRepository.deleteAll();
+	}
+	
+	private void fillDatabase() {
 		Resource resource = loader.getResource(FILE);
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
 			StringBuilder html = new StringBuilder();
@@ -60,10 +89,27 @@ public class ExtractRaffledGameBean implements CommandLineRunner {
 			LOG.error("ERROR IN PARSE DATE OF HTML", e);
 		}
 	}
-
-	private void delete() {
-		raffledGameRepository.deleteAll();
-	}
+	
+	private void updateDatabase() {
+        final int pageSize = 100;
+        int start = 0;
+        Slice<RaffledGame> raffledGameStream;
+        do {
+            LOG.debug("STARTING SEARCH IN " + start);
+            raffledGameStream = raffledGameRepository.findAllBy(new PageRequest(start, pageSize));
+            LOG.debug("TOTAL: " + raffledGameStream.getSize());
+            for (RaffledGame raffledGame : raffledGameStream) {
+            	LOG.debug("DELETING " + raffledGame);
+            	try {
+            		mineGameRepository.deleteNumber(raffledGame.getGame());
+            		excludedGameRepository.deleteNumber(raffledGame.getGame());
+            	} catch (EmptyResultDataAccessException erdae) {
+            		LOG.debug(raffledGame + " ALREADY WAS DELETED");
+            	}
+            }
+            start++;
+        } while (raffledGameStream.hasNext());
+    }
 
 	private void extractGame(Elements elements) throws ParseException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -123,20 +169,18 @@ public class ExtractRaffledGameBean implements CommandLineRunner {
 	}
 	
 	private void save(List<RaffledGame> raffleds) {
-		for (RaffledGame raffledGame : raffleds) {
-			raffledGameRepository.save(raffledGame);
-		}
+		raffledGameRepository.save(raffleds);
 	}
 
 	private Integer getInteger(String value) {
-		if (StringUtils.isNullOrEmpty(value)) {
+		if (StringUtils.isBlank(value)) {
 			return null;
 		}
 		return Integer.valueOf(value);
 	}
 	
 	private BigDecimal getBigDecimal(String value) {
-		if (StringUtils.isNullOrEmpty(value)) {
+		if (StringUtils.isBlank(value)) {
 			return null;
 		}
 		String newValue = value.replaceAll("\\.", "").replaceAll(",", ".");
@@ -145,9 +189,11 @@ public class ExtractRaffledGameBean implements CommandLineRunner {
 	
 	@Override
     public void run(String... arg0) throws Exception {
-        LOG.info("STARTED");
-        start();
-        LOG.info("FINISHED");
+		if (EnableRunner.RAFFLED_GAME) {
+			LOG.info("STARTED");
+			start();
+			LOG.info("FINISHED");
+		}
     }
 
 }

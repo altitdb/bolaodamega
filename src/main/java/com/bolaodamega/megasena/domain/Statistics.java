@@ -3,22 +3,19 @@ package com.bolaodamega.megasena.domain;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "Statistics")
+@TypeAlias("Statistics")
 public class Statistics implements Serializable {
 
 	private static final long serialVersionUID = 23L;
 	@Id
-	@Column
 	private Integer id;
-	@Column
 	private String description;
-	@Column
 	private Long value;
-	@Column(name = "LAST_UPDATE")
 	private LocalDateTime lastUpdate = LocalDateTime.now();
 
 	public Integer getId() {

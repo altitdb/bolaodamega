@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.RaffledGame;
@@ -20,11 +18,10 @@ import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.repository.RaffledGameRepository;
 import com.bolaodamega.megasena.repository.StatisticsRepository;
 
-@Order(value = 2)
 @Controller
-public class StatisticsBean implements CommandLineRunner {
+public class StatisticsServiceBean {
 
-	private static final Logger LOG = Logger.getLogger(StatisticsBean.class);
+	private static final Logger LOG = Logger.getLogger(StatisticsServiceBean.class);
 
 	@Autowired
 	private StatisticsRepository statisticsRepository;
@@ -35,19 +32,22 @@ public class StatisticsBean implements CommandLineRunner {
 	@Autowired
 	private RaffledGameRepository raffledGameRepository;
 
-	@Override
-	public void run(String... arg0) throws Exception {
-		LOG.info("STARTED");
-		start();
-		LOG.info("FINISHED");
-	}
-
-	private void start() {
+	public void update() {
+		LOG.info("START UPDATE STATISTICS");
 		amountGames();
 		amountAvailableGames();
 		amountExcludedGames();
 		amountRaffledGames();
 		amountNumbers();
+		LOG.info("END UPDATE STATISTICS");
+	}
+	
+	public List<StatisticsDTO> findAll() {
+		List<Statistics> allStatistics = statisticsRepository.findAll();
+		List<StatisticsDTO> response = new ArrayList<>();
+		allStatistics.stream().forEach(
+				item -> response.add(new StatisticsDTO(item.getDescription(), item.getValue(), item.getLastUpdate())));
+		return response;
 	}
 
 	private void amountNumbers() {
@@ -117,13 +117,5 @@ public class StatisticsBean implements CommandLineRunner {
 		statistics.setDescription("Total de Jogos");
 		statistics.setValue(50063860L);
 		statisticsRepository.save(statistics);
-	}
-
-	public List<StatisticsDTO> findAll() {
-		List<Statistics> allStatistics = statisticsRepository.findAll();
-		List<StatisticsDTO> response = new ArrayList<>();
-		allStatistics.stream().forEach(
-				item -> response.add(new StatisticsDTO(item.getDescription(), item.getValue(), item.getLastUpdate())));
-		return response;
 	}
 }

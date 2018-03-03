@@ -1,9 +1,9 @@
-package com.bolaodamega.megasena.config;
+package com.bolaodamega.megasena;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "com.bolaodamega.megasena")
+@SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {

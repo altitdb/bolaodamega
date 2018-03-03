@@ -1,14 +1,14 @@
 package com.bolaodamega.megasena.domain;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.bolaodamega.megasena.roles.Role;
 
-@Entity(name = "excluded_game")
+@Document(collection = "ExcludedGame")
+@TypeAlias("ExcludedGame")
 public class ExcludedGame extends Game {
 
-    @Convert(converter = RoleConverter.class)
     private Role role;
 
     public Role getRole() {

@@ -1,10 +1,7 @@
-package com.bolaodamega.megasena.service;
+package com.bolaodamega.megasena.runner;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 
 import com.bolaodamega.megasena.domain.ExcludedGame;
+import com.bolaodamega.megasena.domain.Game;
 import com.bolaodamega.megasena.domain.HandleGame;
 import com.bolaodamega.megasena.domain.MineGame;
 import com.bolaodamega.megasena.repository.ExcludedGameRepository;
@@ -28,14 +26,15 @@ import com.bolaodamega.megasena.roles.NumbersInTwoRowRole;
 import com.bolaodamega.megasena.roles.NumbersLateralRole;
 import com.bolaodamega.megasena.roles.NumbersLessAndEqualsThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersOddsAndEvenRole;
+import com.bolaodamega.megasena.roles.NumbersPrimeRole;
 import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
 import com.bolaodamega.megasena.roles.NumbersSameRowRole;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
 
-@Order(value = 3)
+@Order(value = 30)
 @Controller
-public class MinerBean implements CommandLineRunner {
+public class MinerGameRunner implements CommandLineRunner {
     
     @Autowired
     private MineGameRepository mineGameRepository;
@@ -46,14 +45,11 @@ public class MinerBean implements CommandLineRunner {
     @Autowired
     private HandleGameRepository handleGameRepository;
     
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private static final Logger LOG = Logger.getLogger(MinerBean.class);
+    private static final Logger LOG = Logger.getLogger(MinerGameRunner.class);
 
     private Set<Role> roles = new HashSet<>();
     
-    public MinerBean() {
+    public MinerGameRunner() {
     	roles.add(new NumbersSequentialRole());
         roles.add(new NumbersOddsAndEvenRole());
         roles.add(new NumbersSameRowRole());
@@ -65,7 +61,7 @@ public class MinerBean implements CommandLineRunner {
         roles.add(new NumberGroupSequentialRole());
         roles.add(new NumbersLessAndEqualsThirtyRole());
         roles.add(new NumbersGreaterThanThirtyRole());
-        //roles.add(new NumbersPrimeRole());
+        roles.add(new NumbersPrimeRole());
         //roles.add(new NumbersFoldedRole());
     }
 
@@ -75,7 +71,6 @@ public class MinerBean implements CommandLineRunner {
             boolean isInvalid = role.validate(game);
             if (isInvalid) {
                 LOG.debug("INVALID " + game);
-                entityManager.detach(game);
                 handleInvalidGame(game, role);
             }
             return isInvalid;
@@ -84,22 +79,31 @@ public class MinerBean implements CommandLineRunner {
     }
 
     private void handleInvalidGame(MineGame game, Role role) {
-    	if (game.getUser() == null) {
+    	try {
 	        LOG.debug("SAVING EXCLUDED " + game);
 	        ExcludedGame newGame = new ExcludedGame();
-	        newGame.setGamePk(game.getGamePk());
+	        newGame.setNumber01(game.getNumber01());
+	        newGame.setNumber02(game.getNumber02());
+	        newGame.setNumber03(game.getNumber03());
+	        newGame.setNumber04(game.getNumber04());
+	        newGame.setNumber05(game.getNumber05());
+	        newGame.setNumber06(game.getNumber06());
 	        newGame.setRole(role);
 	        excludedGameRepository.save(newGame);
 	        LOG.debug("EXCLUDING " + game);
-	        mineGameRepository.delete(game.getGamePk());
-	        entityManager.clear();
-    	} else {
+	        mineGameRepository.deleteNumber((Game) game);
+    	} catch (Exception ex) {
     		LOG.debug("SAVING HANDLED " + game);
+    		LOG.error("ERROR DURING MINE GAME: " + ex);
 	        HandleGame handleGame = new HandleGame();
-	        handleGame.setGamePk(game.getGamePk());
+	        handleGame.setNumber01(game.getNumber01());
+	        handleGame.setNumber02(game.getNumber02());
+	        handleGame.setNumber03(game.getNumber03());
+	        handleGame.setNumber04(game.getNumber04());
+	        handleGame.setNumber05(game.getNumber05());
+	        handleGame.setNumber06(game.getNumber06());
 	        handleGame.setRole(role);
 	        handleGameRepository.save(handleGame);
-	        entityManager.clear();
     	}
     }
 
@@ -121,7 +125,6 @@ public class MinerBean implements CommandLineRunner {
             if (nextPage) {
                 start++;
             }
-            entityManager.clear();
         } while (mineGameStream.hasNext());
     }
 
@@ -135,9 +138,11 @@ public class MinerBean implements CommandLineRunner {
 
     @Override
     public void run(String... arg0) throws Exception {
-        LOG.info("STARTED");
-        start();
-        LOG.info("FINISHED");
+        if (EnableRunner.MINER_GAME) {
+        	LOG.info("STARTED");
+            start();
+            LOG.info("FINISHED");
+		}
     }
 
 }

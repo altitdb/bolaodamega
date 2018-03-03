@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bolaodamega.megasena.dto.GameBaseDTO;
 import com.bolaodamega.megasena.dto.GameStatusDTO;
 import com.bolaodamega.megasena.dto.NextGameDTO;
-import com.bolaodamega.megasena.service.GameStatusBean;
+import com.bolaodamega.megasena.service.GameStatusServiceBean;
 
 @RestController
 public class GameController {
 
 	@Autowired
-	private GameStatusBean gameStatusBean;
+	private GameStatusServiceBean gameStatusBean;
 	
 	@RequestMapping(value = "/api/v1/game/status", method = RequestMethod.POST)
 	public GameStatusDTO getGameStatus(@RequestBody GameBaseDTO gameBase) {

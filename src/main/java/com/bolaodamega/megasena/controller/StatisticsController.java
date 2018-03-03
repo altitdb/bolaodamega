@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bolaodamega.megasena.dto.StatisticsDTO;
-import com.bolaodamega.megasena.service.StatisticsBean;
+import com.bolaodamega.megasena.service.StatisticsServiceBean;
 
 @RestController
 public class StatisticsController {
 
 	@Autowired
-	private StatisticsBean statisticsBean;
+	private StatisticsServiceBean statisticsBean;
 	
 	@RequestMapping("/api/v1/statistics")
 	public List<StatisticsDTO> getStatistics() {
