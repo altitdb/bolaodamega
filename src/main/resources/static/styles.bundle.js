@@ -35,7 +35,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 exports.i(__webpack_require__("../../../../css-loader/index.js?{\"sourceMap\":false,\"importLoaders\":1}!../../../../postcss-loader/lib/index.js?{\"ident\":\"postcss\",\"sourceMap\":false}!../../../material/prebuilt-themes/indigo-pink.css"), "");
 
 // module
-exports.push([module.i, "/* You can add global styles to this file, and also import other style files */\n", ""]);
+exports.push([module.i, "/* You can add global styles to this file, and also import other style files */\nbody {\n  margin: 0;\n  padding: 0; }\n", ""]);
 
 // exports
 

@@ -20,7 +20,7 @@ webpackEmptyAsyncContext.id = "../../../../../src/$$_lazy_route_resource lazy re
 /***/ "../../../../../src/app/app.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<app-raffled></app-raffled>"
+module.exports = "<div id=\"menu\" fxLayoutAlign=\"center\">\r\n  <a mat-button href=\"#home\">\r\n    <span>Home</span>\r\n  </a>\r\n  <a mat-button href=\"#apostar\">\r\n    <span>Apostar</span>\r\n  </a>\r\n  <a mat-button href=\"#resultados\">\r\n    <span>Resultados</span>\r\n  </a>\r\n  <a mat-button href=\"#estatisticas\">\r\n    <span>Estatísticas</span>\r\n  </a>\r\n  <a mat-button href=\"#duvidas\">\r\n    <span>Dúvidas</span>\r\n  </a>\r\n  <a mat-button href=\"#manifesto\">\r\n    <span>Manifesto</span>\r\n  </a>\r\n  <a mat-button href=\"#sobre-nos\">\r\n    <span>Sobre Nós</span>\r\n  </a>\r\n  <a mat-button href=\"#contato\">\r\n    <span>Contato</span>\r\n  </a>\r\n</div>\r\n\r\n<section id=\"home\">\r\n    <div class=\"bxslider\">\r\n      <div><img src=\"/assets/img/slider/coffee1.jpg\" title=\"Funky roots\"></div>\r\n      <div><img src=\"/assets/img/slider/coffee2.jpg\" title=\"The long and winding road\"></div>\r\n      <div><img src=\"/assets/img/slider/coffee3.jpg\" title=\"Happy trees\"></div>\r\n      <div><img src=\"/assets/img/slider/coffee4.jpg\" title=\"Happy trees2\"></div>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"apostar\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>APOSTAR</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"resultados\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>RESULTADOS</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"estatisticas\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>ESTATÍSTICAS</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"Dúvidas\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>DÚVIDAS</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"Manifesto\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>MANIFESTO</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"sobre-nos\" fxLayout=\"column\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>SOBRE NÓS</h1>\r\n    </div>\r\n    <div fxFlex=\"100\" fxLayout=\"row\" fxLayoutAlign=\"center\">\r\n        <mat-card class=\"card\" fxFlex=\"30\">\r\n            <mat-card-header>\r\n                <div mat-card-avatar class=\"altieres-header-image\"></div>\r\n                <mat-card-title>Altieres de Matos</mat-card-title>\r\n                <mat-card-subtitle>Arquiteto de Software</mat-card-subtitle>\r\n            </mat-card-header>\r\n            <img mat-card-image src=\"/assets/img/altieres-capa.png\" alt=\"Foto de Altieres\">\r\n            <mat-card-content>\r\n                <p>\r\n                Atualmente trabalha na Matera como Arquiteto de Software. \r\n                Mestrando em Informática com foco em Computação Aplicada na UTFPR. \r\n                Nas horas vagas gosta de sair com os amigos. \r\n                Também dedica seu tempo livre na construção do site bolaodamega.com.br.\r\n                </p>\r\n            </mat-card-content>\r\n            <mat-card-actions fxLayoutAlign=\"center\">\r\n                <a href=\"https://www.facebook.com/altitdb\" target=\"_blank\">\r\n                    <img src=\"/assets/img/facebook.png\" alt=\"Facebook\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://twitter.com/altitdb\" target=\"_blank\">\r\n                    <img src=\"/assets/img/twitter.png\" alt=\"Twitter\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://www.instagram.com/altitdb\" target=\"_blank\">\r\n                    <img src=\"/assets/img/instagram.png\" alt=\"Instagram\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://www.linkedin.com/in/altieresdematos\" target=\"_blank\">\r\n                    <img src=\"/assets/img/linkedin.png\" alt=\"Linkedin\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://api.whatsapp.com/send?phone=5544999318326\" target=\"_blank\">\r\n                    <img src=\"/assets/img/whatsapp.png\" alt=\"WhatsApp\">\r\n                </a>\r\n            </mat-card-actions>\r\n        </mat-card>\r\n        <span fxFlex=\"5\"></span>\r\n        <mat-card class=\"card\" fxFlex=\"30\">\r\n            <mat-card-header>\r\n                <div mat-card-avatar class=\"ricardo-header-image\"></div>\r\n                <mat-card-title>Ricardo Luiz Silveira</mat-card-title>\r\n                <mat-card-subtitle>Analista de Sistemas</mat-card-subtitle>\r\n            </mat-card-header>\r\n            <img mat-card-image src=\"/assets/img/ricardo-capa.png\" alt=\"Foto de Ricardo\">\r\n            <mat-card-content>\r\n                <p>\r\n                Atualmente trabalha na Matera como Analista de Sistemas.\r\n                Bacharel em Ciência da Computação pela SMG - A Faculdade.\r\n                Tem paixão por Matemática e Filosofia.\r\n                Dedica seu tempo livre na construção do site bolaodamega.com.br.\r\n                </p>\r\n            </mat-card-content>\r\n            <mat-card-actions fxLayoutAlign=\"center\">\r\n                <a href=\"https://twitter.com/RLuizSilveira\" target=\"_blank\">\r\n                    <img src=\"/assets/img/twitter.png\" alt=\"Twitter\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://www.linkedin.com/in/ricardoluizsilveira\" target=\"_blank\">\r\n                    <img src=\"/assets/img/linkedin.png\" alt=\"Linkedin\">\r\n                </a>\r\n                <span fxFlex=\"2\"></span>\r\n                <a href=\"https://api.whatsapp.com/send?phone=5544988631384\" target=\"_blank\">\r\n                    <img src=\"/assets/img/whatsapp.png\" alt=\"WhatsApp\">\r\n                </a>\r\n            </mat-card-actions>\r\n        </mat-card>\r\n    </div>\r\n</section>\r\n\r\n<mat-divider></mat-divider>\r\n\r\n<section id=\"contato\">\r\n    <div fxFlex=\"100\" fxLayoutAlign=\"center\">\r\n        <h1>CONTATO</h1>\r\n    </div>\r\n</section>\r\n\r\n<mat-toolbar>\r\n  <span>www.bolaodamega.com.br © 2018</span>\r\n</mat-toolbar>"
 
 /***/ }),
 
@@ -32,7 +32,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 
 
 // module
-exports.push([module.i, "", ""]);
+exports.push([module.i, "mat-toolbar {\n  position: relative;\n  bottom: 0; }\n\nmat-toolbar span, #menu button, .bx-wrapper {\n  margin: auto; }\n\n#menu {\n  height: 50px; }\n\n#menu a.mat-button {\n  line-height: 50px; }\n\n.card {\n  max-width: 400px; }\n\n.altieres-header-image {\n  background-image: url(\"/assets/img/altieres-profile.png\");\n  background-size: cover; }\n\n.ricardo-header-image {\n  background-image: url(\"/assets/img/ricardo-profile.png\");\n  background-size: cover; }\n\nmat-divider {\n  margin: 50px; }\n\nsection div h1 {\n  font-family: Roboto,\"Helvetica Neue\",sans-serif;\n  font-weight: 600; }\n\nmat-card-content {\n  min-height: 115px; }\n", ""]);
 
 // exports
 
@@ -65,7 +65,7 @@ var AppComponent = (function () {
     AppComponent.prototype.ngOnInit = function () {
     };
     AppComponent = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
             selector: 'app-root',
             template: __webpack_require__("../../../../../src/app/app.component.html"),
             styles: [__webpack_require__("../../../../../src/app/app.component.scss")]
@@ -88,8 +88,15 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_component__ = __webpack_require__("../../../../../src/app/app.component.ts");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_platform_browser_animations__ = __webpack_require__("../../../platform-browser/esm5/animations.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__statistics_statistics_module__ = __webpack_require__("../../../../../src/app/statistics/statistics.module.ts");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__raffled_raffled_module__ = __webpack_require__("../../../../../src/app/raffled/raffled.module.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_flex_layout__ = __webpack_require__("../../../flex-layout/esm5/flex-layout.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__statistics_statistics_module__ = __webpack_require__("../../../../../src/app/statistics/statistics.module.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__raffled_raffled_module__ = __webpack_require__("../../../../../src/app/raffled/raffled.module.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__angular_material_menu__ = __webpack_require__("../../../material/esm5/menu.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__angular_material_toolbar__ = __webpack_require__("../../../material/esm5/toolbar.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__angular_material_button__ = __webpack_require__("../../../material/esm5/button.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__angular_material_icon__ = __webpack_require__("../../../material/esm5/icon.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__angular_material_card__ = __webpack_require__("../../../material/esm5/card.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__angular_material_divider__ = __webpack_require__("../../../material/esm5/divider.es5.js");
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -102,19 +109,33 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 
 
 
+
+
+
+
+
+
+
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* NgModule */])({
+        Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModule */])({
             declarations: [
                 __WEBPACK_IMPORTED_MODULE_2__app_component__["a" /* AppComponent */]
             ],
             imports: [
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["a" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_platform_browser_animations__["a" /* BrowserAnimationsModule */],
-                __WEBPACK_IMPORTED_MODULE_4__statistics_statistics_module__["a" /* StatisticsModule */],
-                __WEBPACK_IMPORTED_MODULE_5__raffled_raffled_module__["a" /* RaffledModule */]
+                __WEBPACK_IMPORTED_MODULE_4__angular_flex_layout__["a" /* FlexLayoutModule */],
+                __WEBPACK_IMPORTED_MODULE_5__statistics_statistics_module__["a" /* StatisticsModule */],
+                __WEBPACK_IMPORTED_MODULE_6__raffled_raffled_module__["a" /* RaffledModule */],
+                __WEBPACK_IMPORTED_MODULE_7__angular_material_menu__["a" /* MatMenuModule */],
+                __WEBPACK_IMPORTED_MODULE_9__angular_material_button__["a" /* MatButtonModule */],
+                __WEBPACK_IMPORTED_MODULE_8__angular_material_toolbar__["a" /* MatToolbarModule */],
+                __WEBPACK_IMPORTED_MODULE_10__angular_material_icon__["a" /* MatIconModule */],
+                __WEBPACK_IMPORTED_MODULE_11__angular_material_card__["a" /* MatCardModule */],
+                __WEBPACK_IMPORTED_MODULE_12__angular_material_divider__["a" /* MatDividerModule */]
             ],
             providers: [],
             bootstrap: [__WEBPACK_IMPORTED_MODULE_2__app_component__["a" /* AppComponent */]]
@@ -218,7 +239,7 @@ var RaffledComponent = (function () {
         });
     };
     RaffledComponent = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
             selector: 'app-raffled',
             template: __webpack_require__("../../../../../src/app/raffled/raffled.component.html"),
             styles: [__webpack_require__("../../../../../src/app/raffled/raffled.component.scss")]
@@ -269,7 +290,7 @@ var RaffledModule = (function () {
     function RaffledModule() {
     }
     RaffledModule = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */])({
             imports: [
                 __WEBPACK_IMPORTED_MODULE_1__angular_common__["a" /* CommonModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_material_table__["b" /* MatTableModule */],
@@ -327,7 +348,7 @@ var RaffledService = (function () {
         return this._httpClient.get(this.urlRaffledNext + tenderNumber);
     };
     RaffledService = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */])(),
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */])(),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__angular_common_http__["a" /* HttpClient */]])
     ], RaffledService);
     return RaffledService;
@@ -394,7 +415,7 @@ var StatisticsComponent = (function () {
         });
     };
     StatisticsComponent = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
             selector: 'app-statistics',
             template: __webpack_require__("../../../../../src/app/statistics/statistics.component.html"),
             styles: [__webpack_require__("../../../../../src/app/statistics/statistics.component.scss")]
@@ -435,7 +456,7 @@ var StatisticsModule = (function () {
     function StatisticsModule() {
     }
     StatisticsModule = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */])({
             imports: [
                 __WEBPACK_IMPORTED_MODULE_1__angular_common__["a" /* CommonModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_material_table__["b" /* MatTableModule */],
@@ -485,7 +506,7 @@ var StatisticsService = (function () {
         return this.httpClient.get(this.url);
     };
     StatisticsService = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */])(),
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */])(),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1__angular_common_http__["a" /* HttpClient */]])
     ], StatisticsService);
     return StatisticsService;
@@ -529,7 +550,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 if (__WEBPACK_IMPORTED_MODULE_3__environments_environment__["a" /* environment */].production) {
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_11" /* enableProdMode */])();
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_13" /* enableProdMode */])();
 }
 Object(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__["a" /* platformBrowserDynamic */])().bootstrapModule(__WEBPACK_IMPORTED_MODULE_2__app_app_module__["a" /* AppModule */])
     .catch(function (err) { return console.log(err); });

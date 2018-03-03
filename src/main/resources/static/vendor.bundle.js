@@ -3353,6 +3353,128 @@ var OuterSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/ReplaySubject.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ReplaySubject; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subject__ = __webpack_require__("../../../../rxjs/_esm5/Subject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scheduler_queue__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/queue.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__operators_observeOn__ = __webpack_require__("../../../../rxjs/_esm5/operators/observeOn.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__util_ObjectUnsubscribedError__ = __webpack_require__("../../../../rxjs/_esm5/util/ObjectUnsubscribedError.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__SubjectSubscription__ = __webpack_require__("../../../../rxjs/_esm5/SubjectSubscription.js");
+/** PURE_IMPORTS_START ._Subject,._scheduler_queue,._Subscription,._operators_observeOn,._util_ObjectUnsubscribedError,._SubjectSubscription PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+
+
+
+/**
+ * @class ReplaySubject<T>
+ */
+var ReplaySubject = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(ReplaySubject, _super);
+    function ReplaySubject(bufferSize, windowTime, scheduler) {
+        if (bufferSize === void 0) {
+            bufferSize = Number.POSITIVE_INFINITY;
+        }
+        if (windowTime === void 0) {
+            windowTime = Number.POSITIVE_INFINITY;
+        }
+        _super.call(this);
+        this.scheduler = scheduler;
+        this._events = [];
+        this._bufferSize = bufferSize < 1 ? 1 : bufferSize;
+        this._windowTime = windowTime < 1 ? 1 : windowTime;
+    }
+    ReplaySubject.prototype.next = function (value) {
+        var now = this._getNow();
+        this._events.push(new ReplayEvent(now, value));
+        this._trimBufferThenGetEvents();
+        _super.prototype.next.call(this, value);
+    };
+    ReplaySubject.prototype._subscribe = function (subscriber) {
+        var _events = this._trimBufferThenGetEvents();
+        var scheduler = this.scheduler;
+        var subscription;
+        if (this.closed) {
+            throw new __WEBPACK_IMPORTED_MODULE_4__util_ObjectUnsubscribedError__["a" /* ObjectUnsubscribedError */]();
+        }
+        else if (this.hasError) {
+            subscription = __WEBPACK_IMPORTED_MODULE_2__Subscription__["a" /* Subscription */].EMPTY;
+        }
+        else if (this.isStopped) {
+            subscription = __WEBPACK_IMPORTED_MODULE_2__Subscription__["a" /* Subscription */].EMPTY;
+        }
+        else {
+            this.observers.push(subscriber);
+            subscription = new __WEBPACK_IMPORTED_MODULE_5__SubjectSubscription__["a" /* SubjectSubscription */](this, subscriber);
+        }
+        if (scheduler) {
+            subscriber.add(subscriber = new __WEBPACK_IMPORTED_MODULE_3__operators_observeOn__["a" /* ObserveOnSubscriber */](subscriber, scheduler));
+        }
+        var len = _events.length;
+        for (var i = 0; i < len && !subscriber.closed; i++) {
+            subscriber.next(_events[i].value);
+        }
+        if (this.hasError) {
+            subscriber.error(this.thrownError);
+        }
+        else if (this.isStopped) {
+            subscriber.complete();
+        }
+        return subscription;
+    };
+    ReplaySubject.prototype._getNow = function () {
+        return (this.scheduler || __WEBPACK_IMPORTED_MODULE_1__scheduler_queue__["a" /* queue */]).now();
+    };
+    ReplaySubject.prototype._trimBufferThenGetEvents = function () {
+        var now = this._getNow();
+        var _bufferSize = this._bufferSize;
+        var _windowTime = this._windowTime;
+        var _events = this._events;
+        var eventsCount = _events.length;
+        var spliceCount = 0;
+        // Trim events that fall out of the time window.
+        // Start at the front of the list. Break early once
+        // we encounter an event that falls within the window.
+        while (spliceCount < eventsCount) {
+            if ((now - _events[spliceCount].time) < _windowTime) {
+                break;
+            }
+            spliceCount++;
+        }
+        if (eventsCount > _bufferSize) {
+            spliceCount = Math.max(spliceCount, eventsCount - _bufferSize);
+        }
+        if (spliceCount > 0) {
+            _events.splice(0, spliceCount);
+        }
+        return _events;
+    };
+    return ReplaySubject;
+}(__WEBPACK_IMPORTED_MODULE_0__Subject__["a" /* Subject */]));
+var ReplayEvent = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function ReplayEvent(time, value) {
+        this.time = time;
+        this.value = value;
+    }
+    return ReplayEvent;
+}());
+//# sourceMappingURL=ReplaySubject.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/Scheduler.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -4631,6 +4753,548 @@ var EmptyObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/observable/ErrorObservable.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ErrorObservable; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Observable__ = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
+/** PURE_IMPORTS_START .._Observable PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @extends {Ignored}
+ * @hide true
+ */
+var ErrorObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(ErrorObservable, _super);
+    function ErrorObservable(error, scheduler) {
+        _super.call(this);
+        this.error = error;
+        this.scheduler = scheduler;
+    }
+    /**
+     * Creates an Observable that emits no items to the Observer and immediately
+     * emits an error notification.
+     *
+     * <span class="informal">Just emits 'error', and nothing else.
+     * </span>
+     *
+     * <img src="./img/throw.png" width="100%">
+     *
+     * This static operator is useful for creating a simple Observable that only
+     * emits the error notification. It can be used for composing with other
+     * Observables, such as in a {@link mergeMap}.
+     *
+     * @example <caption>Emit the number 7, then emit an error.</caption>
+     * var result = Rx.Observable.throw(new Error('oops!')).startWith(7);
+     * result.subscribe(x => console.log(x), e => console.error(e));
+     *
+     * @example <caption>Map and flatten numbers to the sequence 'a', 'b', 'c', but throw an error for 13</caption>
+     * var interval = Rx.Observable.interval(1000);
+     * var result = interval.mergeMap(x =>
+     *   x === 13 ?
+     *     Rx.Observable.throw('Thirteens are bad') :
+     *     Rx.Observable.of('a', 'b', 'c')
+     * );
+     * result.subscribe(x => console.log(x), e => console.error(e));
+     *
+     * @see {@link create}
+     * @see {@link empty}
+     * @see {@link never}
+     * @see {@link of}
+     *
+     * @param {any} error The particular Error to pass to the error notification.
+     * @param {Scheduler} [scheduler] A {@link IScheduler} to use for scheduling
+     * the emission of the error notification.
+     * @return {Observable} An error Observable: emits only the error notification
+     * using the given error argument.
+     * @static true
+     * @name throw
+     * @owner Observable
+     */
+    ErrorObservable.create = function (error, scheduler) {
+        return new ErrorObservable(error, scheduler);
+    };
+    ErrorObservable.dispatch = function (arg) {
+        var error = arg.error, subscriber = arg.subscriber;
+        subscriber.error(error);
+    };
+    ErrorObservable.prototype._subscribe = function (subscriber) {
+        var error = this.error;
+        var scheduler = this.scheduler;
+        subscriber.syncErrorThrowable = true;
+        if (scheduler) {
+            return scheduler.schedule(ErrorObservable.dispatch, 0, {
+                error: error, subscriber: subscriber
+            });
+        }
+        else {
+            subscriber.error(error);
+        }
+    };
+    return ErrorObservable;
+}(__WEBPACK_IMPORTED_MODULE_0__Observable__["a" /* Observable */]));
+//# sourceMappingURL=ErrorObservable.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/observable/ForkJoinObservable.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ForkJoinObservable; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Observable__ = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__EmptyObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/EmptyObservable.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util_isArray__ = __webpack_require__("../../../../rxjs/_esm5/util/isArray.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util_subscribeToResult__ = __webpack_require__("../../../../rxjs/_esm5/util/subscribeToResult.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__OuterSubscriber__ = __webpack_require__("../../../../rxjs/_esm5/OuterSubscriber.js");
+/** PURE_IMPORTS_START .._Observable,._EmptyObservable,.._util_isArray,.._util_subscribeToResult,.._OuterSubscriber PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+
+
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @extends {Ignored}
+ * @hide true
+ */
+var ForkJoinObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(ForkJoinObservable, _super);
+    function ForkJoinObservable(sources, resultSelector) {
+        _super.call(this);
+        this.sources = sources;
+        this.resultSelector = resultSelector;
+    }
+    /* tslint:enable:max-line-length */
+    /**
+     * Joins last values emitted by passed Observables.
+     *
+     * <span class="informal">Wait for Observables to complete and then combine last values they emitted.</span>
+     *
+     * <img src="./img/forkJoin.png" width="100%">
+     *
+     * `forkJoin` is an operator that takes any number of Observables which can be passed either as an array
+     * or directly as arguments. If no input Observables are provided, resulting stream will complete
+     * immediately.
+     *
+     * `forkJoin` will wait for all passed Observables to complete and then it will emit an array with last
+     * values from corresponding Observables. So if you pass `n` Observables to the operator, resulting
+     * array will have `n` values, where first value is the last thing emitted by the first Observable,
+     * second value is the last thing emitted by the second Observable and so on. That means `forkJoin` will
+     * not emit more than once and it will complete after that. If you need to emit combined values not only
+     * at the end of lifecycle of passed Observables, but also throughout it, try out {@link combineLatest}
+     * or {@link zip} instead.
+     *
+     * In order for resulting array to have the same length as the number of input Observables, whenever any of
+     * that Observables completes without emitting any value, `forkJoin` will complete at that moment as well
+     * and it will not emit anything either, even if it already has some last values from other Observables.
+     * Conversely, if there is an Observable that never completes, `forkJoin` will never complete as well,
+     * unless at any point some other Observable completes without emitting value, which brings us back to
+     * the previous case. Overall, in order for `forkJoin` to emit a value, all Observables passed as arguments
+     * have to emit something at least once and complete.
+     *
+     * If any input Observable errors at some point, `forkJoin` will error as well and all other Observables
+     * will be immediately unsubscribed.
+     *
+     * Optionally `forkJoin` accepts project function, that will be called with values which normally
+     * would land in emitted array. Whatever is returned by project function, will appear in output
+     * Observable instead. This means that default project can be thought of as a function that takes
+     * all its arguments and puts them into an array. Note that project function will be called only
+     * when output Observable is supposed to emit a result.
+     *
+     * @example <caption>Use forkJoin with operator emitting immediately</caption>
+     * const observable = Rx.Observable.forkJoin(
+     *   Rx.Observable.of(1, 2, 3, 4),
+     *   Rx.Observable.of(5, 6, 7, 8)
+     * );
+     * observable.subscribe(
+     *   value => console.log(value),
+     *   err => {},
+     *   () => console.log('This is how it ends!')
+     * );
+     *
+     * // Logs:
+     * // [4, 8]
+     * // "This is how it ends!"
+     *
+     *
+     * @example <caption>Use forkJoin with operator emitting after some time</caption>
+     * const observable = Rx.Observable.forkJoin(
+     *   Rx.Observable.interval(1000).take(3), // emit 0, 1, 2 every second and complete
+     *   Rx.Observable.interval(500).take(4) // emit 0, 1, 2, 3 every half a second and complete
+     * );
+     * observable.subscribe(
+     *   value => console.log(value),
+     *   err => {},
+     *   () => console.log('This is how it ends!')
+     * );
+     *
+     * // Logs:
+     * // [2, 3] after 3 seconds
+     * // "This is how it ends!" immediately after
+     *
+     *
+     * @example <caption>Use forkJoin with project function</caption>
+     * const observable = Rx.Observable.forkJoin(
+     *   Rx.Observable.interval(1000).take(3), // emit 0, 1, 2 every second and complete
+     *   Rx.Observable.interval(500).take(4), // emit 0, 1, 2, 3 every half a second and complete
+     *   (n, m) => n + m
+     * );
+     * observable.subscribe(
+     *   value => console.log(value),
+     *   err => {},
+     *   () => console.log('This is how it ends!')
+     * );
+     *
+     * // Logs:
+     * // 5 after 3 seconds
+     * // "This is how it ends!" immediately after
+     *
+     * @see {@link combineLatest}
+     * @see {@link zip}
+     *
+     * @param {...SubscribableOrPromise} sources Any number of Observables provided either as an array or as an arguments
+     * passed directly to the operator.
+     * @param {function} [project] Function that takes values emitted by input Observables and returns value
+     * that will appear in resulting Observable instead of default array.
+     * @return {Observable} Observable emitting either an array of last values emitted by passed Observables
+     * or value from project function.
+     * @static true
+     * @name forkJoin
+     * @owner Observable
+     */
+    ForkJoinObservable.create = function () {
+        var sources = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            sources[_i - 0] = arguments[_i];
+        }
+        if (sources === null || arguments.length === 0) {
+            return new __WEBPACK_IMPORTED_MODULE_1__EmptyObservable__["a" /* EmptyObservable */]();
+        }
+        var resultSelector = null;
+        if (typeof sources[sources.length - 1] === 'function') {
+            resultSelector = sources.pop();
+        }
+        // if the first and only other argument besides the resultSelector is an array
+        // assume it's been called with `forkJoin([obs1, obs2, obs3], resultSelector)`
+        if (sources.length === 1 && Object(__WEBPACK_IMPORTED_MODULE_2__util_isArray__["a" /* isArray */])(sources[0])) {
+            sources = sources[0];
+        }
+        if (sources.length === 0) {
+            return new __WEBPACK_IMPORTED_MODULE_1__EmptyObservable__["a" /* EmptyObservable */]();
+        }
+        return new ForkJoinObservable(sources, resultSelector);
+    };
+    ForkJoinObservable.prototype._subscribe = function (subscriber) {
+        return new ForkJoinSubscriber(subscriber, this.sources, this.resultSelector);
+    };
+    return ForkJoinObservable;
+}(__WEBPACK_IMPORTED_MODULE_0__Observable__["a" /* Observable */]));
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var ForkJoinSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(ForkJoinSubscriber, _super);
+    function ForkJoinSubscriber(destination, sources, resultSelector) {
+        _super.call(this, destination);
+        this.sources = sources;
+        this.resultSelector = resultSelector;
+        this.completed = 0;
+        this.haveValues = 0;
+        var len = sources.length;
+        this.total = len;
+        this.values = new Array(len);
+        for (var i = 0; i < len; i++) {
+            var source = sources[i];
+            var innerSubscription = Object(__WEBPACK_IMPORTED_MODULE_3__util_subscribeToResult__["a" /* subscribeToResult */])(this, source, null, i);
+            if (innerSubscription) {
+                innerSubscription.outerIndex = i;
+                this.add(innerSubscription);
+            }
+        }
+    }
+    ForkJoinSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+        this.values[outerIndex] = innerValue;
+        if (!innerSub._hasValue) {
+            innerSub._hasValue = true;
+            this.haveValues++;
+        }
+    };
+    ForkJoinSubscriber.prototype.notifyComplete = function (innerSub) {
+        var destination = this.destination;
+        var _a = this, haveValues = _a.haveValues, resultSelector = _a.resultSelector, values = _a.values;
+        var len = values.length;
+        if (!innerSub._hasValue) {
+            destination.complete();
+            return;
+        }
+        this.completed++;
+        if (this.completed !== len) {
+            return;
+        }
+        if (haveValues === len) {
+            var value = resultSelector ? resultSelector.apply(this, values) : values;
+            destination.next(value);
+        }
+        destination.complete();
+    };
+    return ForkJoinSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_4__OuterSubscriber__["a" /* OuterSubscriber */]));
+//# sourceMappingURL=ForkJoinObservable.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/observable/FromEventObservable.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FromEventObservable; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Observable__ = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util_tryCatch__ = __webpack_require__("../../../../rxjs/_esm5/util/tryCatch.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util_isFunction__ = __webpack_require__("../../../../rxjs/_esm5/util/isFunction.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util_errorObject__ = __webpack_require__("../../../../rxjs/_esm5/util/errorObject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/** PURE_IMPORTS_START .._Observable,.._util_tryCatch,.._util_isFunction,.._util_errorObject,.._Subscription PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+
+
+var toString = Object.prototype.toString;
+function isNodeStyleEventEmitter(sourceObj) {
+    return !!sourceObj && typeof sourceObj.addListener === 'function' && typeof sourceObj.removeListener === 'function';
+}
+function isJQueryStyleEventEmitter(sourceObj) {
+    return !!sourceObj && typeof sourceObj.on === 'function' && typeof sourceObj.off === 'function';
+}
+function isNodeList(sourceObj) {
+    return !!sourceObj && toString.call(sourceObj) === '[object NodeList]';
+}
+function isHTMLCollection(sourceObj) {
+    return !!sourceObj && toString.call(sourceObj) === '[object HTMLCollection]';
+}
+function isEventTarget(sourceObj) {
+    return !!sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
+}
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @extends {Ignored}
+ * @hide true
+ */
+var FromEventObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(FromEventObservable, _super);
+    function FromEventObservable(sourceObj, eventName, selector, options) {
+        _super.call(this);
+        this.sourceObj = sourceObj;
+        this.eventName = eventName;
+        this.selector = selector;
+        this.options = options;
+    }
+    /* tslint:enable:max-line-length */
+    /**
+     * Creates an Observable that emits events of a specific type coming from the
+     * given event target.
+     *
+     * <span class="informal">Creates an Observable from DOM events, or Node.js
+     * EventEmitter events or others.</span>
+     *
+     * <img src="./img/fromEvent.png" width="100%">
+     *
+     * `fromEvent` accepts as a first argument event target, which is an object with methods
+     * for registering event handler functions. As a second argument it takes string that indicates
+     * type of event we want to listen for. `fromEvent` supports selected types of event targets,
+     * which are described in detail below. If your event target does not match any of the ones listed,
+     * you should use {@link fromEventPattern}, which can be used on arbitrary APIs.
+     * When it comes to APIs supported by `fromEvent`, their methods for adding and removing event
+     * handler functions have different names, but they all accept a string describing event type
+     * and function itself, which will be called whenever said event happens.
+     *
+     * Every time resulting Observable is subscribed, event handler function will be registered
+     * to event target on given event type. When that event fires, value
+     * passed as a first argument to registered function will be emitted by output Observable.
+     * When Observable is unsubscribed, function will be unregistered from event target.
+     *
+     * Note that if event target calls registered function with more than one argument, second
+     * and following arguments will not appear in resulting stream. In order to get access to them,
+     * you can pass to `fromEvent` optional project function, which will be called with all arguments
+     * passed to event handler. Output Observable will then emit value returned by project function,
+     * instead of the usual value.
+     *
+     * Remember that event targets listed below are checked via duck typing. It means that
+     * no matter what kind of object you have and no matter what environment you work in,
+     * you can safely use `fromEvent` on that object if it exposes described methods (provided
+     * of course they behave as was described above). So for example if Node.js library exposes
+     * event target which has the same method names as DOM EventTarget, `fromEvent` is still
+     * a good choice.
+     *
+     * If the API you use is more callback then event handler oriented (subscribed
+     * callback function fires only once and thus there is no need to manually
+     * unregister it), you should use {@link bindCallback} or {@link bindNodeCallback}
+     * instead.
+     *
+     * `fromEvent` supports following types of event targets:
+     *
+     * **DOM EventTarget**
+     *
+     * This is an object with `addEventListener` and `removeEventListener` methods.
+     *
+     * In the browser, `addEventListener` accepts - apart from event type string and event
+     * handler function arguments - optional third parameter, which is either an object or boolean,
+     * both used for additional configuration how and when passed function will be called. When
+     * `fromEvent` is used with event target of that type, you can provide this values
+     * as third parameter as well.
+     *
+     * **Node.js EventEmitter**
+     *
+     * An object with `addListener` and `removeListener` methods.
+     *
+     * **JQuery-style event target**
+     *
+     * An object with `on` and `off` methods
+     *
+     * **DOM NodeList**
+     *
+     * List of DOM Nodes, returned for example by `document.querySelectorAll` or `Node.childNodes`.
+     *
+     * Although this collection is not event target in itself, `fromEvent` will iterate over all Nodes
+     * it contains and install event handler function in every of them. When returned Observable
+     * is unsubscribed, function will be removed from all Nodes.
+     *
+     * **DOM HtmlCollection**
+     *
+     * Just as in case of NodeList it is a collection of DOM nodes. Here as well event handler function is
+     * installed and removed in each of elements.
+     *
+     *
+     * @example <caption>Emits clicks happening on the DOM document</caption>
+     * var clicks = Rx.Observable.fromEvent(document, 'click');
+     * clicks.subscribe(x => console.log(x));
+     *
+     * // Results in:
+     * // MouseEvent object logged to console every time a click
+     * // occurs on the document.
+     *
+     *
+     * @example <caption>Use addEventListener with capture option</caption>
+     * var clicksInDocument = Rx.Observable.fromEvent(document, 'click', true); // note optional configuration parameter
+     *                                                                          // which will be passed to addEventListener
+     * var clicksInDiv = Rx.Observable.fromEvent(someDivInDocument, 'click');
+     *
+     * clicksInDocument.subscribe(() => console.log('document'));
+     * clicksInDiv.subscribe(() => console.log('div'));
+     *
+     * // By default events bubble UP in DOM tree, so normally
+     * // when we would click on div in document
+     * // "div" would be logged first and then "document".
+     * // Since we specified optional `capture` option, document
+     * // will catch event when it goes DOWN DOM tree, so console
+     * // will log "document" and then "div".
+     *
+     * @see {@link bindCallback}
+     * @see {@link bindNodeCallback}
+     * @see {@link fromEventPattern}
+     *
+     * @param {EventTargetLike} target The DOM EventTarget, Node.js
+     * EventEmitter, JQuery-like event target, NodeList or HTMLCollection to attach the event handler to.
+     * @param {string} eventName The event name of interest, being emitted by the
+     * `target`.
+     * @param {EventListenerOptions} [options] Options to pass through to addEventListener
+     * @param {SelectorMethodSignature<T>} [selector] An optional function to
+     * post-process results. It takes the arguments from the event handler and
+     * should return a single value.
+     * @return {Observable<T>}
+     * @static true
+     * @name fromEvent
+     * @owner Observable
+     */
+    FromEventObservable.create = function (target, eventName, options, selector) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_2__util_isFunction__["a" /* isFunction */])(options)) {
+            selector = options;
+            options = undefined;
+        }
+        return new FromEventObservable(target, eventName, selector, options);
+    };
+    FromEventObservable.setupSubscription = function (sourceObj, eventName, handler, subscriber, options) {
+        var unsubscribe;
+        if (isNodeList(sourceObj) || isHTMLCollection(sourceObj)) {
+            for (var i = 0, len = sourceObj.length; i < len; i++) {
+                FromEventObservable.setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
+            }
+        }
+        else if (isEventTarget(sourceObj)) {
+            var source_1 = sourceObj;
+            sourceObj.addEventListener(eventName, handler, options);
+            unsubscribe = function () { return source_1.removeEventListener(eventName, handler); };
+        }
+        else if (isJQueryStyleEventEmitter(sourceObj)) {
+            var source_2 = sourceObj;
+            sourceObj.on(eventName, handler);
+            unsubscribe = function () { return source_2.off(eventName, handler); };
+        }
+        else if (isNodeStyleEventEmitter(sourceObj)) {
+            var source_3 = sourceObj;
+            sourceObj.addListener(eventName, handler);
+            unsubscribe = function () { return source_3.removeListener(eventName, handler); };
+        }
+        else {
+            throw new TypeError('Invalid event target');
+        }
+        subscriber.add(new __WEBPACK_IMPORTED_MODULE_4__Subscription__["a" /* Subscription */](unsubscribe));
+    };
+    FromEventObservable.prototype._subscribe = function (subscriber) {
+        var sourceObj = this.sourceObj;
+        var eventName = this.eventName;
+        var options = this.options;
+        var selector = this.selector;
+        var handler = selector ? function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            var result = Object(__WEBPACK_IMPORTED_MODULE_1__util_tryCatch__["a" /* tryCatch */])(selector).apply(void 0, args);
+            if (result === __WEBPACK_IMPORTED_MODULE_3__util_errorObject__["a" /* errorObject */]) {
+                subscriber.error(__WEBPACK_IMPORTED_MODULE_3__util_errorObject__["a" /* errorObject */].e);
+            }
+            else {
+                subscriber.next(result);
+            }
+        } : function (e) { return subscriber.next(e); };
+        FromEventObservable.setupSubscription(sourceObj, eventName, handler, subscriber, options);
+    };
+    return FromEventObservable;
+}(__WEBPACK_IMPORTED_MODULE_0__Observable__["a" /* Observable */]));
+//# sourceMappingURL=FromEventObservable.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/observable/FromObservable.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -5160,6 +5824,132 @@ var ScalarObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/observable/TimerObservable.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimerObservable; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_isNumeric__ = __webpack_require__("../../../../rxjs/_esm5/util/isNumeric.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Observable__ = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__scheduler_async__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/async.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util_isScheduler__ = __webpack_require__("../../../../rxjs/_esm5/util/isScheduler.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__util_isDate__ = __webpack_require__("../../../../rxjs/_esm5/util/isDate.js");
+/** PURE_IMPORTS_START .._util_isNumeric,.._Observable,.._scheduler_async,.._util_isScheduler,.._util_isDate PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+
+
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @extends {Ignored}
+ * @hide true
+ */
+var TimerObservable = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(TimerObservable, _super);
+    function TimerObservable(dueTime, period, scheduler) {
+        if (dueTime === void 0) {
+            dueTime = 0;
+        }
+        _super.call(this);
+        this.period = -1;
+        this.dueTime = 0;
+        if (Object(__WEBPACK_IMPORTED_MODULE_0__util_isNumeric__["a" /* isNumeric */])(period)) {
+            this.period = Number(period) < 1 && 1 || Number(period);
+        }
+        else if (Object(__WEBPACK_IMPORTED_MODULE_3__util_isScheduler__["a" /* isScheduler */])(period)) {
+            scheduler = period;
+        }
+        if (!Object(__WEBPACK_IMPORTED_MODULE_3__util_isScheduler__["a" /* isScheduler */])(scheduler)) {
+            scheduler = __WEBPACK_IMPORTED_MODULE_2__scheduler_async__["a" /* async */];
+        }
+        this.scheduler = scheduler;
+        this.dueTime = Object(__WEBPACK_IMPORTED_MODULE_4__util_isDate__["a" /* isDate */])(dueTime) ?
+            (+dueTime - this.scheduler.now()) :
+            dueTime;
+    }
+    /**
+     * Creates an Observable that starts emitting after an `initialDelay` and
+     * emits ever increasing numbers after each `period` of time thereafter.
+     *
+     * <span class="informal">Its like {@link interval}, but you can specify when
+     * should the emissions start.</span>
+     *
+     * <img src="./img/timer.png" width="100%">
+     *
+     * `timer` returns an Observable that emits an infinite sequence of ascending
+     * integers, with a constant interval of time, `period` of your choosing
+     * between those emissions. The first emission happens after the specified
+     * `initialDelay`. The initial delay may be a {@link Date}. By default, this
+     * operator uses the `async` IScheduler to provide a notion of time, but you
+     * may pass any IScheduler to it. If `period` is not specified, the output
+     * Observable emits only one value, `0`. Otherwise, it emits an infinite
+     * sequence.
+     *
+     * @example <caption>Emits ascending numbers, one every second (1000ms), starting after 3 seconds</caption>
+     * var numbers = Rx.Observable.timer(3000, 1000);
+     * numbers.subscribe(x => console.log(x));
+     *
+     * @example <caption>Emits one number after five seconds</caption>
+     * var numbers = Rx.Observable.timer(5000);
+     * numbers.subscribe(x => console.log(x));
+     *
+     * @see {@link interval}
+     * @see {@link delay}
+     *
+     * @param {number|Date} initialDelay The initial delay time to wait before
+     * emitting the first value of `0`.
+     * @param {number} [period] The period of time between emissions of the
+     * subsequent numbers.
+     * @param {Scheduler} [scheduler=async] The IScheduler to use for scheduling
+     * the emission of values, and providing a notion of "time".
+     * @return {Observable} An Observable that emits a `0` after the
+     * `initialDelay` and ever increasing numbers after each `period` of time
+     * thereafter.
+     * @static true
+     * @name timer
+     * @owner Observable
+     */
+    TimerObservable.create = function (initialDelay, period, scheduler) {
+        if (initialDelay === void 0) {
+            initialDelay = 0;
+        }
+        return new TimerObservable(initialDelay, period, scheduler);
+    };
+    TimerObservable.dispatch = function (state) {
+        var index = state.index, period = state.period, subscriber = state.subscriber;
+        var action = this;
+        subscriber.next(index);
+        if (subscriber.closed) {
+            return;
+        }
+        else if (period === -1) {
+            return subscriber.complete();
+        }
+        state.index = index + 1;
+        action.schedule(state, period);
+    };
+    TimerObservable.prototype._subscribe = function (subscriber) {
+        var index = 0;
+        var _a = this, period = _a.period, dueTime = _a.dueTime, scheduler = _a.scheduler;
+        return scheduler.schedule(TimerObservable.dispatch, dueTime, {
+            index: index, period: period, subscriber: subscriber
+        });
+    };
+    return TimerObservable;
+}(__WEBPACK_IMPORTED_MODULE_1__Observable__["a" /* Observable */]));
+//# sourceMappingURL=TimerObservable.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/observable/concat.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -5297,6 +6087,20 @@ var empty = __WEBPACK_IMPORTED_MODULE_0__EmptyObservable__["a" /* EmptyObservabl
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/observable/forkJoin.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return forkJoin; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ForkJoinObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/ForkJoinObservable.js");
+/** PURE_IMPORTS_START ._ForkJoinObservable PURE_IMPORTS_END */
+
+var forkJoin = __WEBPACK_IMPORTED_MODULE_0__ForkJoinObservable__["a" /* ForkJoinObservable */].create;
+//# sourceMappingURL=forkJoin.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/observable/from.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -5307,6 +6111,20 @@ var empty = __WEBPACK_IMPORTED_MODULE_0__EmptyObservable__["a" /* EmptyObservabl
 
 var from = __WEBPACK_IMPORTED_MODULE_0__FromObservable__["a" /* FromObservable */].create;
 //# sourceMappingURL=from.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/observable/fromEvent.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return fromEvent; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__FromEventObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/FromEventObservable.js");
+/** PURE_IMPORTS_START ._FromEventObservable PURE_IMPORTS_END */
+
+var fromEvent = __WEBPACK_IMPORTED_MODULE_0__FromEventObservable__["a" /* FromEventObservable */].create;
+//# sourceMappingURL=fromEvent.js.map 
 
 
 /***/ }),
@@ -5423,6 +6241,34 @@ function merge() {
 
 var of = __WEBPACK_IMPORTED_MODULE_0__ArrayObservable__["a" /* ArrayObservable */].of;
 //# sourceMappingURL=of.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/observable/throw.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _throw; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ErrorObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/ErrorObservable.js");
+/** PURE_IMPORTS_START ._ErrorObservable PURE_IMPORTS_END */
+
+var _throw = __WEBPACK_IMPORTED_MODULE_0__ErrorObservable__["a" /* ErrorObservable */].create;
+//# sourceMappingURL=throw.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/observable/timer.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return timer; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__TimerObservable__ = __webpack_require__("../../../../rxjs/_esm5/observable/TimerObservable.js");
+/** PURE_IMPORTS_START ._TimerObservable PURE_IMPORTS_END */
+
+var timer = __WEBPACK_IMPORTED_MODULE_0__TimerObservable__["a" /* TimerObservable */].create;
+//# sourceMappingURL=timer.js.map 
 
 
 /***/ }),
@@ -5637,6 +6483,331 @@ function share() {
 }
 ;
 //# sourceMappingURL=share.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/operators/audit.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = audit;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_tryCatch__ = __webpack_require__("../../../../rxjs/_esm5/util/tryCatch.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util_errorObject__ = __webpack_require__("../../../../rxjs/_esm5/util/errorObject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__OuterSubscriber__ = __webpack_require__("../../../../rxjs/_esm5/OuterSubscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util_subscribeToResult__ = __webpack_require__("../../../../rxjs/_esm5/util/subscribeToResult.js");
+/** PURE_IMPORTS_START .._util_tryCatch,.._util_errorObject,.._OuterSubscriber,.._util_subscribeToResult PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+
+
+/**
+ * Ignores source values for a duration determined by another Observable, then
+ * emits the most recent value from the source Observable, then repeats this
+ * process.
+ *
+ * <span class="informal">It's like {@link auditTime}, but the silencing
+ * duration is determined by a second Observable.</span>
+ *
+ * <img src="./img/audit.png" width="100%">
+ *
+ * `audit` is similar to `throttle`, but emits the last value from the silenced
+ * time window, instead of the first value. `audit` emits the most recent value
+ * from the source Observable on the output Observable as soon as its internal
+ * timer becomes disabled, and ignores source values while the timer is enabled.
+ * Initially, the timer is disabled. As soon as the first source value arrives,
+ * the timer is enabled by calling the `durationSelector` function with the
+ * source value, which returns the "duration" Observable. When the duration
+ * Observable emits a value or completes, the timer is disabled, then the most
+ * recent source value is emitted on the output Observable, and this process
+ * repeats for the next source value.
+ *
+ * @example <caption>Emit clicks at a rate of at most one click per second</caption>
+ * var clicks = Rx.Observable.fromEvent(document, 'click');
+ * var result = clicks.audit(ev => Rx.Observable.interval(1000));
+ * result.subscribe(x => console.log(x));
+ *
+ * @see {@link auditTime}
+ * @see {@link debounce}
+ * @see {@link delayWhen}
+ * @see {@link sample}
+ * @see {@link throttle}
+ *
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
+ * that receives a value from the source Observable, for computing the silencing
+ * duration, returned as an Observable or a Promise.
+ * @return {Observable<T>} An Observable that performs rate-limiting of
+ * emissions from the source Observable.
+ * @method audit
+ * @owner Observable
+ */
+function audit(durationSelector) {
+    return function auditOperatorFunction(source) {
+        return source.lift(new AuditOperator(durationSelector));
+    };
+}
+var AuditOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function AuditOperator(durationSelector) {
+        this.durationSelector = durationSelector;
+    }
+    AuditOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new AuditSubscriber(subscriber, this.durationSelector));
+    };
+    return AuditOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var AuditSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(AuditSubscriber, _super);
+    function AuditSubscriber(destination, durationSelector) {
+        _super.call(this, destination);
+        this.durationSelector = durationSelector;
+        this.hasValue = false;
+    }
+    AuditSubscriber.prototype._next = function (value) {
+        this.value = value;
+        this.hasValue = true;
+        if (!this.throttled) {
+            var duration = Object(__WEBPACK_IMPORTED_MODULE_0__util_tryCatch__["a" /* tryCatch */])(this.durationSelector)(value);
+            if (duration === __WEBPACK_IMPORTED_MODULE_1__util_errorObject__["a" /* errorObject */]) {
+                this.destination.error(__WEBPACK_IMPORTED_MODULE_1__util_errorObject__["a" /* errorObject */].e);
+            }
+            else {
+                var innerSubscription = Object(__WEBPACK_IMPORTED_MODULE_3__util_subscribeToResult__["a" /* subscribeToResult */])(this, duration);
+                if (innerSubscription.closed) {
+                    this.clearThrottle();
+                }
+                else {
+                    this.add(this.throttled = innerSubscription);
+                }
+            }
+        }
+    };
+    AuditSubscriber.prototype.clearThrottle = function () {
+        var _a = this, value = _a.value, hasValue = _a.hasValue, throttled = _a.throttled;
+        if (throttled) {
+            this.remove(throttled);
+            this.throttled = null;
+            throttled.unsubscribe();
+        }
+        if (hasValue) {
+            this.value = null;
+            this.hasValue = false;
+            this.destination.next(value);
+        }
+    };
+    AuditSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex) {
+        this.clearThrottle();
+    };
+    AuditSubscriber.prototype.notifyComplete = function () {
+        this.clearThrottle();
+    };
+    return AuditSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_2__OuterSubscriber__["a" /* OuterSubscriber */]));
+//# sourceMappingURL=audit.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/operators/auditTime.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = auditTime;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scheduler_async__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/async.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__audit__ = __webpack_require__("../../../../rxjs/_esm5/operators/audit.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__observable_timer__ = __webpack_require__("../../../../rxjs/_esm5/observable/timer.js");
+/** PURE_IMPORTS_START .._scheduler_async,._audit,.._observable_timer PURE_IMPORTS_END */
+
+
+
+/**
+ * Ignores source values for `duration` milliseconds, then emits the most recent
+ * value from the source Observable, then repeats this process.
+ *
+ * <span class="informal">When it sees a source values, it ignores that plus
+ * the next ones for `duration` milliseconds, and then it emits the most recent
+ * value from the source.</span>
+ *
+ * <img src="./img/auditTime.png" width="100%">
+ *
+ * `auditTime` is similar to `throttleTime`, but emits the last value from the
+ * silenced time window, instead of the first value. `auditTime` emits the most
+ * recent value from the source Observable on the output Observable as soon as
+ * its internal timer becomes disabled, and ignores source values while the
+ * timer is enabled. Initially, the timer is disabled. As soon as the first
+ * source value arrives, the timer is enabled. After `duration` milliseconds (or
+ * the time unit determined internally by the optional `scheduler`) has passed,
+ * the timer is disabled, then the most recent source value is emitted on the
+ * output Observable, and this process repeats for the next source value.
+ * Optionally takes a {@link IScheduler} for managing timers.
+ *
+ * @example <caption>Emit clicks at a rate of at most one click per second</caption>
+ * var clicks = Rx.Observable.fromEvent(document, 'click');
+ * var result = clicks.auditTime(1000);
+ * result.subscribe(x => console.log(x));
+ *
+ * @see {@link audit}
+ * @see {@link debounceTime}
+ * @see {@link delay}
+ * @see {@link sampleTime}
+ * @see {@link throttleTime}
+ *
+ * @param {number} duration Time to wait before emitting the most recent source
+ * value, measured in milliseconds or the time unit determined internally
+ * by the optional `scheduler`.
+ * @param {Scheduler} [scheduler=async] The {@link IScheduler} to use for
+ * managing the timers that handle the rate-limiting behavior.
+ * @return {Observable<T>} An Observable that performs rate-limiting of
+ * emissions from the source Observable.
+ * @method auditTime
+ * @owner Observable
+ */
+function auditTime(duration, scheduler) {
+    if (scheduler === void 0) {
+        scheduler = __WEBPACK_IMPORTED_MODULE_0__scheduler_async__["a" /* async */];
+    }
+    return Object(__WEBPACK_IMPORTED_MODULE_1__audit__["a" /* audit */])(function () { return Object(__WEBPACK_IMPORTED_MODULE_2__observable_timer__["a" /* timer */])(duration, scheduler); });
+}
+//# sourceMappingURL=auditTime.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/operators/catchError.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = catchError;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__OuterSubscriber__ = __webpack_require__("../../../../rxjs/_esm5/OuterSubscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util_subscribeToResult__ = __webpack_require__("../../../../rxjs/_esm5/util/subscribeToResult.js");
+/** PURE_IMPORTS_START .._OuterSubscriber,.._util_subscribeToResult PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/**
+ * Catches errors on the observable to be handled by returning a new observable or throwing an error.
+ *
+ * <img src="./img/catch.png" width="100%">
+ *
+ * @example <caption>Continues with a different Observable when there's an error</caption>
+ *
+ * Observable.of(1, 2, 3, 4, 5)
+ *   .map(n => {
+ * 	   if (n == 4) {
+ * 	     throw 'four!';
+ *     }
+ *	   return n;
+ *   })
+ *   .catch(err => Observable.of('I', 'II', 'III', 'IV', 'V'))
+ *   .subscribe(x => console.log(x));
+ *   // 1, 2, 3, I, II, III, IV, V
+ *
+ * @example <caption>Retries the caught source Observable again in case of error, similar to retry() operator</caption>
+ *
+ * Observable.of(1, 2, 3, 4, 5)
+ *   .map(n => {
+ * 	   if (n === 4) {
+ * 	     throw 'four!';
+ *     }
+ * 	   return n;
+ *   })
+ *   .catch((err, caught) => caught)
+ *   .take(30)
+ *   .subscribe(x => console.log(x));
+ *   // 1, 2, 3, 1, 2, 3, ...
+ *
+ * @example <caption>Throws a new error when the source Observable throws an error</caption>
+ *
+ * Observable.of(1, 2, 3, 4, 5)
+ *   .map(n => {
+ *     if (n == 4) {
+ *       throw 'four!';
+ *     }
+ *     return n;
+ *   })
+ *   .catch(err => {
+ *     throw 'error in source. Details: ' + err;
+ *   })
+ *   .subscribe(
+ *     x => console.log(x),
+ *     err => console.log(err)
+ *   );
+ *   // 1, 2, 3, error in source. Details: four!
+ *
+ * @param {function} selector a function that takes as arguments `err`, which is the error, and `caught`, which
+ *  is the source observable, in case you'd like to "retry" that observable by returning it again. Whatever observable
+ *  is returned by the `selector` will be used to continue the observable chain.
+ * @return {Observable} An observable that originates from either the source or the observable returned by the
+ *  catch `selector` function.
+ * @name catchError
+ */
+function catchError(selector) {
+    return function catchErrorOperatorFunction(source) {
+        var operator = new CatchOperator(selector);
+        var caught = source.lift(operator);
+        return (operator.caught = caught);
+    };
+}
+var CatchOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function CatchOperator(selector) {
+        this.selector = selector;
+    }
+    CatchOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new CatchSubscriber(subscriber, this.selector, this.caught));
+    };
+    return CatchOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var CatchSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(CatchSubscriber, _super);
+    function CatchSubscriber(destination, selector, caught) {
+        _super.call(this, destination);
+        this.selector = selector;
+        this.caught = caught;
+    }
+    // NOTE: overriding `error` instead of `_error` because we don't want
+    // to have this flag this subscriber as `isStopped`. We can mimic the
+    // behavior of the RetrySubscriber (from the `retry` operator), where
+    // we unsubscribe from our source chain, reset our Subscriber flags,
+    // then subscribe to the selector result.
+    CatchSubscriber.prototype.error = function (err) {
+        if (!this.isStopped) {
+            var result = void 0;
+            try {
+                result = this.selector(err, this.caught);
+            }
+            catch (err2) {
+                _super.prototype.error.call(this, err2);
+                return;
+            }
+            this._unsubscribeAndRecycle();
+            this.add(Object(__WEBPACK_IMPORTED_MODULE_1__util_subscribeToResult__["a" /* subscribeToResult */])(this, result));
+        }
+    };
+    return CatchSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__OuterSubscriber__["a" /* OuterSubscriber */]));
+//# sourceMappingURL=catchError.js.map 
 
 
 /***/ }),
@@ -6177,6 +7348,61 @@ var FilterSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
     return FilterSubscriber;
 }(__WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */]));
 //# sourceMappingURL=filter.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/operators/finalize.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = finalize;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Subscriber__ = __webpack_require__("../../../../rxjs/_esm5/Subscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/** PURE_IMPORTS_START .._Subscriber,.._Subscription PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/**
+ * Returns an Observable that mirrors the source Observable, but will call a specified function when
+ * the source terminates on complete or error.
+ * @param {function} callback Function to be called when source terminates.
+ * @return {Observable} An Observable that mirrors the source, but will call the specified function on termination.
+ * @method finally
+ * @owner Observable
+ */
+function finalize(callback) {
+    return function (source) { return source.lift(new FinallyOperator(callback)); };
+}
+var FinallyOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function FinallyOperator(callback) {
+        this.callback = callback;
+    }
+    FinallyOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new FinallySubscriber(subscriber, this.callback));
+    };
+    return FinallyOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var FinallySubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(FinallySubscriber, _super);
+    function FinallySubscriber(destination, callback) {
+        _super.call(this, destination);
+        this.add(new __WEBPACK_IMPORTED_MODULE_1__Subscription__["a" /* Subscription */](callback));
+    }
+    return FinallySubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__Subscriber__["a" /* Subscriber */]));
+//# sourceMappingURL=finalize.js.map 
 
 
 /***/ }),
@@ -6931,6 +8157,160 @@ function startWith() {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/operators/switchMap.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = switchMap;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__OuterSubscriber__ = __webpack_require__("../../../../rxjs/_esm5/OuterSubscriber.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util_subscribeToResult__ = __webpack_require__("../../../../rxjs/_esm5/util/subscribeToResult.js");
+/** PURE_IMPORTS_START .._OuterSubscriber,.._util_subscribeToResult PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/* tslint:enable:max-line-length */
+/**
+ * Projects each source value to an Observable which is merged in the output
+ * Observable, emitting values only from the most recently projected Observable.
+ *
+ * <span class="informal">Maps each value to an Observable, then flattens all of
+ * these inner Observables using {@link switch}.</span>
+ *
+ * <img src="./img/switchMap.png" width="100%">
+ *
+ * Returns an Observable that emits items based on applying a function that you
+ * supply to each item emitted by the source Observable, where that function
+ * returns an (so-called "inner") Observable. Each time it observes one of these
+ * inner Observables, the output Observable begins emitting the items emitted by
+ * that inner Observable. When a new inner Observable is emitted, `switchMap`
+ * stops emitting items from the earlier-emitted inner Observable and begins
+ * emitting items from the new one. It continues to behave like this for
+ * subsequent inner Observables.
+ *
+ * @example <caption>Rerun an interval Observable on every click event</caption>
+ * var clicks = Rx.Observable.fromEvent(document, 'click');
+ * var result = clicks.switchMap((ev) => Rx.Observable.interval(1000));
+ * result.subscribe(x => console.log(x));
+ *
+ * @see {@link concatMap}
+ * @see {@link exhaustMap}
+ * @see {@link mergeMap}
+ * @see {@link switch}
+ * @see {@link switchMapTo}
+ *
+ * @param {function(value: T, ?index: number): ObservableInput} project A function
+ * that, when applied to an item emitted by the source Observable, returns an
+ * Observable.
+ * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
+ * A function to produce the value on the output Observable based on the values
+ * and the indices of the source (outer) emission and the inner Observable
+ * emission. The arguments passed to this function are:
+ * - `outerValue`: the value that came from the source
+ * - `innerValue`: the value that came from the projected Observable
+ * - `outerIndex`: the "index" of the value that came from the source
+ * - `innerIndex`: the "index" of the value from the projected Observable
+ * @return {Observable} An Observable that emits the result of applying the
+ * projection function (and the optional `resultSelector`) to each item emitted
+ * by the source Observable and taking only the values from the most recently
+ * projected inner Observable.
+ * @method switchMap
+ * @owner Observable
+ */
+function switchMap(project, resultSelector) {
+    return function switchMapOperatorFunction(source) {
+        return source.lift(new SwitchMapOperator(project, resultSelector));
+    };
+}
+var SwitchMapOperator = /*@__PURE__*/ (/*@__PURE__*/ function () {
+    function SwitchMapOperator(project, resultSelector) {
+        this.project = project;
+        this.resultSelector = resultSelector;
+    }
+    SwitchMapOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new SwitchMapSubscriber(subscriber, this.project, this.resultSelector));
+    };
+    return SwitchMapOperator;
+}());
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var SwitchMapSubscriber = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(SwitchMapSubscriber, _super);
+    function SwitchMapSubscriber(destination, project, resultSelector) {
+        _super.call(this, destination);
+        this.project = project;
+        this.resultSelector = resultSelector;
+        this.index = 0;
+    }
+    SwitchMapSubscriber.prototype._next = function (value) {
+        var result;
+        var index = this.index++;
+        try {
+            result = this.project(value, index);
+        }
+        catch (error) {
+            this.destination.error(error);
+            return;
+        }
+        this._innerSub(result, value, index);
+    };
+    SwitchMapSubscriber.prototype._innerSub = function (result, value, index) {
+        var innerSubscription = this.innerSubscription;
+        if (innerSubscription) {
+            innerSubscription.unsubscribe();
+        }
+        this.add(this.innerSubscription = Object(__WEBPACK_IMPORTED_MODULE_1__util_subscribeToResult__["a" /* subscribeToResult */])(this, result, value, index));
+    };
+    SwitchMapSubscriber.prototype._complete = function () {
+        var innerSubscription = this.innerSubscription;
+        if (!innerSubscription || innerSubscription.closed) {
+            _super.prototype._complete.call(this);
+        }
+    };
+    SwitchMapSubscriber.prototype._unsubscribe = function () {
+        this.innerSubscription = null;
+    };
+    SwitchMapSubscriber.prototype.notifyComplete = function (innerSub) {
+        this.remove(innerSub);
+        this.innerSubscription = null;
+        if (this.isStopped) {
+            _super.prototype._complete.call(this);
+        }
+    };
+    SwitchMapSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+        if (this.resultSelector) {
+            this._tryNotifyNext(outerValue, innerValue, outerIndex, innerIndex);
+        }
+        else {
+            this.destination.next(innerValue);
+        }
+    };
+    SwitchMapSubscriber.prototype._tryNotifyNext = function (outerValue, innerValue, outerIndex, innerIndex) {
+        var result;
+        try {
+            result = this.resultSelector(outerValue, innerValue, outerIndex, innerIndex);
+        }
+        catch (err) {
+            this.destination.error(err);
+            return;
+        }
+        this.destination.next(result);
+    };
+    return SwitchMapSubscriber;
+}(__WEBPACK_IMPORTED_MODULE_0__OuterSubscriber__["a" /* OuterSubscriber */]));
+//# sourceMappingURL=switchMap.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/operators/take.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -7525,6 +8905,97 @@ var AsyncScheduler = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/scheduler/QueueAction.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return QueueAction; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__AsyncAction__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/AsyncAction.js");
+/** PURE_IMPORTS_START ._AsyncAction PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var QueueAction = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(QueueAction, _super);
+    function QueueAction(scheduler, work) {
+        _super.call(this, scheduler, work);
+        this.scheduler = scheduler;
+        this.work = work;
+    }
+    QueueAction.prototype.schedule = function (state, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        if (delay > 0) {
+            return _super.prototype.schedule.call(this, state, delay);
+        }
+        this.delay = delay;
+        this.state = state;
+        this.scheduler.flush(this);
+        return this;
+    };
+    QueueAction.prototype.execute = function (state, delay) {
+        return (delay > 0 || this.closed) ?
+            _super.prototype.execute.call(this, state, delay) :
+            this._execute(state, delay);
+    };
+    QueueAction.prototype.requestAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) {
+            delay = 0;
+        }
+        // If delay exists and is greater than 0, or if the delay is null (the
+        // action wasn't rescheduled) but was originally scheduled as an async
+        // action, then recycle as an async action.
+        if ((delay !== null && delay > 0) || (delay === null && this.delay > 0)) {
+            return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
+        }
+        // Otherwise flush the scheduler starting with this action.
+        return scheduler.flush(this);
+    };
+    return QueueAction;
+}(__WEBPACK_IMPORTED_MODULE_0__AsyncAction__["a" /* AsyncAction */]));
+//# sourceMappingURL=QueueAction.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/QueueScheduler.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return QueueScheduler; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__AsyncScheduler__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/AsyncScheduler.js");
+/** PURE_IMPORTS_START ._AsyncScheduler PURE_IMPORTS_END */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b)
+        if (b.hasOwnProperty(p))
+            d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+var QueueScheduler = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
+    __extends(QueueScheduler, _super);
+    function QueueScheduler() {
+        _super.apply(this, arguments);
+    }
+    return QueueScheduler;
+}(__WEBPACK_IMPORTED_MODULE_0__AsyncScheduler__["a" /* AsyncScheduler */]));
+//# sourceMappingURL=QueueScheduler.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/scheduler/async.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -7579,6 +9050,83 @@ var AsyncScheduler = /*@__PURE__*/ (/*@__PURE__*/ function (_super) {
  */
 var async = /*@__PURE__*/ new __WEBPACK_IMPORTED_MODULE_1__AsyncScheduler__["a" /* AsyncScheduler */](__WEBPACK_IMPORTED_MODULE_0__AsyncAction__["a" /* AsyncAction */]);
 //# sourceMappingURL=async.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/scheduler/queue.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return queue; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__QueueAction__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/QueueAction.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__QueueScheduler__ = __webpack_require__("../../../../rxjs/_esm5/scheduler/QueueScheduler.js");
+/** PURE_IMPORTS_START ._QueueAction,._QueueScheduler PURE_IMPORTS_END */
+
+
+/**
+ *
+ * Queue Scheduler
+ *
+ * <span class="informal">Put every next task on a queue, instead of executing it immediately</span>
+ *
+ * `queue` scheduler, when used with delay, behaves the same as {@link async} scheduler.
+ *
+ * When used without delay, it schedules given task synchronously - executes it right when
+ * it is scheduled. However when called recursively, that is when inside the scheduled task,
+ * another task is scheduled with queue scheduler, instead of executing immediately as well,
+ * that task will be put on a queue and wait for current one to finish.
+ *
+ * This means that when you execute task with `queue` scheduler, you are sure it will end
+ * before any other task scheduled with that scheduler will start.
+ *
+ * @examples <caption>Schedule recursively first, then do something</caption>
+ *
+ * Rx.Scheduler.queue.schedule(() => {
+ *   Rx.Scheduler.queue.schedule(() => console.log('second')); // will not happen now, but will be put on a queue
+ *
+ *   console.log('first');
+ * });
+ *
+ * // Logs:
+ * // "first"
+ * // "second"
+ *
+ *
+ * @example <caption>Reschedule itself recursively</caption>
+ *
+ * Rx.Scheduler.queue.schedule(function(state) {
+ *   if (state !== 0) {
+ *     console.log('before', state);
+ *     this.schedule(state - 1); // `this` references currently executing Action,
+ *                               // which we reschedule with new state
+ *     console.log('after', state);
+ *   }
+ * }, 0, 3);
+ *
+ * // In scheduler that runs recursively, you would expect:
+ * // "before", 3
+ * // "before", 2
+ * // "before", 1
+ * // "after", 1
+ * // "after", 2
+ * // "after", 3
+ *
+ * // But with queue it logs:
+ * // "before", 3
+ * // "after", 3
+ * // "before", 2
+ * // "after", 2
+ * // "before", 1
+ * // "after", 1
+ *
+ *
+ * @static true
+ * @name queue
+ * @owner Scheduler
+ */
+var queue = /*@__PURE__*/ new __WEBPACK_IMPORTED_MODULE_1__QueueScheduler__["a" /* QueueScheduler */](__WEBPACK_IMPORTED_MODULE_0__QueueAction__["a" /* QueueAction */]);
+//# sourceMappingURL=queue.js.map 
 
 
 /***/ }),
@@ -7851,6 +9399,20 @@ var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 
 /***/ }),
 
+/***/ "../../../../rxjs/_esm5/util/isDate.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = isDate;
+/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+function isDate(value) {
+    return value instanceof Date && !isNaN(+value);
+}
+//# sourceMappingURL=isDate.js.map 
+
+
+/***/ }),
+
 /***/ "../../../../rxjs/_esm5/util/isFunction.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -7861,6 +9423,27 @@ function isFunction(x) {
     return typeof x === 'function';
 }
 //# sourceMappingURL=isFunction.js.map 
+
+
+/***/ }),
+
+/***/ "../../../../rxjs/_esm5/util/isNumeric.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = isNumeric;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_isArray__ = __webpack_require__("../../../../rxjs/_esm5/util/isArray.js");
+/** PURE_IMPORTS_START .._util_isArray PURE_IMPORTS_END */
+
+function isNumeric(val) {
+    // parseFloat NaNs numeric-cast false positives (null|true|false|"")
+    // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+    // subtraction forces infinities to NaN
+    // adding 1 corrects loss of precision from parseFloat (#15100)
+    return !Object(__WEBPACK_IMPORTED_MODULE_0__util_isArray__["a" /* isArray */])(val) && (val - parseFloat(val) + 1) >= 0;
+}
+;
+//# sourceMappingURL=isNumeric.js.map 
 
 
 /***/ }),
@@ -8363,22 +9946,22 @@ module.exports = g;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return AnimationBuilder; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return AnimationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AUTO_STYLE; });
-/* unused harmony export animate */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return animate; });
 /* unused harmony export animateChild */
 /* unused harmony export animation */
 /* unused harmony export group */
 /* unused harmony export keyframes */
 /* unused harmony export query */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return sequence; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return sequence; });
 /* unused harmony export stagger */
-/* unused harmony export state */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return style; });
-/* unused harmony export transition */
-/* unused harmony export trigger */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return state; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return style; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return transition; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return trigger; });
 /* unused harmony export useAnimation */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NoopAnimationPlayer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return AnimationGroupPlayer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return ɵPRE_STYLE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return AnimationGroupPlayer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return ɵPRE_STYLE; });
 /**
  * @license Angular v5.1.3
  * (c) 2010-2017 Google, Inc. https://angular.io/
@@ -10092,7 +11675,7 @@ function optimizeGroupPlayer(players) {
         case 1:
             return players[0];
         default:
-            return new __WEBPACK_IMPORTED_MODULE_0__angular_animations__["g" /* ɵAnimationGroupPlayer */](players);
+            return new __WEBPACK_IMPORTED_MODULE_0__angular_animations__["k" /* ɵAnimationGroupPlayer */](players);
     }
 }
 /**
@@ -10121,7 +11704,7 @@ function normalizeKeyframes(driver, normalizer, element, keyframes, preStyles, p
             if (prop !== 'offset') {
                 normalizedProp = normalizer.normalizePropertyName(normalizedProp, errors);
                 switch (normalizedValue) {
-                    case __WEBPACK_IMPORTED_MODULE_0__angular_animations__["h" /* ɵPRE_STYLE */]:
+                    case __WEBPACK_IMPORTED_MODULE_0__angular_animations__["l" /* ɵPRE_STYLE */]:
                         normalizedValue = preStyles[prop];
                         break;
                     case __WEBPACK_IMPORTED_MODULE_0__angular_animations__["a" /* AUTO_STYLE */]:
@@ -10604,7 +12187,7 @@ function normalizeAnimationEntry(steps) {
     if (Array.isArray(steps)) {
         if (steps.length == 1)
             return steps[0];
-        return Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["e" /* sequence */])(steps);
+        return Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["f" /* sequence */])(steps);
     }
     return /** @type {?} */ (steps);
 }
@@ -11072,7 +12655,7 @@ var AnimationAstBuilderVisitor = /** @class */ (function () {
         var /** @type {?} */ timingAst = constructTimingAst(metadata.timings, context.errors);
         context.currentAnimateTimings = timingAst;
         var /** @type {?} */ styleAst;
-        var /** @type {?} */ styleMetadata = metadata.styles ? metadata.styles : Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["f" /* style */])({});
+        var /** @type {?} */ styleMetadata = metadata.styles ? metadata.styles : Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["h" /* style */])({});
         if (styleMetadata.type == 5 /* Keyframes */) {
             styleAst = this.visitKeyframes(/** @type {?} */ (styleMetadata), context);
         }
@@ -11085,7 +12668,7 @@ var AnimationAstBuilderVisitor = /** @class */ (function () {
                 if (timingAst.easing) {
                     newStyleData['easing'] = timingAst.easing;
                 }
-                styleMetadata_1 = Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["f" /* style */])(newStyleData);
+                styleMetadata_1 = Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["h" /* style */])(newStyleData);
             }
             context.currentTime += timingAst.duration + timingAst.delay;
             var /** @type {?} */ _styleAst = this.visitStyle(styleMetadata_1, context);
@@ -12604,7 +14187,7 @@ var TimelineBuilder = /** @class */ (function () {
             var /** @type {?} */ finalKeyframe = copyStyles(keyframe, true);
             Object.keys(finalKeyframe).forEach(function (prop) {
                 var /** @type {?} */ value = finalKeyframe[prop];
-                if (value == __WEBPACK_IMPORTED_MODULE_0__angular_animations__["h" /* ɵPRE_STYLE */]) {
+                if (value == __WEBPACK_IMPORTED_MODULE_0__angular_animations__["l" /* ɵPRE_STYLE */]) {
                     preStyleProps.add(prop);
                 }
                 else if (value == __WEBPACK_IMPORTED_MODULE_0__angular_animations__["a" /* AUTO_STYLE */]) {
@@ -14748,7 +16331,7 @@ var TransitionAnimationEngine = /** @class */ (function () {
         // PRE STAGE: fill the ! styles
         var /** @type {?} */ preStylesMap = new Map();
         enterNodeMap.forEach(function (nodes, root) {
-            cloakAndComputeStyles(preStylesMap, _this.driver, new Set(nodes), allPreStyleElements, __WEBPACK_IMPORTED_MODULE_0__angular_animations__["h" /* ɵPRE_STYLE */]);
+            cloakAndComputeStyles(preStylesMap, _this.driver, new Set(nodes), allPreStyleElements, __WEBPACK_IMPORTED_MODULE_0__angular_animations__["l" /* ɵPRE_STYLE */]);
         });
         replaceNodes.forEach(function (node) {
             var /** @type {?} */ post = postStylesMap.get(node);
@@ -15540,7 +17123,7 @@ function flattenGroupPlayers(players) {
 function _flattenGroupPlayersRecur(players, finalPlayers) {
     for (var /** @type {?} */ i = 0; i < players.length; i++) {
         var /** @type {?} */ player = players[i];
-        if (player instanceof __WEBPACK_IMPORTED_MODULE_0__angular_animations__["g" /* ɵAnimationGroupPlayer */]) {
+        if (player instanceof __WEBPACK_IMPORTED_MODULE_0__angular_animations__["k" /* ɵAnimationGroupPlayer */]) {
             _flattenGroupPlayersRecur(player.players, finalPlayers);
         }
         else {
@@ -16283,8 +17866,8 @@ function supportsWebAnimations() {
 /* unused harmony export AriaDescriber */
 /* unused harmony export ARIA_DESCRIBER_PROVIDER_FACTORY */
 /* unused harmony export ARIA_DESCRIBER_PROVIDER */
-/* unused harmony export isFakeMousedownFromScreenReader */
-/* unused harmony export FocusKeyManager */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return isFakeMousedownFromScreenReader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FocusKeyManager; });
 /* unused harmony export FocusTrap */
 /* unused harmony export FocusTrapFactory */
 /* unused harmony export FocusTrapDeprecatedDirective */
@@ -16296,7 +17879,7 @@ function supportsWebAnimations() {
 /* unused harmony export LIVE_ANNOUNCER_PROVIDER_FACTORY */
 /* unused harmony export LIVE_ANNOUNCER_PROVIDER */
 /* unused harmony export TOUCH_BUFFER_MS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FocusMonitor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return FocusMonitor; });
 /* unused harmony export CdkMonitorFocus */
 /* unused harmony export FOCUS_MONITOR_PROVIDER_FACTORY */
 /* unused harmony export FOCUS_MONITOR_PROVIDER */
@@ -16509,7 +18092,7 @@ var InteractivityChecker = /** @class */ (function () {
         return isPotentiallyFocusable(element) && !this.isDisabled(element) && this.isVisible(element);
     };
     InteractivityChecker.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     InteractivityChecker.ctorParameters = function () { return [
@@ -17027,13 +18610,13 @@ var FocusTrapFactory = /** @class */ (function () {
         return new FocusTrap(element, this._checker, this._ngZone, this._document, deferCaptureElements);
     };
     FocusTrapFactory.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     FocusTrapFactory.ctorParameters = function () { return [
         { type: InteractivityChecker, },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
     ]; };
     return FocusTrapFactory;
 }());
@@ -17083,17 +18666,17 @@ var FocusTrapDeprecatedDirective = /** @class */ (function () {
         this.focusTrap.attachAnchors();
     };
     FocusTrapDeprecatedDirective.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'cdk-focus-trap',
                 },] },
     ];
     /** @nocollapse */
     FocusTrapDeprecatedDirective.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
         { type: FocusTrapFactory, },
     ]; };
     FocusTrapDeprecatedDirective.propDecorators = {
-        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return FocusTrapDeprecatedDirective;
 }());
@@ -17169,20 +18752,20 @@ var CdkTrapFocus = /** @class */ (function () {
         }
     };
     CdkTrapFocus.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[cdkTrapFocus]',
                     exportAs: 'cdkTrapFocus',
                 },] },
     ];
     /** @nocollapse */
     CdkTrapFocus.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
         { type: FocusTrapFactory, },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
     ]; };
     CdkTrapFocus.propDecorators = {
-        "enabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['cdkTrapFocus',] },],
-        "autoCapture": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['cdkTrapFocusAutoCapture',] },],
+        "enabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkTrapFocus',] },],
+        "autoCapture": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkTrapFocusAutoCapture',] },],
     };
     return CdkTrapFocus;
 }());
@@ -17318,10 +18901,10 @@ var ListKeyManager = /** @class */ (function () {
             case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["b" /* DOWN_ARROW */]:
                 this.setNextItemActive();
                 break;
-            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["g" /* UP_ARROW */]:
+            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["j" /* UP_ARROW */]:
                 this.setPreviousItemActive();
                 break;
-            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["f" /* TAB */]:
+            case __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["i" /* TAB */]:
                 this.tabOut.next();
                 return;
             default:
@@ -17331,7 +18914,7 @@ var ListKeyManager = /** @class */ (function () {
                 if (event.key && event.key.length === 1) {
                     this._letterKeyStream.next(event.key.toLocaleUpperCase());
                 }
-                else if ((keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["a" /* A */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["h" /* Z */]) || (keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["i" /* ZERO */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["d" /* NINE */])) {
+                else if ((keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["a" /* A */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["k" /* Z */]) || (keyCode >= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["l" /* ZERO */] && keyCode <= __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["f" /* NINE */])) {
                     this._letterKeyStream.next(String.fromCharCode(keyCode));
                 }
                 // Note that we return here, in order to avoid preventing
@@ -17902,11 +19485,11 @@ var AriaDescriber = /** @class */ (function () {
         return !!messageId && referenceIds.indexOf(messageId) != -1;
     };
     AriaDescriber.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     AriaDescriber.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
     ]; };
     return AriaDescriber;
 }());
@@ -17926,7 +19509,7 @@ var ARIA_DESCRIBER_PROVIDER = {
     // If there is already an AriaDescriber available, use that. Otherwise, provide a new one.
     provide: AriaDescriber,
     deps: [
-        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), AriaDescriber],
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), AriaDescriber],
         /** @type {?} */ (__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */])
     ],
     useFactory: ARIA_DESCRIBER_PROVIDER_FACTORY
@@ -17997,7 +19580,7 @@ var FocusKeyManager = /** @class */ (function (_super) {
  * @suppress {checkTypes} checked by tsc
  */
 
-var LIVE_ANNOUNCER_ELEMENT_TOKEN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('liveAnnouncerElement');
+var LIVE_ANNOUNCER_ELEMENT_TOKEN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('liveAnnouncerElement');
 var LiveAnnouncer = /** @class */ (function () {
     function LiveAnnouncer(elementToken, _document) {
         this._document = _document;
@@ -18062,12 +19645,12 @@ var LiveAnnouncer = /** @class */ (function () {
         return liveEl;
     };
     LiveAnnouncer.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     LiveAnnouncer.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [LIVE_ANNOUNCER_ELEMENT_TOKEN,] },] },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [LIVE_ANNOUNCER_ELEMENT_TOKEN,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],] },] },
     ]; };
     return LiveAnnouncer;
 }());
@@ -18088,8 +19671,8 @@ var LIVE_ANNOUNCER_PROVIDER = {
     // If there is already a LiveAnnouncer available, use that. Otherwise, provide a new one.
     provide: LiveAnnouncer,
     deps: [
-        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), LiveAnnouncer],
-        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */](LIVE_ANNOUNCER_ELEMENT_TOKEN)],
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), LiveAnnouncer],
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */](LIVE_ANNOUNCER_ELEMENT_TOKEN)],
         __WEBPACK_IMPORTED_MODULE_4__angular_common__["b" /* DOCUMENT */],
     ],
     useFactory: LIVE_ANNOUNCER_PROVIDER_FACTORY
@@ -18146,7 +19729,7 @@ var FocusMonitor = /** @class */ (function () {
     function (element, renderer, checkChildren) {
         var _this = this;
         // TODO(mmalerba): clean up after deprecated signature is removed.
-        if (!(renderer instanceof __WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Renderer2 */])) {
+        if (!(renderer instanceof __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Renderer2 */])) {
             checkChildren = renderer;
         }
         checkChildren = !!checkChildren;
@@ -18472,11 +20055,11 @@ var FocusMonitor = /** @class */ (function () {
         }
     };
     FocusMonitor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     FocusMonitor.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
         { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */], },
     ]; };
     return FocusMonitor;
@@ -18495,7 +20078,7 @@ var CdkMonitorFocus = /** @class */ (function () {
         var _this = this;
         this._elementRef = _elementRef;
         this._focusMonitor = _focusMonitor;
-        this.cdkFocusChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this.cdkFocusChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
         this._monitorSubscription = this._focusMonitor.monitor(this._elementRef.nativeElement, this._elementRef.nativeElement.hasAttribute('cdkMonitorSubtreeFocus'))
             .subscribe(function (origin) { return _this.cdkFocusChange.emit(origin); });
     }
@@ -18510,17 +20093,17 @@ var CdkMonitorFocus = /** @class */ (function () {
         this._monitorSubscription.unsubscribe();
     };
     CdkMonitorFocus.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[cdkMonitorElementFocus], [cdkMonitorSubtreeFocus]',
                 },] },
     ];
     /** @nocollapse */
     CdkMonitorFocus.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
         { type: FocusMonitor, },
     ]; };
     CdkMonitorFocus.propDecorators = {
-        "cdkFocusChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Output */] },],
+        "cdkFocusChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
     };
     return CdkMonitorFocus;
 }());
@@ -18540,7 +20123,7 @@ function FOCUS_MONITOR_PROVIDER_FACTORY(parentDispatcher, ngZone, platform) {
 var FOCUS_MONITOR_PROVIDER = {
     // If there is already a FocusMonitor available, use that. Otherwise, provide a new one.
     provide: FocusMonitor,
-    deps: [[new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* SkipSelf */](), FocusMonitor], __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */]],
+    deps: [[new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), FocusMonitor], __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["a" /* Platform */]],
     useFactory: FOCUS_MONITOR_PROVIDER_FACTORY
 };
 
@@ -18553,7 +20136,7 @@ var A11yModule = /** @class */ (function () {
     function A11yModule() {
     }
     A11yModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [__WEBPACK_IMPORTED_MODULE_4__angular_common__["a" /* CommonModule */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_platform__["b" /* PlatformModule */]],
                     declarations: [CdkTrapFocus, FocusTrapDeprecatedDirective, CdkMonitorFocus],
                     exports: [CdkTrapFocus, FocusTrapDeprecatedDirective, CdkMonitorFocus],
@@ -18595,7 +20178,7 @@ var A11yModule = /** @class */ (function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* unused harmony export Directionality */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Directionality; });
 /* unused harmony export DIR_DOCUMENT */
 /* unused harmony export Dir */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BidiModule; });
@@ -18626,7 +20209,7 @@ var A11yModule = /** @class */ (function () {
  * We also can't re-provide the DOCUMENT token from platform-brower because the unit tests
  * themselves use things like `querySelector` in test code.
  */
-var DIR_DOCUMENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('cdk-dir-doc');
+var DIR_DOCUMENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('cdk-dir-doc');
 /**
  * The directionality (LTR / RTL) context for the application (or a subtree of it).
  * Exposes the current direction and a stream of direction changes.
@@ -18640,7 +20223,7 @@ var Directionality = /** @class */ (function () {
         /**
          * Stream that emits whenever the 'ltr' / 'rtl' state changes.
          */
-        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
         if (_document) {
             // TODO: handle 'auto' value -
             // We still need to account for dir="auto".
@@ -18652,11 +20235,11 @@ var Directionality = /** @class */ (function () {
         }
     }
     Directionality.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     Directionality.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [DIR_DOCUMENT,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [DIR_DOCUMENT,] },] },
     ]; };
     return Directionality;
 }());
@@ -18682,7 +20265,7 @@ var Dir = /** @class */ (function () {
         /**
          * Event emitted when the direction changes.
          */
-        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
     }
     Object.defineProperty(Dir.prototype, "dir", {
         get: /**
@@ -18727,7 +20310,7 @@ var Dir = /** @class */ (function () {
         this._isInitialized = true;
     };
     Dir.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[dir]',
                     providers: [{ provide: Directionality, useExisting: Dir }],
                     host: { '[dir]': 'dir' },
@@ -18737,8 +20320,8 @@ var Dir = /** @class */ (function () {
     /** @nocollapse */
     Dir.ctorParameters = function () { return []; };
     Dir.propDecorators = {
-        "change": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Output */], args: ['dirChange',] },],
-        "dir": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['dir',] },],
+        "change": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */], args: ['dirChange',] },],
+        "dir": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['dir',] },],
     };
     return Dir;
 }());
@@ -18752,7 +20335,7 @@ var BidiModule = /** @class */ (function () {
     function BidiModule() {
     }
     BidiModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     exports: [Dir],
                     declarations: [Dir],
                     providers: [
@@ -19275,7 +20858,7 @@ var UniqueSelectionDispatcher = /** @class */ (function () {
         };
     };
     UniqueSelectionDispatcher.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     UniqueSelectionDispatcher.ctorParameters = function () { return []; };
@@ -19295,7 +20878,7 @@ function UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY(parentDispatcher) {
 var UNIQUE_SELECTION_DISPATCHER_PROVIDER = {
     // If there is already a dispatcher available, use that. Otherwise, provide a new one.
     provide: UniqueSelectionDispatcher,
-    deps: [[new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_0" /* SkipSelf */](), UniqueSelectionDispatcher]],
+    deps: [[new __WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* SkipSelf */](), UniqueSelectionDispatcher]],
     useFactory: UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY
 };
 
@@ -19322,24 +20905,24 @@ var UNIQUE_SELECTION_DISPATCHER_PROVIDER = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return UP_ARROW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return UP_ARROW; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return DOWN_ARROW; });
-/* unused harmony export RIGHT_ARROW */
-/* unused harmony export LEFT_ARROW */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return RIGHT_ARROW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return LEFT_ARROW; });
 /* unused harmony export PAGE_UP */
 /* unused harmony export PAGE_DOWN */
 /* unused harmony export HOME */
 /* unused harmony export END */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return ENTER; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return SPACE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return TAB; });
-/* unused harmony export ESCAPE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return SPACE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return TAB; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return ESCAPE; });
 /* unused harmony export BACKSPACE */
 /* unused harmony export DELETE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return A; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return Z; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return ZERO; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NINE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return Z; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return ZERO; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return NINE; });
 /* unused harmony export COMMA */
 /**
  * @license
@@ -19388,6 +20971,3063 @@ var COMMA = 188;
 
 
 //# sourceMappingURL=keycodes.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../cdk/esm5/overlay.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Overlay; });
+/* unused harmony export OverlayContainer */
+/* unused harmony export CdkOverlayOrigin */
+/* unused harmony export CdkConnectedOverlay */
+/* unused harmony export FullscreenOverlayContainer */
+/* unused harmony export OverlayRef */
+/* unused harmony export OverlayKeyboardDispatcher */
+/* unused harmony export GlobalPositionStrategy */
+/* unused harmony export ConnectedPositionStrategy */
+/* unused harmony export ConnectedOverlayDirective */
+/* unused harmony export OverlayOrigin */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return OverlayConfig; });
+/* unused harmony export ConnectionPositionPair */
+/* unused harmony export ScrollingVisibility */
+/* unused harmony export ConnectedOverlayPositionChange */
+/* unused harmony export ScrollStrategyOptions */
+/* unused harmony export RepositionScrollStrategy */
+/* unused harmony export CloseScrollStrategy */
+/* unused harmony export NoopScrollStrategy */
+/* unused harmony export BlockScrollStrategy */
+/* unused harmony export OVERLAY_PROVIDERS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return OverlayModule; });
+/* unused harmony export ɵg */
+/* unused harmony export ɵf */
+/* unused harmony export ɵb */
+/* unused harmony export ɵa */
+/* unused harmony export ɵc */
+/* unused harmony export ɵe */
+/* unused harmony export ɵd */
+/* unused harmony export ɵh */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__ = __webpack_require__("../../../cdk/esm5/scrolling.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_cdk_bidi__ = __webpack_require__("../../../cdk/esm5/bidi.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_cdk_portal__ = __webpack_require__("../../../cdk/esm5/portal.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operators_take__ = __webpack_require__("../../../../rxjs/_esm5/operators/take.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__ = __webpack_require__("../../../../rxjs/_esm5/Subject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operators_filter__ = __webpack_require__("../../../../rxjs/_esm5/operators/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_rxjs_observable_fromEvent__ = __webpack_require__("../../../../rxjs/_esm5/observable/fromEvent.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__angular_cdk_coercion__ = __webpack_require__("../../../cdk/esm5/coercion.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__angular_cdk_keycodes__ = __webpack_require__("../../../cdk/esm5/keycodes.es5.js");
+/* unused harmony reexport ViewportRuler */
+/* unused harmony reexport VIEWPORT_RULER_PROVIDER */
+/* unused harmony reexport CdkScrollable */
+/* unused harmony reexport ScrollDispatcher */
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Scroll strategy that doesn't do anything.
+ */
+var NoopScrollStrategy = /** @class */ (function () {
+    function NoopScrollStrategy() {
+    }
+    /** Does nothing, as this scroll strategy is a no-op. */
+    /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    NoopScrollStrategy.prototype.enable = /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    function () { };
+    /** Does nothing, as this scroll strategy is a no-op. */
+    /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    NoopScrollStrategy.prototype.disable = /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    function () { };
+    /** Does nothing, as this scroll strategy is a no-op. */
+    /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    NoopScrollStrategy.prototype.attach = /**
+     * Does nothing, as this scroll strategy is a no-op.
+     * @return {?}
+     */
+    function () { };
+    return NoopScrollStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Initial configuration used when creating an overlay.
+ */
+var OverlayConfig = /** @class */ (function () {
+    function OverlayConfig(config) {
+        var _this = this;
+        /**
+         * Strategy to be used when handling scroll events while the overlay is open.
+         */
+        this.scrollStrategy = new NoopScrollStrategy();
+        /**
+         * Custom class to add to the overlay pane.
+         */
+        this.panelClass = '';
+        /**
+         * Whether the overlay has a backdrop.
+         */
+        this.hasBackdrop = false;
+        /**
+         * Custom class to add to the backdrop
+         */
+        this.backdropClass = 'cdk-overlay-dark-backdrop';
+        /**
+         * The direction of the text in the overlay panel.
+         */
+        this.direction = 'ltr';
+        if (config) {
+            Object.keys(config).forEach(function (key) { return _this[key] = config[key]; });
+        }
+    }
+    return OverlayConfig;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/** Horizontal dimension of a connection point on the perimeter of the origin or overlay element. */
+/**
+ * A connection point on the origin element.
+ * @record
+ */
+
+/**
+ * A connection point on the overlay element.
+ * @record
+ */
+
+/**
+ * The points of the origin element and the overlay element to connect.
+ */
+var ConnectionPositionPair = /** @class */ (function () {
+    function ConnectionPositionPair(origin, overlay, offsetX, offsetY) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.originX = origin.originX;
+        this.originY = origin.originY;
+        this.overlayX = overlay.overlayX;
+        this.overlayY = overlay.overlayY;
+    }
+    return ConnectionPositionPair;
+}());
+/**
+ * Set of properties regarding the position of the origin and overlay relative to the viewport
+ * with respect to the containing Scrollable elements.
+ *
+ * The overlay and origin are clipped if any part of their bounding client rectangle exceeds the
+ * bounds of any one of the strategy's Scrollable's bounding client rectangle.
+ *
+ * The overlay and origin are outside view if there is no overlap between their bounding client
+ * rectangle and any one of the strategy's Scrollable's bounding client rectangle.
+ *
+ *       -----------                    -----------
+ *       | outside |                    | clipped |
+ *       |  view   |              --------------------------
+ *       |         |              |     |         |        |
+ *       ----------               |     -----------        |
+ *  --------------------------    |                        |
+ *  |                        |    |      Scrollable        |
+ *  |                        |    |                        |
+ *  |                        |     --------------------------
+ *  |      Scrollable        |
+ *  |                        |
+ *  --------------------------
+ *
+ *  \@docs-private
+ */
+var ScrollingVisibility = /** @class */ (function () {
+    function ScrollingVisibility() {
+    }
+    return ScrollingVisibility;
+}());
+/**
+ * The change event emitted by the strategy when a fallback position is used.
+ */
+var ConnectedOverlayPositionChange = /** @class */ (function () {
+    function ConnectedOverlayPositionChange(connectionPair, /** @docs-private */
+        scrollableViewProperties) {
+        this.connectionPair = connectionPair;
+        this.scrollableViewProperties = scrollableViewProperties;
+    }
+    /** @nocollapse */
+    ConnectedOverlayPositionChange.ctorParameters = function () { return [
+        { type: ConnectionPositionPair, },
+        { type: ScrollingVisibility, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+    ]; };
+    return ConnectedOverlayPositionChange;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Describes a strategy that will be used by an overlay to handle scroll events while it is open.
+ * @record
+ */
+
+/**
+ * Returns an error to be thrown when attempting to attach an already-attached scroll strategy.
+ * @return {?}
+ */
+function getMatScrollStrategyAlreadyAttachedError() {
+    return Error("Scroll strategy has already been attached.");
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Config options for the CloseScrollStrategy.
+ * @record
+ */
+
+/**
+ * Strategy that will close the overlay as soon as the user starts scrolling.
+ */
+var CloseScrollStrategy = /** @class */ (function () {
+    function CloseScrollStrategy(_scrollDispatcher, _ngZone, _viewportRuler, _config) {
+        var _this = this;
+        this._scrollDispatcher = _scrollDispatcher;
+        this._ngZone = _ngZone;
+        this._viewportRuler = _viewportRuler;
+        this._config = _config;
+        this._scrollSubscription = null;
+        /**
+         * Detaches the overlay ref and disables the scroll strategy.
+         */
+        this._detach = function () {
+            _this.disable();
+            if (_this._overlayRef.hasAttached()) {
+                _this._ngZone.run(function () { return _this._overlayRef.detach(); });
+            }
+        };
+    }
+    /** Attaches this scroll strategy to an overlay. */
+    /**
+     * Attaches this scroll strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    CloseScrollStrategy.prototype.attach = /**
+     * Attaches this scroll strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        if (this._overlayRef) {
+            throw getMatScrollStrategyAlreadyAttachedError();
+        }
+        this._overlayRef = overlayRef;
+    };
+    /** Enables the closing of the attached overlay on scroll. */
+    /**
+     * Enables the closing of the attached overlay on scroll.
+     * @return {?}
+     */
+    CloseScrollStrategy.prototype.enable = /**
+     * Enables the closing of the attached overlay on scroll.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (this._scrollSubscription) {
+            return;
+        }
+        var /** @type {?} */ stream = this._scrollDispatcher.scrolled(0);
+        if (this._config && this._config.threshold && this._config.threshold > 1) {
+            this._initialScrollPosition = this._viewportRuler.getViewportScrollPosition().top;
+            this._scrollSubscription = stream.subscribe(function () {
+                var /** @type {?} */ scrollPosition = _this._viewportRuler.getViewportScrollPosition().top;
+                if (Math.abs(scrollPosition - _this._initialScrollPosition) > /** @type {?} */ ((/** @type {?} */ ((_this._config)).threshold))) {
+                    _this._detach();
+                }
+                else {
+                    _this._overlayRef.updatePosition();
+                }
+            });
+        }
+        else {
+            this._scrollSubscription = stream.subscribe(this._detach);
+        }
+    };
+    /** Disables the closing the attached overlay on scroll. */
+    /**
+     * Disables the closing the attached overlay on scroll.
+     * @return {?}
+     */
+    CloseScrollStrategy.prototype.disable = /**
+     * Disables the closing the attached overlay on scroll.
+     * @return {?}
+     */
+    function () {
+        if (this._scrollSubscription) {
+            this._scrollSubscription.unsubscribe();
+            this._scrollSubscription = null;
+        }
+    };
+    return CloseScrollStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Strategy that will prevent the user from scrolling while the overlay is visible.
+ */
+var BlockScrollStrategy = /** @class */ (function () {
+    function BlockScrollStrategy(_viewportRuler) {
+        this._viewportRuler = _viewportRuler;
+        this._previousHTMLStyles = { top: '', left: '' };
+        this._isEnabled = false;
+    }
+    /** Attaches this scroll strategy to an overlay. */
+    /**
+     * Attaches this scroll strategy to an overlay.
+     * @return {?}
+     */
+    BlockScrollStrategy.prototype.attach = /**
+     * Attaches this scroll strategy to an overlay.
+     * @return {?}
+     */
+    function () { };
+    /** Blocks page-level scroll while the attached overlay is open. */
+    /**
+     * Blocks page-level scroll while the attached overlay is open.
+     * @return {?}
+     */
+    BlockScrollStrategy.prototype.enable = /**
+     * Blocks page-level scroll while the attached overlay is open.
+     * @return {?}
+     */
+    function () {
+        if (this._canBeEnabled()) {
+            var /** @type {?} */ root = document.documentElement;
+            this._previousScrollPosition = this._viewportRuler.getViewportScrollPosition();
+            // Cache the previous inline styles in case the user had set them.
+            this._previousHTMLStyles.left = root.style.left || '';
+            this._previousHTMLStyles.top = root.style.top || '';
+            // Note: we're using the `html` node, instead of the `body`, because the `body` may
+            // have the user agent margin, whereas the `html` is guaranteed not to have one.
+            root.style.left = -this._previousScrollPosition.left + "px";
+            root.style.top = -this._previousScrollPosition.top + "px";
+            root.classList.add('cdk-global-scrollblock');
+            this._isEnabled = true;
+        }
+    };
+    /** Unblocks page-level scroll while the attached overlay is open. */
+    /**
+     * Unblocks page-level scroll while the attached overlay is open.
+     * @return {?}
+     */
+    BlockScrollStrategy.prototype.disable = /**
+     * Unblocks page-level scroll while the attached overlay is open.
+     * @return {?}
+     */
+    function () {
+        if (this._isEnabled) {
+            var /** @type {?} */ html = document.documentElement;
+            var /** @type {?} */ body = document.body;
+            var /** @type {?} */ previousHtmlScrollBehavior = html.style['scrollBehavior'] || '';
+            var /** @type {?} */ previousBodyScrollBehavior = body.style['scrollBehavior'] || '';
+            this._isEnabled = false;
+            html.style.left = this._previousHTMLStyles.left;
+            html.style.top = this._previousHTMLStyles.top;
+            html.classList.remove('cdk-global-scrollblock');
+            // Disable user-defined smooth scrolling temporarily while we restore the scroll position.
+            // See https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-behavior
+            html.style['scrollBehavior'] = body.style['scrollBehavior'] = 'auto';
+            window.scroll(this._previousScrollPosition.left, this._previousScrollPosition.top);
+            html.style['scrollBehavior'] = previousHtmlScrollBehavior;
+            body.style['scrollBehavior'] = previousBodyScrollBehavior;
+        }
+    };
+    /**
+     * @return {?}
+     */
+    BlockScrollStrategy.prototype._canBeEnabled = /**
+     * @return {?}
+     */
+    function () {
+        // Since the scroll strategies can't be singletons, we have to use a global CSS class
+        // (`cdk-global-scrollblock`) to make sure that we don't try to disable global
+        // scrolling multiple times.
+        if (document.documentElement.classList.contains('cdk-global-scrollblock') || this._isEnabled) {
+            return false;
+        }
+        var /** @type {?} */ body = document.body;
+        var /** @type {?} */ viewport = this._viewportRuler.getViewportSize();
+        return body.scrollHeight > viewport.height || body.scrollWidth > viewport.width;
+    };
+    return BlockScrollStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+// TODO(jelbourn): move this to live with the rest of the scrolling code
+// TODO(jelbourn): someday replace this with IntersectionObservers
+/**
+ * Gets whether an element is scrolled outside of view by any of its parent scrolling containers.
+ * \@docs-private
+ * @param {?} element Dimensions of the element (from getBoundingClientRect)
+ * @param {?} scrollContainers Dimensions of element's scrolling containers (from getBoundingClientRect)
+ * @return {?} Whether the element is scrolled out of view
+ */
+function isElementScrolledOutsideView(element, scrollContainers) {
+    return scrollContainers.some(function (containerBounds) {
+        var /** @type {?} */ outsideAbove = element.bottom < containerBounds.top;
+        var /** @type {?} */ outsideBelow = element.top > containerBounds.bottom;
+        var /** @type {?} */ outsideLeft = element.right < containerBounds.left;
+        var /** @type {?} */ outsideRight = element.left > containerBounds.right;
+        return outsideAbove || outsideBelow || outsideLeft || outsideRight;
+    });
+}
+/**
+ * Gets whether an element is clipped by any of its scrolling containers.
+ * \@docs-private
+ * @param {?} element Dimensions of the element (from getBoundingClientRect)
+ * @param {?} scrollContainers Dimensions of element's scrolling containers (from getBoundingClientRect)
+ * @return {?} Whether the element is clipped
+ */
+function isElementClippedByScrolling(element, scrollContainers) {
+    return scrollContainers.some(function (scrollContainerRect) {
+        var /** @type {?} */ clippedAbove = element.top < scrollContainerRect.top;
+        var /** @type {?} */ clippedBelow = element.bottom > scrollContainerRect.bottom;
+        var /** @type {?} */ clippedLeft = element.left < scrollContainerRect.left;
+        var /** @type {?} */ clippedRight = element.right > scrollContainerRect.right;
+        return clippedAbove || clippedBelow || clippedLeft || clippedRight;
+    });
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Config options for the RepositionScrollStrategy.
+ * @record
+ */
+
+/**
+ * Strategy that will update the element position as the user is scrolling.
+ */
+var RepositionScrollStrategy = /** @class */ (function () {
+    function RepositionScrollStrategy(_scrollDispatcher, _viewportRuler, _ngZone, _config) {
+        this._scrollDispatcher = _scrollDispatcher;
+        this._viewportRuler = _viewportRuler;
+        this._ngZone = _ngZone;
+        this._config = _config;
+        this._scrollSubscription = null;
+    }
+    /** Attaches this scroll strategy to an overlay. */
+    /**
+     * Attaches this scroll strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    RepositionScrollStrategy.prototype.attach = /**
+     * Attaches this scroll strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        if (this._overlayRef) {
+            throw getMatScrollStrategyAlreadyAttachedError();
+        }
+        this._overlayRef = overlayRef;
+    };
+    /** Enables repositioning of the attached overlay on scroll. */
+    /**
+     * Enables repositioning of the attached overlay on scroll.
+     * @return {?}
+     */
+    RepositionScrollStrategy.prototype.enable = /**
+     * Enables repositioning of the attached overlay on scroll.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!this._scrollSubscription) {
+            var /** @type {?} */ throttle = this._config ? this._config.scrollThrottle : 0;
+            this._scrollSubscription = this._scrollDispatcher.scrolled(throttle).subscribe(function () {
+                _this._overlayRef.updatePosition();
+                // TODO(crisbeto): make `close` on by default once all components can handle it.
+                if (_this._config && _this._config.autoClose) {
+                    var /** @type {?} */ overlayRect = _this._overlayRef.overlayElement.getBoundingClientRect();
+                    var _a = _this._viewportRuler.getViewportSize(), width = _a.width, height = _a.height;
+                    // TODO(crisbeto): include all ancestor scroll containers here once
+                    // we have a way of exposing the trigger element to the scroll strategy.
+                    var /** @type {?} */ parentRects = [{ width: width, height: height, bottom: height, right: width, top: 0, left: 0 }];
+                    if (isElementScrolledOutsideView(overlayRect, parentRects)) {
+                        _this.disable();
+                        _this._ngZone.run(function () { return _this._overlayRef.detach(); });
+                    }
+                }
+            });
+        }
+    };
+    /** Disables repositioning of the attached overlay on scroll. */
+    /**
+     * Disables repositioning of the attached overlay on scroll.
+     * @return {?}
+     */
+    RepositionScrollStrategy.prototype.disable = /**
+     * Disables repositioning of the attached overlay on scroll.
+     * @return {?}
+     */
+    function () {
+        if (this._scrollSubscription) {
+            this._scrollSubscription.unsubscribe();
+            this._scrollSubscription = null;
+        }
+    };
+    return RepositionScrollStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Options for how an overlay will handle scrolling.
+ *
+ * Users can provide a custom value for `ScrollStrategyOptions` to replace the default
+ * behaviors. This class primarily acts as a factory for ScrollStrategy instances.
+ */
+var ScrollStrategyOptions = /** @class */ (function () {
+    function ScrollStrategyOptions(_scrollDispatcher, _viewportRuler, _ngZone) {
+        var _this = this;
+        this._scrollDispatcher = _scrollDispatcher;
+        this._viewportRuler = _viewportRuler;
+        this._ngZone = _ngZone;
+        /**
+         * Do nothing on scroll.
+         */
+        this.noop = function () { return new NoopScrollStrategy(); };
+        /**
+         * Close the overlay as soon as the user scrolls.
+         * @param config Configuration to be used inside the scroll strategy.
+         */
+        this.close = function (config) {
+            return new CloseScrollStrategy(_this._scrollDispatcher, _this._ngZone, _this._viewportRuler, config);
+        };
+        /**
+         * Block scrolling.
+         */
+        this.block = function () { return new BlockScrollStrategy(_this._viewportRuler); };
+        /**
+         * Update the overlay's position on scroll.
+         * @param config Configuration to be used inside the scroll strategy.
+         * Allows debouncing the reposition calls.
+         */
+        this.reposition = function (config) {
+            return new RepositionScrollStrategy(_this._scrollDispatcher, _this._viewportRuler, _this._ngZone, config);
+        };
+    }
+    ScrollStrategyOptions.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    ScrollStrategyOptions.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["b" /* ScrollDispatcher */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["d" /* ViewportRuler */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+    ]; };
+    return ScrollStrategyOptions;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Reference to an overlay that has been created with the Overlay service.
+ * Used to manipulate or dispose of said overlay.
+ */
+var OverlayRef = /** @class */ (function () {
+    function OverlayRef(_portalOutlet, _pane, _config, _ngZone, _keyboardDispatcher) {
+        this._portalOutlet = _portalOutlet;
+        this._pane = _pane;
+        this._config = _config;
+        this._ngZone = _ngZone;
+        this._keyboardDispatcher = _keyboardDispatcher;
+        this._backdropElement = null;
+        this._backdropClick = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        this._attachments = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        this._detachments = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        /**
+         * Stream of keydown events dispatched to this overlay.
+         */
+        this._keydownEvents = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        if (_config.scrollStrategy) {
+            _config.scrollStrategy.attach(this);
+        }
+    }
+    Object.defineProperty(OverlayRef.prototype, "overlayElement", {
+        /** The overlay's HTML element */
+        get: /**
+         * The overlay's HTML element
+         * @return {?}
+         */
+        function () {
+            return this._pane;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Attaches content, given via a Portal, to the overlay.
+     * If the overlay is configured to have a backdrop, it will be created.
+     *
+     * @param portal Portal instance to which to attach the overlay.
+     * @returns The portal attachment result.
+     */
+    /**
+     * Attaches content, given via a Portal, to the overlay.
+     * If the overlay is configured to have a backdrop, it will be created.
+     *
+     * @param {?} portal Portal instance to which to attach the overlay.
+     * @return {?} The portal attachment result.
+     */
+    OverlayRef.prototype.attach = /**
+     * Attaches content, given via a Portal, to the overlay.
+     * If the overlay is configured to have a backdrop, it will be created.
+     *
+     * @param {?} portal Portal instance to which to attach the overlay.
+     * @return {?} The portal attachment result.
+     */
+    function (portal) {
+        var _this = this;
+        var /** @type {?} */ attachResult = this._portalOutlet.attach(portal);
+        if (this._config.positionStrategy) {
+            this._config.positionStrategy.attach(this);
+        }
+        // Update the pane element with the given configuration.
+        this._updateStackingOrder();
+        this._updateElementSize();
+        this._updateElementDirection();
+        if (this._config.scrollStrategy) {
+            this._config.scrollStrategy.enable();
+        }
+        // Update the position once the zone is stable so that the overlay will be fully rendered
+        // before attempting to position it, as the position may depend on the size of the rendered
+        // content.
+        this._ngZone.onStable.asObservable().pipe(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_take__["a" /* take */])(1)).subscribe(function () {
+            _this.updatePosition();
+        });
+        // Enable pointer events for the overlay pane element.
+        this._togglePointerEvents(true);
+        if (this._config.hasBackdrop) {
+            this._attachBackdrop();
+        }
+        if (this._config.panelClass) {
+            // We can't do a spread here, because IE doesn't support setting multiple classes.
+            if (Array.isArray(this._config.panelClass)) {
+                this._config.panelClass.forEach(function (cls) { return _this._pane.classList.add(cls); });
+            }
+            else {
+                this._pane.classList.add(this._config.panelClass);
+            }
+        }
+        // Only emit the `attachments` event once all other setup is done.
+        this._attachments.next();
+        // Track this overlay by the keyboard dispatcher
+        this._keyboardDispatcher.add(this);
+        return attachResult;
+    };
+    /**
+     * Detaches an overlay from a portal.
+     * @returns The portal detachment result.
+     */
+    /**
+     * Detaches an overlay from a portal.
+     * @return {?} The portal detachment result.
+     */
+    OverlayRef.prototype.detach = /**
+     * Detaches an overlay from a portal.
+     * @return {?} The portal detachment result.
+     */
+    function () {
+        if (!this.hasAttached()) {
+            return;
+        }
+        this.detachBackdrop();
+        // When the overlay is detached, the pane element should disable pointer events.
+        // This is necessary because otherwise the pane element will cover the page and disable
+        // pointer events therefore. Depends on the position strategy and the applied pane boundaries.
+        this._togglePointerEvents(false);
+        if (this._config.positionStrategy && this._config.positionStrategy.detach) {
+            this._config.positionStrategy.detach();
+        }
+        if (this._config.scrollStrategy) {
+            this._config.scrollStrategy.disable();
+        }
+        var /** @type {?} */ detachmentResult = this._portalOutlet.detach();
+        // Only emit after everything is detached.
+        this._detachments.next();
+        // Remove this overlay from keyboard dispatcher tracking
+        this._keyboardDispatcher.remove(this);
+        return detachmentResult;
+    };
+    /** Cleans up the overlay from the DOM. */
+    /**
+     * Cleans up the overlay from the DOM.
+     * @return {?}
+     */
+    OverlayRef.prototype.dispose = /**
+     * Cleans up the overlay from the DOM.
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ isAttached = this.hasAttached();
+        if (this._config.positionStrategy) {
+            this._config.positionStrategy.dispose();
+        }
+        if (this._config.scrollStrategy) {
+            this._config.scrollStrategy.disable();
+        }
+        this.detachBackdrop();
+        this._keyboardDispatcher.remove(this);
+        this._portalOutlet.dispose();
+        this._attachments.complete();
+        this._backdropClick.complete();
+        this._keydownEvents.complete();
+        if (isAttached) {
+            this._detachments.next();
+        }
+        this._detachments.complete();
+    };
+    /** Whether the overlay has attached content. */
+    /**
+     * Whether the overlay has attached content.
+     * @return {?}
+     */
+    OverlayRef.prototype.hasAttached = /**
+     * Whether the overlay has attached content.
+     * @return {?}
+     */
+    function () {
+        return this._portalOutlet.hasAttached();
+    };
+    /** Gets an observable that emits when the backdrop has been clicked. */
+    /**
+     * Gets an observable that emits when the backdrop has been clicked.
+     * @return {?}
+     */
+    OverlayRef.prototype.backdropClick = /**
+     * Gets an observable that emits when the backdrop has been clicked.
+     * @return {?}
+     */
+    function () {
+        return this._backdropClick.asObservable();
+    };
+    /** Gets an observable that emits when the overlay has been attached. */
+    /**
+     * Gets an observable that emits when the overlay has been attached.
+     * @return {?}
+     */
+    OverlayRef.prototype.attachments = /**
+     * Gets an observable that emits when the overlay has been attached.
+     * @return {?}
+     */
+    function () {
+        return this._attachments.asObservable();
+    };
+    /** Gets an observable that emits when the overlay has been detached. */
+    /**
+     * Gets an observable that emits when the overlay has been detached.
+     * @return {?}
+     */
+    OverlayRef.prototype.detachments = /**
+     * Gets an observable that emits when the overlay has been detached.
+     * @return {?}
+     */
+    function () {
+        return this._detachments.asObservable();
+    };
+    /** Gets an observable of keydown events targeted to this overlay. */
+    /**
+     * Gets an observable of keydown events targeted to this overlay.
+     * @return {?}
+     */
+    OverlayRef.prototype.keydownEvents = /**
+     * Gets an observable of keydown events targeted to this overlay.
+     * @return {?}
+     */
+    function () {
+        return this._keydownEvents.asObservable();
+    };
+    /** Gets the the current overlay configuration, which is immutable. */
+    /**
+     * Gets the the current overlay configuration, which is immutable.
+     * @return {?}
+     */
+    OverlayRef.prototype.getConfig = /**
+     * Gets the the current overlay configuration, which is immutable.
+     * @return {?}
+     */
+    function () {
+        return this._config;
+    };
+    /** Updates the position of the overlay based on the position strategy. */
+    /**
+     * Updates the position of the overlay based on the position strategy.
+     * @return {?}
+     */
+    OverlayRef.prototype.updatePosition = /**
+     * Updates the position of the overlay based on the position strategy.
+     * @return {?}
+     */
+    function () {
+        if (this._config.positionStrategy) {
+            this._config.positionStrategy.apply();
+        }
+    };
+    /** Update the size properties of the overlay. */
+    /**
+     * Update the size properties of the overlay.
+     * @param {?} sizeConfig
+     * @return {?}
+     */
+    OverlayRef.prototype.updateSize = /**
+     * Update the size properties of the overlay.
+     * @param {?} sizeConfig
+     * @return {?}
+     */
+    function (sizeConfig) {
+        this._config = Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["a" /* __assign */])({}, this._config, sizeConfig);
+        this._updateElementSize();
+    };
+    /** Sets the LTR/RTL direction for the overlay. */
+    /**
+     * Sets the LTR/RTL direction for the overlay.
+     * @param {?} dir
+     * @return {?}
+     */
+    OverlayRef.prototype.setDirection = /**
+     * Sets the LTR/RTL direction for the overlay.
+     * @param {?} dir
+     * @return {?}
+     */
+    function (dir) {
+        this._config = Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["a" /* __assign */])({}, this._config, { direction: dir });
+        this._updateElementDirection();
+    };
+    /**
+     * Updates the text direction of the overlay panel.
+     * @return {?}
+     */
+    OverlayRef.prototype._updateElementDirection = /**
+     * Updates the text direction of the overlay panel.
+     * @return {?}
+     */
+    function () {
+        this._pane.setAttribute('dir', /** @type {?} */ ((this._config.direction)));
+    };
+    /**
+     * Updates the size of the overlay element based on the overlay config.
+     * @return {?}
+     */
+    OverlayRef.prototype._updateElementSize = /**
+     * Updates the size of the overlay element based on the overlay config.
+     * @return {?}
+     */
+    function () {
+        if (this._config.width || this._config.width === 0) {
+            this._pane.style.width = formatCssUnit(this._config.width);
+        }
+        if (this._config.height || this._config.height === 0) {
+            this._pane.style.height = formatCssUnit(this._config.height);
+        }
+        if (this._config.minWidth || this._config.minWidth === 0) {
+            this._pane.style.minWidth = formatCssUnit(this._config.minWidth);
+        }
+        if (this._config.minHeight || this._config.minHeight === 0) {
+            this._pane.style.minHeight = formatCssUnit(this._config.minHeight);
+        }
+        if (this._config.maxWidth || this._config.maxWidth === 0) {
+            this._pane.style.maxWidth = formatCssUnit(this._config.maxWidth);
+        }
+        if (this._config.maxHeight || this._config.maxHeight === 0) {
+            this._pane.style.maxHeight = formatCssUnit(this._config.maxHeight);
+        }
+    };
+    /**
+     * Toggles the pointer events for the overlay pane element.
+     * @param {?} enablePointer
+     * @return {?}
+     */
+    OverlayRef.prototype._togglePointerEvents = /**
+     * Toggles the pointer events for the overlay pane element.
+     * @param {?} enablePointer
+     * @return {?}
+     */
+    function (enablePointer) {
+        this._pane.style.pointerEvents = enablePointer ? 'auto' : 'none';
+    };
+    /**
+     * Attaches a backdrop for this overlay.
+     * @return {?}
+     */
+    OverlayRef.prototype._attachBackdrop = /**
+     * Attaches a backdrop for this overlay.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._backdropElement = document.createElement('div');
+        this._backdropElement.classList.add('cdk-overlay-backdrop');
+        if (this._config.backdropClass) {
+            this._backdropElement.classList.add(this._config.backdropClass);
+        } /** @type {?} */
+        ((
+        // Insert the backdrop before the pane in the DOM order,
+        // in order to handle stacked overlays properly.
+        this._pane.parentElement)).insertBefore(this._backdropElement, this._pane);
+        // Forward backdrop clicks such that the consumer of the overlay can perform whatever
+        // action desired when such a click occurs (usually closing the overlay).
+        this._backdropElement.addEventListener('click', function () { return _this._backdropClick.next(null); });
+        // Add class to fade-in the backdrop after one frame.
+        this._ngZone.runOutsideAngular(function () {
+            requestAnimationFrame(function () {
+                if (_this._backdropElement) {
+                    _this._backdropElement.classList.add('cdk-overlay-backdrop-showing');
+                }
+            });
+        });
+    };
+    /**
+     * Updates the stacking order of the element, moving it to the top if necessary.
+     * This is required in cases where one overlay was detached, while another one,
+     * that should be behind it, was destroyed. The next time both of them are opened,
+     * the stacking will be wrong, because the detached element's pane will still be
+     * in its original DOM position.
+     * @return {?}
+     */
+    OverlayRef.prototype._updateStackingOrder = /**
+     * Updates the stacking order of the element, moving it to the top if necessary.
+     * This is required in cases where one overlay was detached, while another one,
+     * that should be behind it, was destroyed. The next time both of them are opened,
+     * the stacking will be wrong, because the detached element's pane will still be
+     * in its original DOM position.
+     * @return {?}
+     */
+    function () {
+        if (this._pane.nextSibling) {
+            /** @type {?} */ ((this._pane.parentNode)).appendChild(this._pane);
+        }
+    };
+    /** Detaches the backdrop (if any) associated with the overlay. */
+    /**
+     * Detaches the backdrop (if any) associated with the overlay.
+     * @return {?}
+     */
+    OverlayRef.prototype.detachBackdrop = /**
+     * Detaches the backdrop (if any) associated with the overlay.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ backdropToDetach = this._backdropElement;
+        if (backdropToDetach) {
+            var /** @type {?} */ finishDetach_1 = function () {
+                // It may not be attached to anything in certain cases (e.g. unit tests).
+                if (backdropToDetach && backdropToDetach.parentNode) {
+                    backdropToDetach.parentNode.removeChild(backdropToDetach);
+                }
+                // It is possible that a new portal has been attached to this overlay since we started
+                // removing the backdrop. If that is the case, only clear the backdrop reference if it
+                // is still the same instance that we started to remove.
+                if (_this._backdropElement == backdropToDetach) {
+                    _this._backdropElement = null;
+                }
+            };
+            backdropToDetach.classList.remove('cdk-overlay-backdrop-showing');
+            if (this._config.backdropClass) {
+                backdropToDetach.classList.remove(this._config.backdropClass);
+            }
+            backdropToDetach.addEventListener('transitionend', finishDetach_1);
+            // If the backdrop doesn't have a transition, the `transitionend` event won't fire.
+            // In this case we make it unclickable and we try to remove it after a delay.
+            backdropToDetach.style.pointerEvents = 'none';
+            // Run this outside the Angular zone because there's nothing that Angular cares about.
+            // If it were to run inside the Angular zone, every test that used Overlay would have to be
+            // either async or fakeAsync.
+            this._ngZone.runOutsideAngular(function () {
+                setTimeout(finishDetach_1, 500);
+            });
+        }
+    };
+    return OverlayRef;
+}());
+/**
+ * @param {?} value
+ * @return {?}
+ */
+function formatCssUnit(value) {
+    return typeof value === 'string' ? /** @type {?} */ (value) : value + "px";
+}
+/**
+ * Size properties for an overlay.
+ * @record
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * A strategy for positioning overlays. Using this strategy, an overlay is given an
+ * implicit position relative some origin element. The relative position is defined in terms of
+ * a point on the origin element that is connected to a point on the overlay element. For example,
+ * a basic dropdown is connecting the bottom-left corner of the origin to the top-left corner
+ * of the overlay.
+ */
+var ConnectedPositionStrategy = /** @class */ (function () {
+    function ConnectedPositionStrategy(originPos, overlayPos, _connectedTo, _viewportRuler, _document) {
+        this._connectedTo = _connectedTo;
+        this._viewportRuler = _viewportRuler;
+        this._document = _document;
+        /**
+         * Layout direction of the position strategy.
+         */
+        this._dir = 'ltr';
+        /**
+         * The offset in pixels for the overlay connection point on the x-axis
+         */
+        this._offsetX = 0;
+        /**
+         * The offset in pixels for the overlay connection point on the y-axis
+         */
+        this._offsetY = 0;
+        /**
+         * The Scrollable containers used to check scrollable view properties on position change.
+         */
+        this.scrollables = [];
+        /**
+         * Subscription to viewport resize events.
+         */
+        this._resizeSubscription = __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        /**
+         * Ordered list of preferred positions, from most to least desirable.
+         */
+        this._preferredPositions = [];
+        /**
+         * Whether the position strategy is applied currently.
+         */
+        this._applied = false;
+        /**
+         * Whether the overlay position is locked.
+         */
+        this._positionLocked = false;
+        this._onPositionChange = new __WEBPACK_IMPORTED_MODULE_6_rxjs_Subject__["a" /* Subject */]();
+        this._origin = this._connectedTo.nativeElement;
+        this.withFallbackPosition(originPos, overlayPos);
+    }
+    Object.defineProperty(ConnectedPositionStrategy.prototype, "_isRtl", {
+        /** Whether the we're dealing with an RTL context */
+        get: /**
+         * Whether the we're dealing with an RTL context
+         * @return {?}
+         */
+        function () {
+            return this._dir === 'rtl';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ConnectedPositionStrategy.prototype, "onPositionChange", {
+        /** Emits an event when the connection point changes. */
+        get: /**
+         * Emits an event when the connection point changes.
+         * @return {?}
+         */
+        function () {
+            return this._onPositionChange.asObservable();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ConnectedPositionStrategy.prototype, "positions", {
+        /** Ordered list of preferred positions, from most to least desirable. */
+        get: /**
+         * Ordered list of preferred positions, from most to least desirable.
+         * @return {?}
+         */
+        function () {
+            return this._preferredPositions;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /** Attach this position strategy to an overlay. */
+    /**
+     * Attach this position strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.attach = /**
+     * Attach this position strategy to an overlay.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        var _this = this;
+        this._overlayRef = overlayRef;
+        this._pane = overlayRef.overlayElement;
+        this._resizeSubscription.unsubscribe();
+        this._resizeSubscription = this._viewportRuler.change().subscribe(function () { return _this.apply(); });
+    };
+    /** Disposes all resources used by the position strategy. */
+    /**
+     * Disposes all resources used by the position strategy.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.dispose = /**
+     * Disposes all resources used by the position strategy.
+     * @return {?}
+     */
+    function () {
+        this._applied = false;
+        this._resizeSubscription.unsubscribe();
+    };
+    /** @docs-private */
+    /**
+     * \@docs-private
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.detach = /**
+     * \@docs-private
+     * @return {?}
+     */
+    function () {
+        this._applied = false;
+        this._resizeSubscription.unsubscribe();
+    };
+    /**
+     * Updates the position of the overlay element, using whichever preferred position relative
+     * to the origin fits on-screen.
+     * @docs-private
+     */
+    /**
+     * Updates the position of the overlay element, using whichever preferred position relative
+     * to the origin fits on-screen.
+     * \@docs-private
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.apply = /**
+     * Updates the position of the overlay element, using whichever preferred position relative
+     * to the origin fits on-screen.
+     * \@docs-private
+     * @return {?}
+     */
+    function () {
+        // If the position has been applied already (e.g. when the overlay was opened) and the
+        // consumer opted into locking in the position, re-use the  old position, in order to
+        // prevent the overlay from jumping around.
+        if (this._applied && this._positionLocked && this._lastConnectedPosition) {
+            this.recalculateLastPosition();
+            return;
+        }
+        this._applied = true;
+        // We need the bounding rects for the origin and the overlay to determine how to position
+        // the overlay relative to the origin.
+        var /** @type {?} */ element = this._pane;
+        var /** @type {?} */ originRect = this._origin.getBoundingClientRect();
+        var /** @type {?} */ overlayRect = element.getBoundingClientRect();
+        // We use the viewport size to determine whether a position would go off-screen.
+        var /** @type {?} */ viewportSize = this._viewportRuler.getViewportSize();
+        // Fallback point if none of the fallbacks fit into the viewport.
+        var /** @type {?} */ fallbackPoint;
+        var /** @type {?} */ fallbackPosition;
+        // We want to place the overlay in the first of the preferred positions such that the
+        // overlay fits on-screen.
+        for (var _i = 0, _a = this._preferredPositions; _i < _a.length; _i++) {
+            var pos = _a[_i];
+            // Get the (x, y) point of connection on the origin, and then use that to get the
+            // (top, left) coordinate for the overlay at `pos`.
+            var /** @type {?} */ originPoint = this._getOriginConnectionPoint(originRect, pos);
+            var /** @type {?} */ overlayPoint = this._getOverlayPoint(originPoint, overlayRect, viewportSize, pos);
+            // If the overlay in the calculated position fits on-screen, put it there and we're done.
+            if (overlayPoint.fitsInViewport) {
+                this._setElementPosition(element, overlayRect, overlayPoint, pos);
+                // Save the last connected position in case the position needs to be re-calculated.
+                this._lastConnectedPosition = pos;
+                return;
+            }
+            else if (!fallbackPoint || fallbackPoint.visibleArea < overlayPoint.visibleArea) {
+                fallbackPoint = overlayPoint;
+                fallbackPosition = pos;
+            }
+        }
+        // If none of the preferred positions were in the viewport, take the one
+        // with the largest visible area.
+        this._setElementPosition(element, overlayRect, /** @type {?} */ ((fallbackPoint)), /** @type {?} */ ((fallbackPosition)));
+    };
+    /**
+     * Re-positions the overlay element with the trigger in its last calculated position,
+     * even if a position higher in the "preferred positions" list would now fit. This
+     * allows one to re-align the panel without changing the orientation of the panel.
+     */
+    /**
+     * Re-positions the overlay element with the trigger in its last calculated position,
+     * even if a position higher in the "preferred positions" list would now fit. This
+     * allows one to re-align the panel without changing the orientation of the panel.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.recalculateLastPosition = /**
+     * Re-positions the overlay element with the trigger in its last calculated position,
+     * even if a position higher in the "preferred positions" list would now fit. This
+     * allows one to re-align the panel without changing the orientation of the panel.
+     * @return {?}
+     */
+    function () {
+        // If the overlay has never been positioned before, do nothing.
+        if (!this._lastConnectedPosition) {
+            return;
+        }
+        var /** @type {?} */ originRect = this._origin.getBoundingClientRect();
+        var /** @type {?} */ overlayRect = this._pane.getBoundingClientRect();
+        var /** @type {?} */ viewportSize = this._viewportRuler.getViewportSize();
+        var /** @type {?} */ lastPosition = this._lastConnectedPosition || this._preferredPositions[0];
+        var /** @type {?} */ originPoint = this._getOriginConnectionPoint(originRect, lastPosition);
+        var /** @type {?} */ overlayPoint = this._getOverlayPoint(originPoint, overlayRect, viewportSize, lastPosition);
+        this._setElementPosition(this._pane, overlayRect, overlayPoint, lastPosition);
+    };
+    /**
+     * Sets the list of Scrollable containers that host the origin element so that
+     * on reposition we can evaluate if it or the overlay has been clipped or outside view. Every
+     * Scrollable must be an ancestor element of the strategy's origin element.
+     */
+    /**
+     * Sets the list of Scrollable containers that host the origin element so that
+     * on reposition we can evaluate if it or the overlay has been clipped or outside view. Every
+     * Scrollable must be an ancestor element of the strategy's origin element.
+     * @param {?} scrollables
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withScrollableContainers = /**
+     * Sets the list of Scrollable containers that host the origin element so that
+     * on reposition we can evaluate if it or the overlay has been clipped or outside view. Every
+     * Scrollable must be an ancestor element of the strategy's origin element.
+     * @param {?} scrollables
+     * @return {?}
+     */
+    function (scrollables) {
+        this.scrollables = scrollables;
+    };
+    /**
+     * Adds a new preferred fallback position.
+     * @param originPos
+     * @param overlayPos
+     */
+    /**
+     * Adds a new preferred fallback position.
+     * @param {?} originPos
+     * @param {?} overlayPos
+     * @param {?=} offsetX
+     * @param {?=} offsetY
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withFallbackPosition = /**
+     * Adds a new preferred fallback position.
+     * @param {?} originPos
+     * @param {?} overlayPos
+     * @param {?=} offsetX
+     * @param {?=} offsetY
+     * @return {?}
+     */
+    function (originPos, overlayPos, offsetX, offsetY) {
+        var /** @type {?} */ position = new ConnectionPositionPair(originPos, overlayPos, offsetX, offsetY);
+        this._preferredPositions.push(position);
+        return this;
+    };
+    /**
+     * Sets the layout direction so the overlay's position can be adjusted to match.
+     * @param dir New layout direction.
+     */
+    /**
+     * Sets the layout direction so the overlay's position can be adjusted to match.
+     * @param {?} dir New layout direction.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withDirection = /**
+     * Sets the layout direction so the overlay's position can be adjusted to match.
+     * @param {?} dir New layout direction.
+     * @return {?}
+     */
+    function (dir) {
+        this._dir = dir;
+        return this;
+    };
+    /**
+     * Sets an offset for the overlay's connection point on the x-axis
+     * @param offset New offset in the X axis.
+     */
+    /**
+     * Sets an offset for the overlay's connection point on the x-axis
+     * @param {?} offset New offset in the X axis.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withOffsetX = /**
+     * Sets an offset for the overlay's connection point on the x-axis
+     * @param {?} offset New offset in the X axis.
+     * @return {?}
+     */
+    function (offset) {
+        this._offsetX = offset;
+        return this;
+    };
+    /**
+     * Sets an offset for the overlay's connection point on the y-axis
+     * @param  offset New offset in the Y axis.
+     */
+    /**
+     * Sets an offset for the overlay's connection point on the y-axis
+     * @param {?} offset New offset in the Y axis.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withOffsetY = /**
+     * Sets an offset for the overlay's connection point on the y-axis
+     * @param {?} offset New offset in the Y axis.
+     * @return {?}
+     */
+    function (offset) {
+        this._offsetY = offset;
+        return this;
+    };
+    /**
+     * Sets whether the overlay's position should be locked in after it is positioned
+     * initially. When an overlay is locked in, it won't attempt to reposition itself
+     * when the position is re-applied (e.g. when the user scrolls away).
+     * @param isLocked Whether the overlay should locked in.
+     */
+    /**
+     * Sets whether the overlay's position should be locked in after it is positioned
+     * initially. When an overlay is locked in, it won't attempt to reposition itself
+     * when the position is re-applied (e.g. when the user scrolls away).
+     * @param {?} isLocked Whether the overlay should locked in.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withLockedPosition = /**
+     * Sets whether the overlay's position should be locked in after it is positioned
+     * initially. When an overlay is locked in, it won't attempt to reposition itself
+     * when the position is re-applied (e.g. when the user scrolls away).
+     * @param {?} isLocked Whether the overlay should locked in.
+     * @return {?}
+     */
+    function (isLocked) {
+        this._positionLocked = isLocked;
+        return this;
+    };
+    /**
+     * Overwrites the current set of positions with an array of new ones.
+     * @param positions Position pairs to be set on the strategy.
+     */
+    /**
+     * Overwrites the current set of positions with an array of new ones.
+     * @param {?} positions Position pairs to be set on the strategy.
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype.withPositions = /**
+     * Overwrites the current set of positions with an array of new ones.
+     * @param {?} positions Position pairs to be set on the strategy.
+     * @return {?}
+     */
+    function (positions) {
+        this._preferredPositions = positions.slice();
+        return this;
+    };
+    /**
+     * Gets the horizontal (x) "start" dimension based on whether the overlay is in an RTL context.
+     * @param {?} rect
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._getStartX = /**
+     * Gets the horizontal (x) "start" dimension based on whether the overlay is in an RTL context.
+     * @param {?} rect
+     * @return {?}
+     */
+    function (rect) {
+        return this._isRtl ? rect.right : rect.left;
+    };
+    /**
+     * Gets the horizontal (x) "end" dimension based on whether the overlay is in an RTL context.
+     * @param {?} rect
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._getEndX = /**
+     * Gets the horizontal (x) "end" dimension based on whether the overlay is in an RTL context.
+     * @param {?} rect
+     * @return {?}
+     */
+    function (rect) {
+        return this._isRtl ? rect.left : rect.right;
+    };
+    /**
+     * Gets the (x, y) coordinate of a connection point on the origin based on a relative position.
+     * @param {?} originRect
+     * @param {?} pos
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._getOriginConnectionPoint = /**
+     * Gets the (x, y) coordinate of a connection point on the origin based on a relative position.
+     * @param {?} originRect
+     * @param {?} pos
+     * @return {?}
+     */
+    function (originRect, pos) {
+        var /** @type {?} */ originStartX = this._getStartX(originRect);
+        var /** @type {?} */ originEndX = this._getEndX(originRect);
+        var /** @type {?} */ x;
+        if (pos.originX == 'center') {
+            x = originStartX + (originRect.width / 2);
+        }
+        else {
+            x = pos.originX == 'start' ? originStartX : originEndX;
+        }
+        var /** @type {?} */ y;
+        if (pos.originY == 'center') {
+            y = originRect.top + (originRect.height / 2);
+        }
+        else {
+            y = pos.originY == 'top' ? originRect.top : originRect.bottom;
+        }
+        return { x: x, y: y };
+    };
+    /**
+     * Gets the (x, y) coordinate of the top-left corner of the overlay given a given position and
+     * origin point to which the overlay should be connected, as well as how much of the element
+     * would be inside the viewport at that position.
+     * @param {?} originPoint
+     * @param {?} overlayRect
+     * @param {?} viewportSize
+     * @param {?} pos
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._getOverlayPoint = /**
+     * Gets the (x, y) coordinate of the top-left corner of the overlay given a given position and
+     * origin point to which the overlay should be connected, as well as how much of the element
+     * would be inside the viewport at that position.
+     * @param {?} originPoint
+     * @param {?} overlayRect
+     * @param {?} viewportSize
+     * @param {?} pos
+     * @return {?}
+     */
+    function (originPoint, overlayRect, viewportSize, pos) {
+        // Calculate the (overlayStartX, overlayStartY), the start of the potential overlay position
+        // relative to the origin point.
+        var /** @type {?} */ overlayStartX;
+        if (pos.overlayX == 'center') {
+            overlayStartX = -overlayRect.width / 2;
+        }
+        else if (pos.overlayX === 'start') {
+            overlayStartX = this._isRtl ? -overlayRect.width : 0;
+        }
+        else {
+            overlayStartX = this._isRtl ? 0 : -overlayRect.width;
+        }
+        var /** @type {?} */ overlayStartY;
+        if (pos.overlayY == 'center') {
+            overlayStartY = -overlayRect.height / 2;
+        }
+        else {
+            overlayStartY = pos.overlayY == 'top' ? 0 : -overlayRect.height;
+        }
+        // The (x, y) offsets of the overlay based on the current position.
+        var /** @type {?} */ offsetX = typeof pos.offsetX === 'undefined' ? this._offsetX : pos.offsetX;
+        var /** @type {?} */ offsetY = typeof pos.offsetY === 'undefined' ? this._offsetY : pos.offsetY;
+        // The (x, y) coordinates of the overlay.
+        var /** @type {?} */ x = originPoint.x + overlayStartX + offsetX;
+        var /** @type {?} */ y = originPoint.y + overlayStartY + offsetY;
+        // How much the overlay would overflow at this position, on each side.
+        var /** @type {?} */ leftOverflow = 0 - x;
+        var /** @type {?} */ rightOverflow = (x + overlayRect.width) - viewportSize.width;
+        var /** @type {?} */ topOverflow = 0 - y;
+        var /** @type {?} */ bottomOverflow = (y + overlayRect.height) - viewportSize.height;
+        // Visible parts of the element on each axis.
+        var /** @type {?} */ visibleWidth = this._subtractOverflows(overlayRect.width, leftOverflow, rightOverflow);
+        var /** @type {?} */ visibleHeight = this._subtractOverflows(overlayRect.height, topOverflow, bottomOverflow);
+        // The area of the element that's within the viewport.
+        var /** @type {?} */ visibleArea = visibleWidth * visibleHeight;
+        var /** @type {?} */ fitsInViewport = (overlayRect.width * overlayRect.height) === visibleArea;
+        return { x: x, y: y, fitsInViewport: fitsInViewport, visibleArea: visibleArea };
+    };
+    /**
+     * Gets the view properties of the trigger and overlay, including whether they are clipped
+     * or completely outside the view of any of the strategy's scrollables.
+     * @param {?} overlay
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._getScrollVisibility = /**
+     * Gets the view properties of the trigger and overlay, including whether they are clipped
+     * or completely outside the view of any of the strategy's scrollables.
+     * @param {?} overlay
+     * @return {?}
+     */
+    function (overlay) {
+        var /** @type {?} */ originBounds = this._origin.getBoundingClientRect();
+        var /** @type {?} */ overlayBounds = overlay.getBoundingClientRect();
+        var /** @type {?} */ scrollContainerBounds = this.scrollables.map(function (s) { return s.getElementRef().nativeElement.getBoundingClientRect(); });
+        return {
+            isOriginClipped: isElementClippedByScrolling(originBounds, scrollContainerBounds),
+            isOriginOutsideView: isElementScrolledOutsideView(originBounds, scrollContainerBounds),
+            isOverlayClipped: isElementClippedByScrolling(overlayBounds, scrollContainerBounds),
+            isOverlayOutsideView: isElementScrolledOutsideView(overlayBounds, scrollContainerBounds),
+        };
+    };
+    /**
+     * Physically positions the overlay element to the given coordinate.
+     * @param {?} element
+     * @param {?} overlayRect
+     * @param {?} overlayPoint
+     * @param {?} pos
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._setElementPosition = /**
+     * Physically positions the overlay element to the given coordinate.
+     * @param {?} element
+     * @param {?} overlayRect
+     * @param {?} overlayPoint
+     * @param {?} pos
+     * @return {?}
+     */
+    function (element, overlayRect, overlayPoint, pos) {
+        // We want to set either `top` or `bottom` based on whether the overlay wants to appear above
+        // or below the origin and the direction in which the element will expand.
+        var /** @type {?} */ verticalStyleProperty = pos.overlayY === 'bottom' ? 'bottom' : 'top';
+        // When using `bottom`, we adjust the y position such that it is the distance
+        // from the bottom of the viewport rather than the top.
+        var /** @type {?} */ y = verticalStyleProperty === 'top' ?
+            overlayPoint.y :
+            this._document.documentElement.clientHeight - (overlayPoint.y + overlayRect.height);
+        // We want to set either `left` or `right` based on whether the overlay wants to appear "before"
+        // or "after" the origin, which determines the direction in which the element will expand.
+        // For the horizontal axis, the meaning of "before" and "after" change based on whether the
+        // page is in RTL or LTR.
+        var /** @type {?} */ horizontalStyleProperty;
+        if (this._dir === 'rtl') {
+            horizontalStyleProperty = pos.overlayX === 'end' ? 'left' : 'right';
+        }
+        else {
+            horizontalStyleProperty = pos.overlayX === 'end' ? 'right' : 'left';
+        }
+        // When we're setting `right`, we adjust the x position such that it is the distance
+        // from the right edge of the viewport rather than the left edge.
+        var /** @type {?} */ x = horizontalStyleProperty === 'left' ?
+            overlayPoint.x :
+            this._document.documentElement.clientWidth - (overlayPoint.x + overlayRect.width);
+        // Reset any existing styles. This is necessary in case the preferred position has
+        // changed since the last `apply`.
+        ['top', 'bottom', 'left', 'right'].forEach(function (p) { return element.style[p] = null; });
+        element.style[verticalStyleProperty] = y + "px";
+        element.style[horizontalStyleProperty] = x + "px";
+        // Notify that the position has been changed along with its change properties.
+        var /** @type {?} */ scrollableViewProperties = this._getScrollVisibility(element);
+        var /** @type {?} */ positionChange = new ConnectedOverlayPositionChange(pos, scrollableViewProperties);
+        this._onPositionChange.next(positionChange);
+    };
+    /**
+     * Subtracts the amount that an element is overflowing on an axis from it's length.
+     * @param {?} length
+     * @param {...?} overflows
+     * @return {?}
+     */
+    ConnectedPositionStrategy.prototype._subtractOverflows = /**
+     * Subtracts the amount that an element is overflowing on an axis from it's length.
+     * @param {?} length
+     * @param {...?} overflows
+     * @return {?}
+     */
+    function (length) {
+        var overflows = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            overflows[_i - 1] = arguments[_i];
+        }
+        return overflows.reduce(function (currentValue, currentOverflow) {
+            return currentValue - Math.max(currentOverflow, 0);
+        }, length);
+    };
+    return ConnectedPositionStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * A strategy for positioning overlays. Using this strategy, an overlay is given an
+ * explicit position relative to the browser's viewport. We use flexbox, instead of
+ * transforms, in order to avoid issues with subpixel rendering which can cause the
+ * element to become blurry.
+ */
+var GlobalPositionStrategy = /** @class */ (function () {
+    function GlobalPositionStrategy(_document) {
+        this._document = _document;
+        this._cssPosition = 'static';
+        this._topOffset = '';
+        this._bottomOffset = '';
+        this._leftOffset = '';
+        this._rightOffset = '';
+        this._alignItems = '';
+        this._justifyContent = '';
+        this._width = '';
+        this._height = '';
+        this._wrapper = null;
+    }
+    /**
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.attach = /**
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        this._overlayRef = overlayRef;
+    };
+    /**
+     * Sets the top position of the overlay. Clears any previously set vertical position.
+     * @param value New top offset.
+     */
+    /**
+     * Sets the top position of the overlay. Clears any previously set vertical position.
+     * @param {?=} value New top offset.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.top = /**
+     * Sets the top position of the overlay. Clears any previously set vertical position.
+     * @param {?=} value New top offset.
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._bottomOffset = '';
+        this._topOffset = value;
+        this._alignItems = 'flex-start';
+        return this;
+    };
+    /**
+     * Sets the left position of the overlay. Clears any previously set horizontal position.
+     * @param value New left offset.
+     */
+    /**
+     * Sets the left position of the overlay. Clears any previously set horizontal position.
+     * @param {?=} value New left offset.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.left = /**
+     * Sets the left position of the overlay. Clears any previously set horizontal position.
+     * @param {?=} value New left offset.
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._rightOffset = '';
+        this._leftOffset = value;
+        this._justifyContent = 'flex-start';
+        return this;
+    };
+    /**
+     * Sets the bottom position of the overlay. Clears any previously set vertical position.
+     * @param value New bottom offset.
+     */
+    /**
+     * Sets the bottom position of the overlay. Clears any previously set vertical position.
+     * @param {?=} value New bottom offset.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.bottom = /**
+     * Sets the bottom position of the overlay. Clears any previously set vertical position.
+     * @param {?=} value New bottom offset.
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._topOffset = '';
+        this._bottomOffset = value;
+        this._alignItems = 'flex-end';
+        return this;
+    };
+    /**
+     * Sets the right position of the overlay. Clears any previously set horizontal position.
+     * @param value New right offset.
+     */
+    /**
+     * Sets the right position of the overlay. Clears any previously set horizontal position.
+     * @param {?=} value New right offset.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.right = /**
+     * Sets the right position of the overlay. Clears any previously set horizontal position.
+     * @param {?=} value New right offset.
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._leftOffset = '';
+        this._rightOffset = value;
+        this._justifyContent = 'flex-end';
+        return this;
+    };
+    /**
+     * Sets the overlay width and clears any previously set width.
+     * @param value New width for the overlay
+     */
+    /**
+     * Sets the overlay width and clears any previously set width.
+     * @param {?=} value New width for the overlay
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.width = /**
+     * Sets the overlay width and clears any previously set width.
+     * @param {?=} value New width for the overlay
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._width = value;
+        // When the width is 100%, we should reset the `left` and the offset,
+        // in order to ensure that the element is flush against the viewport edge.
+        if (value === '100%') {
+            this.left('0px');
+        }
+        return this;
+    };
+    /**
+     * Sets the overlay height and clears any previously set height.
+     * @param value New height for the overlay
+     */
+    /**
+     * Sets the overlay height and clears any previously set height.
+     * @param {?=} value New height for the overlay
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.height = /**
+     * Sets the overlay height and clears any previously set height.
+     * @param {?=} value New height for the overlay
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = ''; }
+        this._height = value;
+        // When the height is 100%, we should reset the `top` and the offset,
+        // in order to ensure that the element is flush against the viewport edge.
+        if (value === '100%') {
+            this.top('0px');
+        }
+        return this;
+    };
+    /**
+     * Centers the overlay horizontally with an optional offset.
+     * Clears any previously set horizontal position.
+     *
+     * @param offset Overlay offset from the horizontal center.
+     */
+    /**
+     * Centers the overlay horizontally with an optional offset.
+     * Clears any previously set horizontal position.
+     *
+     * @param {?=} offset Overlay offset from the horizontal center.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.centerHorizontally = /**
+     * Centers the overlay horizontally with an optional offset.
+     * Clears any previously set horizontal position.
+     *
+     * @param {?=} offset Overlay offset from the horizontal center.
+     * @return {?}
+     */
+    function (offset) {
+        if (offset === void 0) { offset = ''; }
+        this.left(offset);
+        this._justifyContent = 'center';
+        return this;
+    };
+    /**
+     * Centers the overlay vertically with an optional offset.
+     * Clears any previously set vertical position.
+     *
+     * @param offset Overlay offset from the vertical center.
+     */
+    /**
+     * Centers the overlay vertically with an optional offset.
+     * Clears any previously set vertical position.
+     *
+     * @param {?=} offset Overlay offset from the vertical center.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.centerVertically = /**
+     * Centers the overlay vertically with an optional offset.
+     * Clears any previously set vertical position.
+     *
+     * @param {?=} offset Overlay offset from the vertical center.
+     * @return {?}
+     */
+    function (offset) {
+        if (offset === void 0) { offset = ''; }
+        this.top(offset);
+        this._alignItems = 'center';
+        return this;
+    };
+    /**
+     * Apply the position to the element.
+     * @docs-private
+     *
+     * @returns Resolved when the styles have been applied.
+     */
+    /**
+     * Apply the position to the element.
+     * \@docs-private
+     *
+     * @return {?} Resolved when the styles have been applied.
+     */
+    GlobalPositionStrategy.prototype.apply = /**
+     * Apply the position to the element.
+     * \@docs-private
+     *
+     * @return {?} Resolved when the styles have been applied.
+     */
+    function () {
+        // Since the overlay ref applies the strategy asynchronously, it could
+        // have been disposed before it ends up being applied. If that is the
+        // case, we shouldn't do anything.
+        if (!this._overlayRef.hasAttached()) {
+            return;
+        }
+        var /** @type {?} */ element = this._overlayRef.overlayElement;
+        if (!this._wrapper && element.parentNode) {
+            this._wrapper = this._document.createElement('div'); /** @type {?} */
+            ((this._wrapper)).classList.add('cdk-global-overlay-wrapper');
+            element.parentNode.insertBefore(/** @type {?} */ ((this._wrapper)), element); /** @type {?} */
+            ((this._wrapper)).appendChild(element);
+        }
+        var /** @type {?} */ styles = element.style;
+        var /** @type {?} */ parentStyles = (/** @type {?} */ (element.parentNode)).style;
+        styles.position = this._cssPosition;
+        styles.marginTop = this._topOffset;
+        styles.marginLeft = this._leftOffset;
+        styles.marginBottom = this._bottomOffset;
+        styles.marginRight = this._rightOffset;
+        styles.width = this._width;
+        styles.height = this._height;
+        parentStyles.justifyContent = this._justifyContent;
+        parentStyles.alignItems = this._alignItems;
+    };
+    /** Removes the wrapper element from the DOM. */
+    /**
+     * Removes the wrapper element from the DOM.
+     * @return {?}
+     */
+    GlobalPositionStrategy.prototype.dispose = /**
+     * Removes the wrapper element from the DOM.
+     * @return {?}
+     */
+    function () {
+        if (this._wrapper && this._wrapper.parentNode) {
+            this._wrapper.parentNode.removeChild(this._wrapper);
+            this._wrapper = null;
+        }
+    };
+    return GlobalPositionStrategy;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Builder for overlay position strategy.
+ */
+var OverlayPositionBuilder = /** @class */ (function () {
+    function OverlayPositionBuilder(_viewportRuler, _document) {
+        this._viewportRuler = _viewportRuler;
+        this._document = _document;
+    }
+    /**
+     * Creates a global position strategy.
+     */
+    /**
+     * Creates a global position strategy.
+     * @return {?}
+     */
+    OverlayPositionBuilder.prototype.global = /**
+     * Creates a global position strategy.
+     * @return {?}
+     */
+    function () {
+        return new GlobalPositionStrategy(this._document);
+    };
+    /**
+     * Creates a relative position strategy.
+     * @param elementRef
+     * @param originPos
+     * @param overlayPos
+     */
+    /**
+     * Creates a relative position strategy.
+     * @param {?} elementRef
+     * @param {?} originPos
+     * @param {?} overlayPos
+     * @return {?}
+     */
+    OverlayPositionBuilder.prototype.connectedTo = /**
+     * Creates a relative position strategy.
+     * @param {?} elementRef
+     * @param {?} originPos
+     * @param {?} overlayPos
+     * @return {?}
+     */
+    function (elementRef, originPos, overlayPos) {
+        return new ConnectedPositionStrategy(originPos, overlayPos, elementRef, this._viewportRuler, this._document);
+    };
+    OverlayPositionBuilder.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    OverlayPositionBuilder.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["d" /* ViewportRuler */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return OverlayPositionBuilder;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Service for dispatching keyboard events that land on the body to appropriate overlay ref,
+ * if any. It maintains a list of attached overlays to determine best suited overlay based
+ * on event target and order of overlay opens.
+ */
+var OverlayKeyboardDispatcher = /** @class */ (function () {
+    function OverlayKeyboardDispatcher(_document) {
+        this._document = _document;
+        /**
+         * Currently attached overlays in the order they were attached.
+         */
+        this._attachedOverlays = [];
+    }
+    /**
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._unsubscribeFromKeydownEvents();
+    };
+    /** Add a new overlay to the list of attached overlay refs. */
+    /**
+     * Add a new overlay to the list of attached overlay refs.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype.add = /**
+     * Add a new overlay to the list of attached overlay refs.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        // Lazily start dispatcher once first overlay is added
+        if (!this._keydownEventSubscription) {
+            this._subscribeToKeydownEvents();
+        }
+        this._attachedOverlays.push(overlayRef);
+    };
+    /** Remove an overlay from the list of attached overlay refs. */
+    /**
+     * Remove an overlay from the list of attached overlay refs.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype.remove = /**
+     * Remove an overlay from the list of attached overlay refs.
+     * @param {?} overlayRef
+     * @return {?}
+     */
+    function (overlayRef) {
+        var /** @type {?} */ index = this._attachedOverlays.indexOf(overlayRef);
+        if (index > -1) {
+            this._attachedOverlays.splice(index, 1);
+        }
+        // Remove the global listener once there are no more overlays.
+        if (this._attachedOverlays.length === 0) {
+            this._unsubscribeFromKeydownEvents();
+        }
+    };
+    /**
+     * Subscribe to keydown events that land on the body and dispatch those
+     * events to the appropriate overlay.
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype._subscribeToKeydownEvents = /**
+     * Subscribe to keydown events that land on the body and dispatch those
+     * events to the appropriate overlay.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ bodyKeydownEvents = Object(__WEBPACK_IMPORTED_MODULE_10_rxjs_observable_fromEvent__["a" /* fromEvent */])(this._document.body, 'keydown');
+        this._keydownEventSubscription = bodyKeydownEvents.pipe(Object(__WEBPACK_IMPORTED_MODULE_9_rxjs_operators_filter__["a" /* filter */])(function () { return !!_this._attachedOverlays.length; })).subscribe(function (event) {
+            // Dispatch keydown event to correct overlay reference
+            // Dispatch keydown event to correct overlay reference
+            _this._selectOverlayFromEvent(event)._keydownEvents.next(event);
+        });
+    };
+    /**
+     * Removes the global keydown subscription.
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype._unsubscribeFromKeydownEvents = /**
+     * Removes the global keydown subscription.
+     * @return {?}
+     */
+    function () {
+        if (this._keydownEventSubscription) {
+            this._keydownEventSubscription.unsubscribe();
+            this._keydownEventSubscription = null;
+        }
+    };
+    /**
+     * Select the appropriate overlay from a keydown event.
+     * @param {?} event
+     * @return {?}
+     */
+    OverlayKeyboardDispatcher.prototype._selectOverlayFromEvent = /**
+     * Select the appropriate overlay from a keydown event.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        // Check if any overlays contain the event
+        var /** @type {?} */ targetedOverlay = this._attachedOverlays.find(function (overlay) {
+            return overlay.overlayElement === event.target ||
+                overlay.overlayElement.contains(/** @type {?} */ (event.target));
+        });
+        // Use that overlay if it exists, otherwise choose the most recently attached one
+        return targetedOverlay || this._attachedOverlays[this._attachedOverlays.length - 1];
+    };
+    OverlayKeyboardDispatcher.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    OverlayKeyboardDispatcher.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return OverlayKeyboardDispatcher;
+}());
+/**
+ * \@docs-private
+ * @param {?} dispatcher
+ * @param {?} _document
+ * @return {?}
+ */
+function OVERLAY_KEYBOARD_DISPATCHER_PROVIDER_FACTORY(dispatcher, _document) {
+    return dispatcher || new OverlayKeyboardDispatcher(_document);
+}
+/**
+ * \@docs-private
+ */
+var OVERLAY_KEYBOARD_DISPATCHER_PROVIDER = {
+    // If there is already an OverlayKeyboardDispatcher available, use that.
+    // Otherwise, provide a new one.
+    provide: OverlayKeyboardDispatcher,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), OverlayKeyboardDispatcher],
+        /** @type {?} */ (
+        // Coerce to `InjectionToken` so that the `deps` match the "shape"
+        // of the type expected by Angular
+        __WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */])
+    ],
+    useFactory: OVERLAY_KEYBOARD_DISPATCHER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Container inside which all overlays will render.
+ */
+var OverlayContainer = /** @class */ (function () {
+    function OverlayContainer(_document) {
+        this._document = _document;
+    }
+    /**
+     * @return {?}
+     */
+    OverlayContainer.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        if (this._containerElement && this._containerElement.parentNode) {
+            this._containerElement.parentNode.removeChild(this._containerElement);
+        }
+    };
+    /**
+     * This method returns the overlay container element. It will lazily
+     * create the element the first time  it is called to facilitate using
+     * the container in non-browser environments.
+     * @returns the container element
+     */
+    /**
+     * This method returns the overlay container element. It will lazily
+     * create the element the first time  it is called to facilitate using
+     * the container in non-browser environments.
+     * @return {?} the container element
+     */
+    OverlayContainer.prototype.getContainerElement = /**
+     * This method returns the overlay container element. It will lazily
+     * create the element the first time  it is called to facilitate using
+     * the container in non-browser environments.
+     * @return {?} the container element
+     */
+    function () {
+        if (!this._containerElement) {
+            this._createContainer();
+        }
+        return this._containerElement;
+    };
+    /**
+     * Create the overlay container element, which is simply a div
+     * with the 'cdk-overlay-container' class on the document body.
+     */
+    /**
+     * Create the overlay container element, which is simply a div
+     * with the 'cdk-overlay-container' class on the document body.
+     * @return {?}
+     */
+    OverlayContainer.prototype._createContainer = /**
+     * Create the overlay container element, which is simply a div
+     * with the 'cdk-overlay-container' class on the document body.
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ container = this._document.createElement('div');
+        container.classList.add('cdk-overlay-container');
+        this._document.body.appendChild(container);
+        this._containerElement = container;
+    };
+    OverlayContainer.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    OverlayContainer.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return OverlayContainer;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentContainer
+ * @param {?} _document
+ * @return {?}
+ */
+function OVERLAY_CONTAINER_PROVIDER_FACTORY(parentContainer, _document) {
+    return parentContainer || new OverlayContainer(_document);
+}
+/**
+ * \@docs-private
+ */
+var OVERLAY_CONTAINER_PROVIDER = {
+    // If there is already an OverlayContainer available, use that. Otherwise, provide a new one.
+    provide: OverlayContainer,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), OverlayContainer],
+        /** @type {?} */ (__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */] // We need to use the InjectionToken somewhere to keep TS happy
+        ) // We need to use the InjectionToken somewhere to keep TS happy
+    ],
+    useFactory: OVERLAY_CONTAINER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Next overlay unique ID.
+ */
+var nextUniqueId = 0;
+/**
+ * The default config for newly created overlays.
+ */
+var defaultConfig = new OverlayConfig();
+/**
+ * Service to create Overlays. Overlays are dynamically added pieces of floating UI, meant to be
+ * used as a low-level building building block for other components. Dialogs, tooltips, menus,
+ * selects, etc. can all be built using overlays. The service should primarily be used by authors
+ * of re-usable components rather than developers building end-user applications.
+ *
+ * An overlay *is* a PortalOutlet, so any kind of Portal can be loaded into one.
+ */
+var Overlay = /** @class */ (function () {
+    function Overlay(scrollStrategies, _overlayContainer, _componentFactoryResolver, _positionBuilder, _keyboardDispatcher, _appRef, _injector, _ngZone, _document) {
+        this.scrollStrategies = scrollStrategies;
+        this._overlayContainer = _overlayContainer;
+        this._componentFactoryResolver = _componentFactoryResolver;
+        this._positionBuilder = _positionBuilder;
+        this._keyboardDispatcher = _keyboardDispatcher;
+        this._appRef = _appRef;
+        this._injector = _injector;
+        this._ngZone = _ngZone;
+        this._document = _document;
+    }
+    /**
+     * Creates an overlay.
+     * @param config Configuration applied to the overlay.
+     * @returns Reference to the created overlay.
+     */
+    /**
+     * Creates an overlay.
+     * @param {?=} config Configuration applied to the overlay.
+     * @return {?} Reference to the created overlay.
+     */
+    Overlay.prototype.create = /**
+     * Creates an overlay.
+     * @param {?=} config Configuration applied to the overlay.
+     * @return {?} Reference to the created overlay.
+     */
+    function (config) {
+        if (config === void 0) { config = defaultConfig; }
+        var /** @type {?} */ pane = this._createPaneElement();
+        var /** @type {?} */ portalOutlet = this._createPortalOutlet(pane);
+        return new OverlayRef(portalOutlet, pane, config, this._ngZone, this._keyboardDispatcher);
+    };
+    /**
+     * Gets a position builder that can be used, via fluent API,
+     * to construct and configure a position strategy.
+     * @returns An overlay position builder.
+     */
+    /**
+     * Gets a position builder that can be used, via fluent API,
+     * to construct and configure a position strategy.
+     * @return {?} An overlay position builder.
+     */
+    Overlay.prototype.position = /**
+     * Gets a position builder that can be used, via fluent API,
+     * to construct and configure a position strategy.
+     * @return {?} An overlay position builder.
+     */
+    function () {
+        return this._positionBuilder;
+    };
+    /**
+     * Creates the DOM element for an overlay and appends it to the overlay container.
+     * @return {?} Newly-created pane element
+     */
+    Overlay.prototype._createPaneElement = /**
+     * Creates the DOM element for an overlay and appends it to the overlay container.
+     * @return {?} Newly-created pane element
+     */
+    function () {
+        var /** @type {?} */ pane = this._document.createElement('div');
+        pane.id = "cdk-overlay-" + nextUniqueId++;
+        pane.classList.add('cdk-overlay-pane');
+        this._overlayContainer.getContainerElement().appendChild(pane);
+        return pane;
+    };
+    /**
+     * Create a DomPortalOutlet into which the overlay content can be loaded.
+     * @param {?} pane The DOM element to turn into a portal outlet.
+     * @return {?} A portal outlet for the given DOM element.
+     */
+    Overlay.prototype._createPortalOutlet = /**
+     * Create a DomPortalOutlet into which the overlay content can be loaded.
+     * @param {?} pane The DOM element to turn into a portal outlet.
+     * @return {?} A portal outlet for the given DOM element.
+     */
+    function (pane) {
+        return new __WEBPACK_IMPORTED_MODULE_3__angular_cdk_portal__["a" /* DomPortalOutlet */](pane, this._componentFactoryResolver, this._appRef, this._injector);
+    };
+    Overlay.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    Overlay.ctorParameters = function () { return [
+        { type: ScrollStrategyOptions, },
+        { type: OverlayContainer, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["p" /* ComponentFactoryResolver */], },
+        { type: OverlayPositionBuilder, },
+        { type: OverlayKeyboardDispatcher, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["g" /* ApplicationRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Injector */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return Overlay;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Default set of positions for the overlay. Follows the behavior of a dropdown.
+ */
+var defaultPositionList = [
+    new ConnectionPositionPair({ originX: 'start', originY: 'bottom' }, { overlayX: 'start', overlayY: 'top' }),
+    new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' }),
+    new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'end', overlayY: 'bottom' }),
+    new ConnectionPositionPair({ originX: 'end', originY: 'bottom' }, { overlayX: 'end', overlayY: 'top' }),
+];
+/**
+ * Injection token that determines the scroll handling while the connected overlay is open.
+ */
+var CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('cdk-connected-overlay-scroll-strategy');
+/**
+ * \@docs-private
+ * @param {?} overlay
+ * @return {?}
+ */
+function CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER_FACTORY(overlay) {
+    return function () { return overlay.scrollStrategies.reposition(); };
+}
+/**
+ * \@docs-private
+ */
+var CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER = {
+    provide: CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY,
+    deps: [Overlay],
+    useFactory: CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER_FACTORY,
+};
+/**
+ * Directive applied to an element to make it usable as an origin for an Overlay using a
+ * ConnectedPositionStrategy.
+ */
+var CdkOverlayOrigin = /** @class */ (function () {
+    function CdkOverlayOrigin(elementRef) {
+        this.elementRef = elementRef;
+    }
+    CdkOverlayOrigin.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: '[cdk-overlay-origin], [overlay-origin], [cdkOverlayOrigin]',
+                    exportAs: 'cdkOverlayOrigin',
+                },] },
+    ];
+    /** @nocollapse */
+    CdkOverlayOrigin.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+    ]; };
+    return CdkOverlayOrigin;
+}());
+/**
+ * Directive to facilitate declarative creation of an Overlay using a ConnectedPositionStrategy.
+ */
+var CdkConnectedOverlay = /** @class */ (function () {
+    // TODO(jelbourn): inputs for size, scroll behavior, animation, etc.
+    function CdkConnectedOverlay(_overlay, templateRef, viewContainerRef, _scrollStrategy, _dir, _document) {
+        var _this = this;
+        this._overlay = _overlay;
+        this._scrollStrategy = _scrollStrategy;
+        this._dir = _dir;
+        this._document = _document;
+        this._hasBackdrop = false;
+        this._backdropSubscription = __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._positionSubscription = __WEBPACK_IMPORTED_MODULE_7_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._offsetX = 0;
+        this._offsetY = 0;
+        /**
+         * Strategy to be used when handling scroll events while the overlay is open.
+         */
+        this.scrollStrategy = this._scrollStrategy();
+        /**
+         * Whether the overlay is open.
+         */
+        this.open = false;
+        /**
+         * Event emitted when the backdrop is clicked.
+         */
+        this.backdropClick = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the position has changed.
+         */
+        this.positionChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the overlay has been attached.
+         */
+        this.attach = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the overlay has been detached.
+         */
+        this.detach = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event listener that will close the overlay when the user presses escape.
+         */
+        this._escapeListener = function (event) {
+            if (event.keyCode === __WEBPACK_IMPORTED_MODULE_12__angular_cdk_keycodes__["d" /* ESCAPE */]) {
+                _this._detachOverlay();
+            }
+        };
+        this._templatePortal = new __WEBPACK_IMPORTED_MODULE_3__angular_cdk_portal__["c" /* TemplatePortal */](templateRef, viewContainerRef);
+    }
+    Object.defineProperty(CdkConnectedOverlay.prototype, "offsetX", {
+        get: /**
+         * The offset in pixels for the overlay connection point on the x-axis
+         * @return {?}
+         */
+        function () { return this._offsetX; },
+        set: /**
+         * @param {?} offsetX
+         * @return {?}
+         */
+        function (offsetX) {
+            this._offsetX = offsetX;
+            if (this._position) {
+                this._position.withOffsetX(offsetX);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "offsetY", {
+        get: /**
+         * The offset in pixels for the overlay connection point on the y-axis
+         * @return {?}
+         */
+        function () { return this._offsetY; },
+        set: /**
+         * @param {?} offsetY
+         * @return {?}
+         */
+        function (offsetY) {
+            this._offsetY = offsetY;
+            if (this._position) {
+                this._position.withOffsetY(offsetY);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "hasBackdrop", {
+        get: /**
+         * Whether or not the overlay should attach a backdrop.
+         * @return {?}
+         */
+        function () { return this._hasBackdrop; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) { this._hasBackdrop = Object(__WEBPACK_IMPORTED_MODULE_11__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedOrigin", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.origin; },
+        set: /**
+         * @param {?} _origin
+         * @return {?}
+         */
+        function (_origin) { this.origin = _origin; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedPositions", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.positions; },
+        set: /**
+         * @param {?} _positions
+         * @return {?}
+         */
+        function (_positions) { this.positions = _positions; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedOffsetX", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.offsetX; },
+        set: /**
+         * @param {?} _offsetX
+         * @return {?}
+         */
+        function (_offsetX) { this.offsetX = _offsetX; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedOffsetY", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.offsetY; },
+        set: /**
+         * @param {?} _offsetY
+         * @return {?}
+         */
+        function (_offsetY) { this.offsetY = _offsetY; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedWidth", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.width; },
+        set: /**
+         * @param {?} _width
+         * @return {?}
+         */
+        function (_width) { this.width = _width; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedHeight", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.height; },
+        set: /**
+         * @param {?} _height
+         * @return {?}
+         */
+        function (_height) { this.height = _height; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedMinWidth", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.minWidth; },
+        set: /**
+         * @param {?} _minWidth
+         * @return {?}
+         */
+        function (_minWidth) { this.minWidth = _minWidth; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedMinHeight", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.minHeight; },
+        set: /**
+         * @param {?} _minHeight
+         * @return {?}
+         */
+        function (_minHeight) { this.minHeight = _minHeight; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedBackdropClass", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.backdropClass; },
+        set: /**
+         * @param {?} _backdropClass
+         * @return {?}
+         */
+        function (_backdropClass) { this.backdropClass = _backdropClass; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedScrollStrategy", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.scrollStrategy; },
+        set: /**
+         * @param {?} _scrollStrategy
+         * @return {?}
+         */
+        function (_scrollStrategy) {
+            this.scrollStrategy = _scrollStrategy;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedOpen", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.open; },
+        set: /**
+         * @param {?} _open
+         * @return {?}
+         */
+        function (_open) { this.open = _open; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "_deprecatedHasBackdrop", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.hasBackdrop; },
+        set: /**
+         * @param {?} _hasBackdrop
+         * @return {?}
+         */
+        function (_hasBackdrop) { this.hasBackdrop = _hasBackdrop; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "overlayRef", {
+        /** The associated overlay reference. */
+        get: /**
+         * The associated overlay reference.
+         * @return {?}
+         */
+        function () {
+            return this._overlayRef;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkConnectedOverlay.prototype, "dir", {
+        /** The element's layout direction. */
+        get: /**
+         * The element's layout direction.
+         * @return {?}
+         */
+        function () {
+            return this._dir ? this._dir.value : 'ltr';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._destroyOverlay();
+    };
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype.ngOnChanges = /**
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['open'] || changes['_deprecatedOpen']) {
+            this.open ? this._attachOverlay() : this._detachOverlay();
+        }
+    };
+    /**
+     * Creates an overlay
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._createOverlay = /**
+     * Creates an overlay
+     * @return {?}
+     */
+    function () {
+        if (!this.positions || !this.positions.length) {
+            this.positions = defaultPositionList;
+        }
+        this._overlayRef = this._overlay.create(this._buildConfig());
+    };
+    /**
+     * Builds the overlay config based on the directive's inputs
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._buildConfig = /**
+     * Builds the overlay config based on the directive's inputs
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ positionStrategy = this._position = this._createPositionStrategy();
+        var /** @type {?} */ overlayConfig = new OverlayConfig({
+            positionStrategy: positionStrategy,
+            scrollStrategy: this.scrollStrategy,
+            hasBackdrop: this.hasBackdrop
+        });
+        if (this.width || this.width === 0) {
+            overlayConfig.width = this.width;
+        }
+        if (this.height || this.height === 0) {
+            overlayConfig.height = this.height;
+        }
+        if (this.minWidth || this.minWidth === 0) {
+            overlayConfig.minWidth = this.minWidth;
+        }
+        if (this.minHeight || this.minHeight === 0) {
+            overlayConfig.minHeight = this.minHeight;
+        }
+        if (this.backdropClass) {
+            overlayConfig.backdropClass = this.backdropClass;
+        }
+        return overlayConfig;
+    };
+    /**
+     * Returns the position strategy of the overlay to be set on the overlay config
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._createPositionStrategy = /**
+     * Returns the position strategy of the overlay to be set on the overlay config
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ pos = this.positions[0];
+        var /** @type {?} */ originPoint = { originX: pos.originX, originY: pos.originY };
+        var /** @type {?} */ overlayPoint = { overlayX: pos.overlayX, overlayY: pos.overlayY };
+        var /** @type {?} */ strategy = this._overlay.position()
+            .connectedTo(this.origin.elementRef, originPoint, overlayPoint)
+            .withOffsetX(this.offsetX)
+            .withOffsetY(this.offsetY);
+        this._handlePositionChanges(strategy);
+        return strategy;
+    };
+    /**
+     * @param {?} strategy
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._handlePositionChanges = /**
+     * @param {?} strategy
+     * @return {?}
+     */
+    function (strategy) {
+        var _this = this;
+        for (var /** @type {?} */ i = 1; i < this.positions.length; i++) {
+            strategy.withFallbackPosition({ originX: this.positions[i].originX, originY: this.positions[i].originY }, { overlayX: this.positions[i].overlayX, overlayY: this.positions[i].overlayY });
+        }
+        this._positionSubscription =
+            strategy.onPositionChange.subscribe(function (pos) { return _this.positionChange.emit(pos); });
+    };
+    /**
+     * Attaches the overlay and subscribes to backdrop clicks if backdrop exists
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._attachOverlay = /**
+     * Attaches the overlay and subscribes to backdrop clicks if backdrop exists
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!this._overlayRef) {
+            this._createOverlay();
+        }
+        this._position.withDirection(this.dir);
+        this._overlayRef.setDirection(this.dir);
+        this._document.addEventListener('keydown', this._escapeListener);
+        if (!this._overlayRef.hasAttached()) {
+            this._overlayRef.attach(this._templatePortal);
+            this.attach.emit();
+        }
+        if (this.hasBackdrop) {
+            this._backdropSubscription = this._overlayRef.backdropClick().subscribe(function () {
+                _this.backdropClick.emit();
+            });
+        }
+    };
+    /**
+     * Detaches the overlay and unsubscribes to backdrop clicks if backdrop exists
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._detachOverlay = /**
+     * Detaches the overlay and unsubscribes to backdrop clicks if backdrop exists
+     * @return {?}
+     */
+    function () {
+        if (this._overlayRef) {
+            this._overlayRef.detach();
+            this.detach.emit();
+        }
+        this._backdropSubscription.unsubscribe();
+        this._document.removeEventListener('keydown', this._escapeListener);
+    };
+    /**
+     * Destroys the overlay created by this directive.
+     * @return {?}
+     */
+    CdkConnectedOverlay.prototype._destroyOverlay = /**
+     * Destroys the overlay created by this directive.
+     * @return {?}
+     */
+    function () {
+        if (this._overlayRef) {
+            this._overlayRef.dispose();
+        }
+        this._backdropSubscription.unsubscribe();
+        this._positionSubscription.unsubscribe();
+        this._document.removeEventListener('keydown', this._escapeListener);
+    };
+    CdkConnectedOverlay.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: '[cdk-connected-overlay], [connected-overlay], [cdkConnectedOverlay]',
+                    exportAs: 'cdkConnectedOverlay'
+                },] },
+    ];
+    /** @nocollapse */
+    CdkConnectedOverlay.ctorParameters = function () { return [
+        { type: Overlay, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY,] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_bidi__["b" /* Directionality */], decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_8__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    CdkConnectedOverlay.propDecorators = {
+        "origin": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayOrigin',] },],
+        "positions": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayPositions',] },],
+        "offsetX": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayOffsetX',] },],
+        "offsetY": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayOffsetY',] },],
+        "width": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayWidth',] },],
+        "height": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayHeight',] },],
+        "minWidth": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayMinWidth',] },],
+        "minHeight": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayMinHeight',] },],
+        "backdropClass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayBackdropClass',] },],
+        "scrollStrategy": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayScrollStrategy',] },],
+        "open": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayOpen',] },],
+        "hasBackdrop": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['cdkConnectedOverlayHasBackdrop',] },],
+        "_deprecatedOrigin": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['origin',] },],
+        "_deprecatedPositions": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['positions',] },],
+        "_deprecatedOffsetX": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['offsetX',] },],
+        "_deprecatedOffsetY": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['offsetY',] },],
+        "_deprecatedWidth": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['width',] },],
+        "_deprecatedHeight": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['height',] },],
+        "_deprecatedMinWidth": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['minWidth',] },],
+        "_deprecatedMinHeight": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['minHeight',] },],
+        "_deprecatedBackdropClass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['backdropClass',] },],
+        "_deprecatedScrollStrategy": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['scrollStrategy',] },],
+        "_deprecatedOpen": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['open',] },],
+        "_deprecatedHasBackdrop": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['hasBackdrop',] },],
+        "backdropClick": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "positionChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "attach": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "detach": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+    };
+    return CdkConnectedOverlay;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var OVERLAY_PROVIDERS = [
+    Overlay,
+    OverlayPositionBuilder,
+    OVERLAY_KEYBOARD_DISPATCHER_PROVIDER,
+    __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["c" /* VIEWPORT_RULER_PROVIDER */],
+    OVERLAY_CONTAINER_PROVIDER,
+    CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER,
+];
+var OverlayModule = /** @class */ (function () {
+    function OverlayModule() {
+    }
+    OverlayModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_2__angular_cdk_bidi__["a" /* BidiModule */], __WEBPACK_IMPORTED_MODULE_3__angular_cdk_portal__["b" /* PortalModule */], __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["a" /* ScrollDispatchModule */]],
+                    exports: [CdkConnectedOverlay, CdkOverlayOrigin, __WEBPACK_IMPORTED_MODULE_1__angular_cdk_scrolling__["a" /* ScrollDispatchModule */]],
+                    declarations: [CdkConnectedOverlay, CdkOverlayOrigin],
+                    providers: [OVERLAY_PROVIDERS, ScrollStrategyOptions],
+                },] },
+    ];
+    /** @nocollapse */
+    OverlayModule.ctorParameters = function () { return []; };
+    return OverlayModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Alternative to OverlayContainer that supports correct displaying of overlay elements in
+ * Fullscreen mode
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullScreen
+ *
+ * Should be provided in the root component.
+ */
+var FullscreenOverlayContainer = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["b" /* __extends */])(FullscreenOverlayContainer, _super);
+    function FullscreenOverlayContainer() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * @return {?}
+     */
+    FullscreenOverlayContainer.prototype._createContainer = /**
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype._createContainer.call(this);
+        this._adjustParentForFullscreenChange();
+        this._addFullscreenChangeListener(function () { return _this._adjustParentForFullscreenChange(); });
+    };
+    /**
+     * @return {?}
+     */
+    FullscreenOverlayContainer.prototype._adjustParentForFullscreenChange = /**
+     * @return {?}
+     */
+    function () {
+        if (!this._containerElement) {
+            return;
+        }
+        var /** @type {?} */ fullscreenElement = this.getFullscreenElement();
+        var /** @type {?} */ parent = fullscreenElement || document.body;
+        parent.appendChild(this._containerElement);
+    };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
+    FullscreenOverlayContainer.prototype._addFullscreenChangeListener = /**
+     * @param {?} fn
+     * @return {?}
+     */
+    function (fn) {
+        if (document.fullscreenEnabled) {
+            document.addEventListener('fullscreenchange', fn);
+        }
+        else if (document.webkitFullscreenEnabled) {
+            document.addEventListener('webkitfullscreenchange', fn);
+        }
+        else if ((/** @type {?} */ (document)).mozFullScreenEnabled) {
+            document.addEventListener('mozfullscreenchange', fn);
+        }
+        else if ((/** @type {?} */ (document)).msFullscreenEnabled) {
+            document.addEventListener('MSFullscreenChange', fn);
+        }
+    };
+    /**
+     * When the page is put into fullscreen mode, a specific element is specified.
+     * Only that element and its children are visible when in fullscreen mode.
+    */
+    /**
+     * When the page is put into fullscreen mode, a specific element is specified.
+     * Only that element and its children are visible when in fullscreen mode.
+     * @return {?}
+     */
+    FullscreenOverlayContainer.prototype.getFullscreenElement = /**
+     * When the page is put into fullscreen mode, a specific element is specified.
+     * Only that element and its children are visible when in fullscreen mode.
+     * @return {?}
+     */
+    function () {
+        return document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            (/** @type {?} */ (document)).mozFullScreenElement ||
+            (/** @type {?} */ (document)).msFullscreenElement ||
+            null;
+    };
+    FullscreenOverlayContainer.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    FullscreenOverlayContainer.ctorParameters = function () { return []; };
+    return FullscreenOverlayContainer;
+}(OverlayContainer));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=overlay.es5.js.map
 
 
 /***/ }),
@@ -19465,7 +24105,7 @@ var Platform = /** @class */ (function () {
         this.SAFARI = this.isBrowser && /safari/i.test(navigator.userAgent) && this.WEBKIT;
     }
     Platform.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     Platform.ctorParameters = function () { return []; };
@@ -19562,7 +24202,7 @@ var PlatformModule = /** @class */ (function () {
     function PlatformModule() {
     }
     PlatformModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     providers: [Platform]
                 },] },
     ];
@@ -19586,6 +24226,1347 @@ var PlatformModule = /** @class */ (function () {
 
 
 //# sourceMappingURL=platform.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../cdk/esm5/portal.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export DomPortalHost */
+/* unused harmony export PortalHostDirective */
+/* unused harmony export TemplatePortalDirective */
+/* unused harmony export BasePortalHost */
+/* unused harmony export Portal */
+/* unused harmony export ComponentPortal */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return TemplatePortal; });
+/* unused harmony export BasePortalOutlet */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DomPortalOutlet; });
+/* unused harmony export CdkPortal */
+/* unused harmony export CdkPortalOutlet */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return PortalModule; });
+/* unused harmony export PortalInjector */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Throws an exception when attempting to attach a null portal to a host.
+ * \@docs-private
+ * @return {?}
+ */
+function throwNullPortalError() {
+    throw Error('Must provide a portal to attach');
+}
+/**
+ * Throws an exception when attempting to attach a portal to a host that is already attached.
+ * \@docs-private
+ * @return {?}
+ */
+function throwPortalAlreadyAttachedError() {
+    throw Error('Host already has a portal attached');
+}
+/**
+ * Throws an exception when attempting to attach a portal to an already-disposed host.
+ * \@docs-private
+ * @return {?}
+ */
+function throwPortalOutletAlreadyDisposedError() {
+    throw Error('This PortalOutlet has already been disposed');
+}
+/**
+ * Throws an exception when attempting to attach an unknown portal type.
+ * \@docs-private
+ * @return {?}
+ */
+function throwUnknownPortalTypeError() {
+    throw Error('Attempting to attach an unknown Portal type. BasePortalOutlet accepts either ' +
+        'a ComponentPortal or a TemplatePortal.');
+}
+/**
+ * Throws an exception when attempting to attach a portal to a null host.
+ * \@docs-private
+ * @return {?}
+ */
+function throwNullPortalOutletError() {
+    throw Error('Attempting to attach a portal to a null PortalOutlet');
+}
+/**
+ * Throws an exception when attempting to detach a portal that is not attached.
+ * \@docs-privatew
+ * @return {?}
+ */
+function throwNoPortalAttachedError() {
+    throw Error('Attempting to detach a portal that is not attached to a host');
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Interface that can be used to generically type a class.
+ * @record
+ */
+
+/**
+ * A `Portal` is something that you want to render somewhere else.
+ * It can be attach to / detached from a `PortalOutlet`.
+ * @abstract
+ */
+var Portal = /** @class */ (function () {
+    function Portal() {
+    }
+    /** Attach this portal to a host. */
+    /**
+     * Attach this portal to a host.
+     * @param {?} host
+     * @return {?}
+     */
+    Portal.prototype.attach = /**
+     * Attach this portal to a host.
+     * @param {?} host
+     * @return {?}
+     */
+    function (host) {
+        if (host == null) {
+            throwNullPortalOutletError();
+        }
+        if (host.hasAttached()) {
+            throwPortalAlreadyAttachedError();
+        }
+        this._attachedHost = host;
+        return /** @type {?} */ (host.attach(this));
+    };
+    /** Detach this portal from its host */
+    /**
+     * Detach this portal from its host
+     * @return {?}
+     */
+    Portal.prototype.detach = /**
+     * Detach this portal from its host
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ host = this._attachedHost;
+        if (host == null) {
+            throwNoPortalAttachedError();
+        }
+        else {
+            this._attachedHost = null;
+            host.detach();
+        }
+    };
+    Object.defineProperty(Portal.prototype, "isAttached", {
+        /** Whether this portal is attached to a host. */
+        get: /**
+         * Whether this portal is attached to a host.
+         * @return {?}
+         */
+        function () {
+            return this._attachedHost != null;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Sets the PortalOutlet reference without performing `attach()`. This is used directly by
+     * the PortalOutlet when it is performing an `attach()` or `detach()`.
+     */
+    /**
+     * Sets the PortalOutlet reference without performing `attach()`. This is used directly by
+     * the PortalOutlet when it is performing an `attach()` or `detach()`.
+     * @param {?} host
+     * @return {?}
+     */
+    Portal.prototype.setAttachedHost = /**
+     * Sets the PortalOutlet reference without performing `attach()`. This is used directly by
+     * the PortalOutlet when it is performing an `attach()` or `detach()`.
+     * @param {?} host
+     * @return {?}
+     */
+    function (host) {
+        this._attachedHost = host;
+    };
+    return Portal;
+}());
+/**
+ * A `ComponentPortal` is a portal that instantiates some Component upon attachment.
+ */
+var ComponentPortal = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __extends */])(ComponentPortal, _super);
+    function ComponentPortal(component, viewContainerRef, injector) {
+        var _this = _super.call(this) || this;
+        _this.component = component;
+        _this.viewContainerRef = viewContainerRef;
+        _this.injector = injector;
+        return _this;
+    }
+    return ComponentPortal;
+}(Portal));
+/**
+ * A `TemplatePortal` is a portal that represents some embedded template (TemplateRef).
+ */
+var TemplatePortal = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __extends */])(TemplatePortal, _super);
+    function TemplatePortal(template, viewContainerRef, context) {
+        var _this = _super.call(this) || this;
+        _this.templateRef = template;
+        _this.viewContainerRef = viewContainerRef;
+        if (context) {
+            _this.context = context;
+        }
+        return _this;
+    }
+    Object.defineProperty(TemplatePortal.prototype, "origin", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this.templateRef.elementRef;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Attach the the portal to the provided `PortalOutlet`.
+     * When a context is provided it will override the `context` property of the `TemplatePortal`
+     * instance.
+     */
+    /**
+     * Attach the the portal to the provided `PortalOutlet`.
+     * When a context is provided it will override the `context` property of the `TemplatePortal`
+     * instance.
+     * @param {?} host
+     * @param {?=} context
+     * @return {?}
+     */
+    TemplatePortal.prototype.attach = /**
+     * Attach the the portal to the provided `PortalOutlet`.
+     * When a context is provided it will override the `context` property of the `TemplatePortal`
+     * instance.
+     * @param {?} host
+     * @param {?=} context
+     * @return {?}
+     */
+    function (host, context) {
+        if (context === void 0) { context = this.context; }
+        this.context = context;
+        return _super.prototype.attach.call(this, host);
+    };
+    /**
+     * @return {?}
+     */
+    TemplatePortal.prototype.detach = /**
+     * @return {?}
+     */
+    function () {
+        this.context = undefined;
+        return _super.prototype.detach.call(this);
+    };
+    return TemplatePortal;
+}(Portal));
+/**
+ * A `PortalOutlet` is an space that can contain a single `Portal`.
+ * @record
+ */
+
+/**
+ * Partial implementation of PortalOutlet that handles attaching
+ * ComponentPortal and TemplatePortal.
+ * @abstract
+ */
+var BasePortalOutlet = /** @class */ (function () {
+    function BasePortalOutlet() {
+        /**
+         * Whether this host has already been permanently disposed.
+         */
+        this._isDisposed = false;
+    }
+    /** Whether this host has an attached portal. */
+    /**
+     * Whether this host has an attached portal.
+     * @return {?}
+     */
+    BasePortalOutlet.prototype.hasAttached = /**
+     * Whether this host has an attached portal.
+     * @return {?}
+     */
+    function () {
+        return !!this._attachedPortal;
+    };
+    /** Attaches a portal. */
+    /**
+     * Attaches a portal.
+     * @param {?} portal
+     * @return {?}
+     */
+    BasePortalOutlet.prototype.attach = /**
+     * Attaches a portal.
+     * @param {?} portal
+     * @return {?}
+     */
+    function (portal) {
+        if (!portal) {
+            throwNullPortalError();
+        }
+        if (this.hasAttached()) {
+            throwPortalAlreadyAttachedError();
+        }
+        if (this._isDisposed) {
+            throwPortalOutletAlreadyDisposedError();
+        }
+        if (portal instanceof ComponentPortal) {
+            this._attachedPortal = portal;
+            return this.attachComponentPortal(portal);
+        }
+        else if (portal instanceof TemplatePortal) {
+            this._attachedPortal = portal;
+            return this.attachTemplatePortal(portal);
+        }
+        throwUnknownPortalTypeError();
+    };
+    /** Detaches a previously attached portal. */
+    /**
+     * Detaches a previously attached portal.
+     * @return {?}
+     */
+    BasePortalOutlet.prototype.detach = /**
+     * Detaches a previously attached portal.
+     * @return {?}
+     */
+    function () {
+        if (this._attachedPortal) {
+            this._attachedPortal.setAttachedHost(null);
+            this._attachedPortal = null;
+        }
+        this._invokeDisposeFn();
+    };
+    /** Permanently dispose of this portal host. */
+    /**
+     * Permanently dispose of this portal host.
+     * @return {?}
+     */
+    BasePortalOutlet.prototype.dispose = /**
+     * Permanently dispose of this portal host.
+     * @return {?}
+     */
+    function () {
+        if (this.hasAttached()) {
+            this.detach();
+        }
+        this._invokeDisposeFn();
+        this._isDisposed = true;
+    };
+    /** @docs-private */
+    /**
+     * \@docs-private
+     * @param {?} fn
+     * @return {?}
+     */
+    BasePortalOutlet.prototype.setDisposeFn = /**
+     * \@docs-private
+     * @param {?} fn
+     * @return {?}
+     */
+    function (fn) {
+        this._disposeFn = fn;
+    };
+    /**
+     * @return {?}
+     */
+    BasePortalOutlet.prototype._invokeDisposeFn = /**
+     * @return {?}
+     */
+    function () {
+        if (this._disposeFn) {
+            this._disposeFn();
+            this._disposeFn = null;
+        }
+    };
+    return BasePortalOutlet;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * A PortalOutlet for attaching portals to an arbitrary DOM element outside of the Angular
+ * application context.
+ */
+var DomPortalOutlet = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __extends */])(DomPortalOutlet, _super);
+    function DomPortalOutlet(_hostDomElement, _componentFactoryResolver, _appRef, _defaultInjector) {
+        var _this = _super.call(this) || this;
+        _this._hostDomElement = _hostDomElement;
+        _this._componentFactoryResolver = _componentFactoryResolver;
+        _this._appRef = _appRef;
+        _this._defaultInjector = _defaultInjector;
+        return _this;
+    }
+    /**
+     * Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver.
+     * @param portal Portal to be attached
+     * @returns Reference to the created component.
+     */
+    /**
+     * Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver.
+     * @template T
+     * @param {?} portal Portal to be attached
+     * @return {?} Reference to the created component.
+     */
+    DomPortalOutlet.prototype.attachComponentPortal = /**
+     * Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver.
+     * @template T
+     * @param {?} portal Portal to be attached
+     * @return {?} Reference to the created component.
+     */
+    function (portal) {
+        var _this = this;
+        var /** @type {?} */ componentFactory = this._componentFactoryResolver.resolveComponentFactory(portal.component);
+        var /** @type {?} */ componentRef;
+        // If the portal specifies a ViewContainerRef, we will use that as the attachment point
+        // for the component (in terms of Angular's component tree, not rendering).
+        // When the ViewContainerRef is missing, we use the factory to create the component directly
+        // and then manually attach the view to the application.
+        if (portal.viewContainerRef) {
+            componentRef = portal.viewContainerRef.createComponent(componentFactory, portal.viewContainerRef.length, portal.injector || portal.viewContainerRef.parentInjector);
+            this.setDisposeFn(function () { return componentRef.destroy(); });
+        }
+        else {
+            componentRef = componentFactory.create(portal.injector || this._defaultInjector);
+            this._appRef.attachView(componentRef.hostView);
+            this.setDisposeFn(function () {
+                _this._appRef.detachView(componentRef.hostView);
+                componentRef.destroy();
+            });
+        }
+        // At this point the component has been instantiated, so we move it to the location in the DOM
+        // where we want it to be rendered.
+        this._hostDomElement.appendChild(this._getComponentRootNode(componentRef));
+        return componentRef;
+    };
+    /**
+     * Attaches a template portal to the DOM as an embedded view.
+     * @param portal Portal to be attached.
+     * @returns Reference to the created embedded view.
+     */
+    /**
+     * Attaches a template portal to the DOM as an embedded view.
+     * @template C
+     * @param {?} portal Portal to be attached.
+     * @return {?} Reference to the created embedded view.
+     */
+    DomPortalOutlet.prototype.attachTemplatePortal = /**
+     * Attaches a template portal to the DOM as an embedded view.
+     * @template C
+     * @param {?} portal Portal to be attached.
+     * @return {?} Reference to the created embedded view.
+     */
+    function (portal) {
+        var _this = this;
+        var /** @type {?} */ viewContainer = portal.viewContainerRef;
+        var /** @type {?} */ viewRef = viewContainer.createEmbeddedView(portal.templateRef, portal.context);
+        viewRef.detectChanges();
+        // The method `createEmbeddedView` will add the view as a child of the viewContainer.
+        // But for the DomPortalOutlet the view can be added everywhere in the DOM
+        // (e.g Overlay Container) To move the view to the specified host element. We just
+        // re-append the existing root nodes.
+        viewRef.rootNodes.forEach(function (rootNode) { return _this._hostDomElement.appendChild(rootNode); });
+        this.setDisposeFn((function () {
+            var /** @type {?} */ index = viewContainer.indexOf(viewRef);
+            if (index !== -1) {
+                viewContainer.remove(index);
+            }
+        }));
+        // TODO(jelbourn): Return locals from view.
+        return viewRef;
+    };
+    /**
+     * Clears out a portal from the DOM.
+     */
+    /**
+     * Clears out a portal from the DOM.
+     * @return {?}
+     */
+    DomPortalOutlet.prototype.dispose = /**
+     * Clears out a portal from the DOM.
+     * @return {?}
+     */
+    function () {
+        _super.prototype.dispose.call(this);
+        if (this._hostDomElement.parentNode != null) {
+            this._hostDomElement.parentNode.removeChild(this._hostDomElement);
+        }
+    };
+    /**
+     * Gets the root HTMLElement for an instantiated component.
+     * @param {?} componentRef
+     * @return {?}
+     */
+    DomPortalOutlet.prototype._getComponentRootNode = /**
+     * Gets the root HTMLElement for an instantiated component.
+     * @param {?} componentRef
+     * @return {?}
+     */
+    function (componentRef) {
+        return /** @type {?} */ ((/** @type {?} */ (componentRef.hostView)).rootNodes[0]);
+    };
+    return DomPortalOutlet;
+}(BasePortalOutlet));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Directive version of a `TemplatePortal`. Because the directive *is* a TemplatePortal,
+ * the directive instance itself can be attached to a host, enabling declarative use of portals.
+ */
+var CdkPortal = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __extends */])(CdkPortal, _super);
+    function CdkPortal(templateRef, viewContainerRef) {
+        return _super.call(this, templateRef, viewContainerRef) || this;
+    }
+    CdkPortal.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
+                    selector: '[cdk-portal], [cdkPortal], [portal]',
+                    exportAs: 'cdkPortal',
+                },] },
+    ];
+    /** @nocollapse */
+    CdkPortal.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */], },
+    ]; };
+    return CdkPortal;
+}(TemplatePortal));
+/**
+ * Directive version of a PortalOutlet. Because the directive *is* a PortalOutlet, portals can be
+ * directly attached to it, enabling declarative use.
+ *
+ * Usage:
+ * <ng-template [cdkPortalOutlet]="greeting"></ng-template>
+ */
+var CdkPortalOutlet = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __extends */])(CdkPortalOutlet, _super);
+    function CdkPortalOutlet(_componentFactoryResolver, _viewContainerRef) {
+        var _this = _super.call(this) || this;
+        _this._componentFactoryResolver = _componentFactoryResolver;
+        _this._viewContainerRef = _viewContainerRef;
+        /**
+         * Whether the portal component is initialized.
+         */
+        _this._isInitialized = false;
+        return _this;
+    }
+    Object.defineProperty(CdkPortalOutlet.prototype, "_deprecatedPortal", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.portal; },
+        set: /**
+         * @param {?} v
+         * @return {?}
+         */
+        function (v) { this.portal = v; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkPortalOutlet.prototype, "_deprecatedPortalHost", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () { return this.portal; },
+        set: /**
+         * @param {?} v
+         * @return {?}
+         */
+        function (v) { this.portal = v; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CdkPortalOutlet.prototype, "portal", {
+        /** Portal associated with the Portal outlet. */
+        get: /**
+         * Portal associated with the Portal outlet.
+         * @return {?}
+         */
+        function () {
+            return this._attachedPortal;
+        },
+        set: /**
+         * @param {?} portal
+         * @return {?}
+         */
+        function (portal) {
+            // Ignore the cases where the `portal` is set to a falsy value before the lifecycle hooks have
+            // run. This handles the cases where the user might do something like `<div cdkPortalOutlet>`
+            // and attach a portal programmatically in the parent component. When Angular does the first CD
+            // round, it will fire the setter with empty string, causing the user's content to be cleared.
+            if (this.hasAttached() && !portal && !this._isInitialized) {
+                return;
+            }
+            if (this.hasAttached()) {
+                _super.prototype.detach.call(this);
+            }
+            if (portal) {
+                _super.prototype.attach.call(this, portal);
+            }
+            this._attachedPortal = portal;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    CdkPortalOutlet.prototype.ngOnInit = /**
+     * @return {?}
+     */
+    function () {
+        this._isInitialized = true;
+    };
+    /**
+     * @return {?}
+     */
+    CdkPortalOutlet.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        _super.prototype.dispose.call(this);
+        this._attachedPortal = null;
+    };
+    /**
+     * Attach the given ComponentPortal to this PortalOutlet using the ComponentFactoryResolver.
+     *
+     * @param portal Portal to be attached to the portal outlet.
+     * @returns Reference to the created component.
+     */
+    /**
+     * Attach the given ComponentPortal to this PortalOutlet using the ComponentFactoryResolver.
+     *
+     * @template T
+     * @param {?} portal Portal to be attached to the portal outlet.
+     * @return {?} Reference to the created component.
+     */
+    CdkPortalOutlet.prototype.attachComponentPortal = /**
+     * Attach the given ComponentPortal to this PortalOutlet using the ComponentFactoryResolver.
+     *
+     * @template T
+     * @param {?} portal Portal to be attached to the portal outlet.
+     * @return {?} Reference to the created component.
+     */
+    function (portal) {
+        portal.setAttachedHost(this);
+        // If the portal specifies an origin, use that as the logical location of the component
+        // in the application tree. Otherwise use the location of this PortalOutlet.
+        var /** @type {?} */ viewContainerRef = portal.viewContainerRef != null ?
+            portal.viewContainerRef :
+            this._viewContainerRef;
+        var /** @type {?} */ componentFactory = this._componentFactoryResolver.resolveComponentFactory(portal.component);
+        var /** @type {?} */ ref = viewContainerRef.createComponent(componentFactory, viewContainerRef.length, portal.injector || viewContainerRef.parentInjector);
+        _super.prototype.setDisposeFn.call(this, function () { return ref.destroy(); });
+        this._attachedPortal = portal;
+        return ref;
+    };
+    /**
+     * Attach the given TemplatePortal to this PortlHost as an embedded View.
+     * @param portal Portal to be attached.
+     * @returns Reference to the created embedded view.
+     */
+    /**
+     * Attach the given TemplatePortal to this PortlHost as an embedded View.
+     * @template C
+     * @param {?} portal Portal to be attached.
+     * @return {?} Reference to the created embedded view.
+     */
+    CdkPortalOutlet.prototype.attachTemplatePortal = /**
+     * Attach the given TemplatePortal to this PortlHost as an embedded View.
+     * @template C
+     * @param {?} portal Portal to be attached.
+     * @return {?} Reference to the created embedded view.
+     */
+    function (portal) {
+        var _this = this;
+        portal.setAttachedHost(this);
+        var /** @type {?} */ viewRef = this._viewContainerRef.createEmbeddedView(portal.templateRef, portal.context);
+        _super.prototype.setDisposeFn.call(this, function () { return _this._viewContainerRef.clear(); });
+        this._attachedPortal = portal;
+        return viewRef;
+    };
+    CdkPortalOutlet.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
+                    selector: '[cdkPortalOutlet], [cdkPortalHost], [portalHost]',
+                    exportAs: 'cdkPortalOutlet, cdkPortalHost',
+                    inputs: ['portal: cdkPortalOutlet']
+                },] },
+    ];
+    /** @nocollapse */
+    CdkPortalOutlet.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["p" /* ComponentFactoryResolver */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */], },
+    ]; };
+    CdkPortalOutlet.propDecorators = {
+        "_deprecatedPortal": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* Input */], args: ['portalHost',] },],
+        "_deprecatedPortalHost": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* Input */], args: ['cdkPortalHost',] },],
+    };
+    return CdkPortalOutlet;
+}(BasePortalOutlet));
+var PortalModule = /** @class */ (function () {
+    function PortalModule() {
+    }
+    PortalModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModule */], args: [{
+                    exports: [CdkPortal, CdkPortalOutlet],
+                    declarations: [CdkPortal, CdkPortalOutlet],
+                },] },
+    ];
+    /** @nocollapse */
+    PortalModule.ctorParameters = function () { return []; };
+    return PortalModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Custom injector to be used when providing custom
+ * injection tokens to components inside a portal.
+ * \@docs-private
+ */
+var PortalInjector = /** @class */ (function () {
+    function PortalInjector(_parentInjector, _customTokens) {
+        this._parentInjector = _parentInjector;
+        this._customTokens = _customTokens;
+    }
+    /**
+     * @param {?} token
+     * @param {?=} notFoundValue
+     * @return {?}
+     */
+    PortalInjector.prototype.get = /**
+     * @param {?} token
+     * @param {?=} notFoundValue
+     * @return {?}
+     */
+    function (token, notFoundValue) {
+        var /** @type {?} */ value = this._customTokens.get(token);
+        if (typeof value !== 'undefined') {
+            return value;
+        }
+        return this._parentInjector.get(token, notFoundValue);
+    };
+    return PortalInjector;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=portal.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../cdk/esm5/scrolling.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export DEFAULT_SCROLL_TIME */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return ScrollDispatcher; });
+/* unused harmony export SCROLL_DISPATCHER_PROVIDER_FACTORY */
+/* unused harmony export SCROLL_DISPATCHER_PROVIDER */
+/* unused harmony export CdkScrollable */
+/* unused harmony export DEFAULT_RESIZE_TIME */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return ViewportRuler; });
+/* unused harmony export VIEWPORT_RULER_PROVIDER_FACTORY */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return VIEWPORT_RULER_PROVIDER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ScrollDispatchModule; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__ = __webpack_require__("../../../cdk/esm5/platform.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_Subject__ = __webpack_require__("../../../../rxjs/_esm5/Subject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__ = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_observable_of__ = __webpack_require__("../../../../rxjs/_esm5/observable/of.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_observable_fromEvent__ = __webpack_require__("../../../../rxjs/_esm5/observable/fromEvent.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operators_auditTime__ = __webpack_require__("../../../../rxjs/_esm5/operators/auditTime.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_operators_filter__ = __webpack_require__("../../../../rxjs/_esm5/operators/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_observable_merge__ = __webpack_require__("../../../../rxjs/_esm5/observable/merge.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Time in ms to throttle the scrolling events by default.
+ */
+var DEFAULT_SCROLL_TIME = 20;
+/**
+ * Service contained all registered Scrollable references and emits an event when any one of the
+ * Scrollable references emit a scrolled event.
+ */
+var ScrollDispatcher = /** @class */ (function () {
+    function ScrollDispatcher(_ngZone, _platform) {
+        this._ngZone = _ngZone;
+        this._platform = _platform;
+        /**
+         * Subject for notifying that a registered scrollable reference element has been scrolled.
+         */
+        this._scrolled = new __WEBPACK_IMPORTED_MODULE_2_rxjs_Subject__["a" /* Subject */]();
+        /**
+         * Keeps track of the global `scroll` and `resize` subscriptions.
+         */
+        this._globalSubscription = null;
+        /**
+         * Keeps track of the amount of subscriptions to `scrolled`. Used for cleaning up afterwards.
+         */
+        this._scrolledCount = 0;
+        /**
+         * Map of all the scrollable references that are registered with the service and their
+         * scroll event subscriptions.
+         */
+        this.scrollContainers = new Map();
+    }
+    /**
+     * Registers a scrollable instance with the service and listens for its scrolled events. When the
+     * scrollable is scrolled, the service emits the event to its scrolled observable.
+     * @param scrollable Scrollable instance to be registered.
+     */
+    /**
+     * Registers a scrollable instance with the service and listens for its scrolled events. When the
+     * scrollable is scrolled, the service emits the event to its scrolled observable.
+     * @param {?} scrollable Scrollable instance to be registered.
+     * @return {?}
+     */
+    ScrollDispatcher.prototype.register = /**
+     * Registers a scrollable instance with the service and listens for its scrolled events. When the
+     * scrollable is scrolled, the service emits the event to its scrolled observable.
+     * @param {?} scrollable Scrollable instance to be registered.
+     * @return {?}
+     */
+    function (scrollable) {
+        var _this = this;
+        var /** @type {?} */ scrollSubscription = scrollable.elementScrolled()
+            .subscribe(function () { return _this._scrolled.next(scrollable); });
+        this.scrollContainers.set(scrollable, scrollSubscription);
+    };
+    /**
+     * Deregisters a Scrollable reference and unsubscribes from its scroll event observable.
+     * @param scrollable Scrollable instance to be deregistered.
+     */
+    /**
+     * Deregisters a Scrollable reference and unsubscribes from its scroll event observable.
+     * @param {?} scrollable Scrollable instance to be deregistered.
+     * @return {?}
+     */
+    ScrollDispatcher.prototype.deregister = /**
+     * Deregisters a Scrollable reference and unsubscribes from its scroll event observable.
+     * @param {?} scrollable Scrollable instance to be deregistered.
+     * @return {?}
+     */
+    function (scrollable) {
+        var /** @type {?} */ scrollableReference = this.scrollContainers.get(scrollable);
+        if (scrollableReference) {
+            scrollableReference.unsubscribe();
+            this.scrollContainers.delete(scrollable);
+        }
+    };
+    /**
+     * Returns an observable that emits an event whenever any of the registered Scrollable
+     * references (or window, document, or body) fire a scrolled event. Can provide a time in ms
+     * to override the default "throttle" time.
+     *
+     * **Note:** in order to avoid hitting change detection for every scroll event,
+     * all of the events emitted from this stream will be run outside the Angular zone.
+     * If you need to update any data bindings as a result of a scroll event, you have
+     * to run the callback using `NgZone.run`.
+     */
+    /**
+     * Returns an observable that emits an event whenever any of the registered Scrollable
+     * references (or window, document, or body) fire a scrolled event. Can provide a time in ms
+     * to override the default "throttle" time.
+     *
+     * **Note:** in order to avoid hitting change detection for every scroll event,
+     * all of the events emitted from this stream will be run outside the Angular zone.
+     * If you need to update any data bindings as a result of a scroll event, you have
+     * to run the callback using `NgZone.run`.
+     * @param {?=} auditTimeInMs
+     * @return {?}
+     */
+    ScrollDispatcher.prototype.scrolled = /**
+     * Returns an observable that emits an event whenever any of the registered Scrollable
+     * references (or window, document, or body) fire a scrolled event. Can provide a time in ms
+     * to override the default "throttle" time.
+     *
+     * **Note:** in order to avoid hitting change detection for every scroll event,
+     * all of the events emitted from this stream will be run outside the Angular zone.
+     * If you need to update any data bindings as a result of a scroll event, you have
+     * to run the callback using `NgZone.run`.
+     * @param {?=} auditTimeInMs
+     * @return {?}
+     */
+    function (auditTimeInMs) {
+        var _this = this;
+        if (auditTimeInMs === void 0) { auditTimeInMs = DEFAULT_SCROLL_TIME; }
+        return this._platform.isBrowser ? __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__["a" /* Observable */].create(function (observer) {
+            if (!_this._globalSubscription) {
+                _this._addGlobalListener();
+            }
+            // In the case of a 0ms delay, use an observable without auditTime
+            // since it does add a perceptible delay in processing overhead.
+            var /** @type {?} */ subscription = auditTimeInMs > 0 ?
+                _this._scrolled.pipe(Object(__WEBPACK_IMPORTED_MODULE_6_rxjs_operators_auditTime__["a" /* auditTime */])(auditTimeInMs)).subscribe(observer) :
+                _this._scrolled.subscribe(observer);
+            _this._scrolledCount++;
+            return function () {
+                subscription.unsubscribe();
+                _this._scrolledCount--;
+                if (_this._globalSubscription && !_this._scrolledCount) {
+                    _this._globalSubscription.unsubscribe();
+                    _this._globalSubscription = null;
+                }
+            };
+        }) : Object(__WEBPACK_IMPORTED_MODULE_4_rxjs_observable_of__["a" /* of */])();
+    };
+    /**
+     * Returns an observable that emits whenever any of the
+     * scrollable ancestors of an element are scrolled.
+     * @param elementRef Element whose ancestors to listen for.
+     * @param auditTimeInMs Time to throttle the scroll events.
+     */
+    /**
+     * Returns an observable that emits whenever any of the
+     * scrollable ancestors of an element are scrolled.
+     * @param {?} elementRef Element whose ancestors to listen for.
+     * @param {?=} auditTimeInMs Time to throttle the scroll events.
+     * @return {?}
+     */
+    ScrollDispatcher.prototype.ancestorScrolled = /**
+     * Returns an observable that emits whenever any of the
+     * scrollable ancestors of an element are scrolled.
+     * @param {?} elementRef Element whose ancestors to listen for.
+     * @param {?=} auditTimeInMs Time to throttle the scroll events.
+     * @return {?}
+     */
+    function (elementRef, auditTimeInMs) {
+        var /** @type {?} */ ancestors = this.getAncestorScrollContainers(elementRef);
+        return this.scrolled(auditTimeInMs).pipe(Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_filter__["a" /* filter */])(function (target) {
+            return !target || ancestors.indexOf(target) > -1;
+        }));
+    };
+    /** Returns all registered Scrollables that contain the provided element. */
+    /**
+     * Returns all registered Scrollables that contain the provided element.
+     * @param {?} elementRef
+     * @return {?}
+     */
+    ScrollDispatcher.prototype.getAncestorScrollContainers = /**
+     * Returns all registered Scrollables that contain the provided element.
+     * @param {?} elementRef
+     * @return {?}
+     */
+    function (elementRef) {
+        var _this = this;
+        var /** @type {?} */ scrollingContainers = [];
+        this.scrollContainers.forEach(function (_subscription, scrollable) {
+            if (_this._scrollableContainsElement(scrollable, elementRef)) {
+                scrollingContainers.push(scrollable);
+            }
+        });
+        return scrollingContainers;
+    };
+    /**
+     * Returns true if the element is contained within the provided Scrollable.
+     * @param {?} scrollable
+     * @param {?} elementRef
+     * @return {?}
+     */
+    ScrollDispatcher.prototype._scrollableContainsElement = /**
+     * Returns true if the element is contained within the provided Scrollable.
+     * @param {?} scrollable
+     * @param {?} elementRef
+     * @return {?}
+     */
+    function (scrollable, elementRef) {
+        var /** @type {?} */ element = elementRef.nativeElement;
+        var /** @type {?} */ scrollableElement = scrollable.getElementRef().nativeElement;
+        // Traverse through the element parents until we reach null, checking if any of the elements
+        // are the scrollable's element.
+        do {
+            if (element == scrollableElement) {
+                return true;
+            }
+        } while (element = element.parentElement);
+        return false;
+    };
+    /**
+     * Sets up the global scroll and resize listeners.
+     * @return {?}
+     */
+    ScrollDispatcher.prototype._addGlobalListener = /**
+     * Sets up the global scroll and resize listeners.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._globalSubscription = this._ngZone.runOutsideAngular(function () {
+            return Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_observable_fromEvent__["a" /* fromEvent */])(window.document, 'scroll').subscribe(function () { return _this._scrolled.next(); });
+        });
+    };
+    ScrollDispatcher.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    ScrollDispatcher.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__["a" /* Platform */], },
+    ]; };
+    return ScrollDispatcher;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentDispatcher
+ * @param {?} ngZone
+ * @param {?} platform
+ * @return {?}
+ */
+function SCROLL_DISPATCHER_PROVIDER_FACTORY(parentDispatcher, ngZone, platform) {
+    return parentDispatcher || new ScrollDispatcher(ngZone, platform);
+}
+/**
+ * \@docs-private
+ */
+var SCROLL_DISPATCHER_PROVIDER = {
+    // If there is already a ScrollDispatcher available, use that. Otherwise, provide a new one.
+    provide: ScrollDispatcher,
+    deps: [[new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), ScrollDispatcher], __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], __WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__["a" /* Platform */]],
+    useFactory: SCROLL_DISPATCHER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Sends an event when the directive's element is scrolled. Registers itself with the
+ * ScrollDispatcher service to include itself as part of its collection of scrolling events that it
+ * can be listened to through the service.
+ */
+var CdkScrollable = /** @class */ (function () {
+    function CdkScrollable(_elementRef, _scroll, _ngZone) {
+        var _this = this;
+        this._elementRef = _elementRef;
+        this._scroll = _scroll;
+        this._ngZone = _ngZone;
+        this._elementScrolled = new __WEBPACK_IMPORTED_MODULE_2_rxjs_Subject__["a" /* Subject */]();
+        this._scrollListener = function (event) { return _this._elementScrolled.next(event); };
+    }
+    /**
+     * @return {?}
+     */
+    CdkScrollable.prototype.ngOnInit = /**
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._ngZone.runOutsideAngular(function () {
+            _this.getElementRef().nativeElement.addEventListener('scroll', _this._scrollListener);
+        });
+        this._scroll.register(this);
+    };
+    /**
+     * @return {?}
+     */
+    CdkScrollable.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._scroll.deregister(this);
+        if (this._scrollListener) {
+            this.getElementRef().nativeElement.removeEventListener('scroll', this._scrollListener);
+        }
+    };
+    /**
+     * Returns observable that emits when a scroll event is fired on the host element.
+     */
+    /**
+     * Returns observable that emits when a scroll event is fired on the host element.
+     * @return {?}
+     */
+    CdkScrollable.prototype.elementScrolled = /**
+     * Returns observable that emits when a scroll event is fired on the host element.
+     * @return {?}
+     */
+    function () {
+        return this._elementScrolled.asObservable();
+    };
+    /**
+     * @return {?}
+     */
+    CdkScrollable.prototype.getElementRef = /**
+     * @return {?}
+     */
+    function () {
+        return this._elementRef;
+    };
+    CdkScrollable.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: '[cdk-scrollable], [cdkScrollable]'
+                },] },
+    ];
+    /** @nocollapse */
+    CdkScrollable.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: ScrollDispatcher, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+    ]; };
+    return CdkScrollable;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Time in ms to throttle the resize events by default.
+ */
+var DEFAULT_RESIZE_TIME = 20;
+/**
+ * Simple utility for getting the bounds of the browser viewport.
+ * \@docs-private
+ */
+var ViewportRuler = /** @class */ (function () {
+    function ViewportRuler(platform, ngZone) {
+        var _this = this;
+        this._change = platform.isBrowser ? ngZone.runOutsideAngular(function () {
+            return Object(__WEBPACK_IMPORTED_MODULE_8_rxjs_observable_merge__["a" /* merge */])(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_observable_fromEvent__["a" /* fromEvent */])(window, 'resize'), Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_observable_fromEvent__["a" /* fromEvent */])(window, 'orientationchange'));
+        }) : Object(__WEBPACK_IMPORTED_MODULE_4_rxjs_observable_of__["a" /* of */])();
+        this._invalidateCache = this.change().subscribe(function () { return _this._updateViewportSize(); });
+    }
+    /**
+     * @return {?}
+     */
+    ViewportRuler.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._invalidateCache.unsubscribe();
+    };
+    /** Returns the viewport's width and height. */
+    /**
+     * Returns the viewport's width and height.
+     * @return {?}
+     */
+    ViewportRuler.prototype.getViewportSize = /**
+     * Returns the viewport's width and height.
+     * @return {?}
+     */
+    function () {
+        if (!this._viewportSize) {
+            this._updateViewportSize();
+        }
+        return { width: this._viewportSize.width, height: this._viewportSize.height };
+    };
+    /** Gets a ClientRect for the viewport's bounds. */
+    /**
+     * Gets a ClientRect for the viewport's bounds.
+     * @return {?}
+     */
+    ViewportRuler.prototype.getViewportRect = /**
+     * Gets a ClientRect for the viewport's bounds.
+     * @return {?}
+     */
+    function () {
+        // Use the document element's bounding rect rather than the window scroll properties
+        // (e.g. pageYOffset, scrollY) due to in issue in Chrome and IE where window scroll
+        // properties and client coordinates (boundingClientRect, clientX/Y, etc.) are in different
+        // conceptual viewports. Under most circumstances these viewports are equivalent, but they
+        // can disagree when the page is pinch-zoomed (on devices that support touch).
+        // See https://bugs.chromium.org/p/chromium/issues/detail?id=489206#c4
+        // We use the documentElement instead of the body because, by default (without a css reset)
+        // browsers typically give the document body an 8px margin, which is not included in
+        // getBoundingClientRect().
+        var /** @type {?} */ scrollPosition = this.getViewportScrollPosition();
+        var _a = this.getViewportSize(), width = _a.width, height = _a.height;
+        return {
+            top: scrollPosition.top,
+            left: scrollPosition.left,
+            bottom: scrollPosition.top + height,
+            right: scrollPosition.left + width,
+            height: height,
+            width: width,
+        };
+    };
+    /** Gets the (top, left) scroll position of the viewport. */
+    /**
+     * Gets the (top, left) scroll position of the viewport.
+     * @return {?}
+     */
+    ViewportRuler.prototype.getViewportScrollPosition = /**
+     * Gets the (top, left) scroll position of the viewport.
+     * @return {?}
+     */
+    function () {
+        // The top-left-corner of the viewport is determined by the scroll position of the document
+        // body, normally just (scrollLeft, scrollTop). However, Chrome and Firefox disagree about
+        // whether `document.body` or `document.documentElement` is the scrolled element, so reading
+        // `scrollTop` and `scrollLeft` is inconsistent. However, using the bounding rect of
+        // `document.documentElement` works consistently, where the `top` and `left` values will
+        // equal negative the scroll position.
+        var /** @type {?} */ documentRect = document.documentElement.getBoundingClientRect();
+        var /** @type {?} */ top = -documentRect.top || document.body.scrollTop || window.scrollY ||
+            document.documentElement.scrollTop || 0;
+        var /** @type {?} */ left = -documentRect.left || document.body.scrollLeft || window.scrollX ||
+            document.documentElement.scrollLeft || 0;
+        return { top: top, left: left };
+    };
+    /**
+     * Returns a stream that emits whenever the size of the viewport changes.
+     * @param throttle Time in milliseconds to throttle the stream.
+     */
+    /**
+     * Returns a stream that emits whenever the size of the viewport changes.
+     * @param {?=} throttleTime
+     * @return {?}
+     */
+    ViewportRuler.prototype.change = /**
+     * Returns a stream that emits whenever the size of the viewport changes.
+     * @param {?=} throttleTime
+     * @return {?}
+     */
+    function (throttleTime) {
+        if (throttleTime === void 0) { throttleTime = DEFAULT_RESIZE_TIME; }
+        return throttleTime > 0 ? this._change.pipe(Object(__WEBPACK_IMPORTED_MODULE_6_rxjs_operators_auditTime__["a" /* auditTime */])(throttleTime)) : this._change;
+    };
+    /**
+     * Updates the cached viewport size.
+     * @return {?}
+     */
+    ViewportRuler.prototype._updateViewportSize = /**
+     * Updates the cached viewport size.
+     * @return {?}
+     */
+    function () {
+        this._viewportSize = { width: window.innerWidth, height: window.innerHeight };
+    };
+    ViewportRuler.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    ViewportRuler.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__["a" /* Platform */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+    ]; };
+    return ViewportRuler;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentRuler
+ * @param {?} platform
+ * @param {?} ngZone
+ * @return {?}
+ */
+function VIEWPORT_RULER_PROVIDER_FACTORY(parentRuler, platform, ngZone) {
+    return parentRuler || new ViewportRuler(platform, ngZone);
+}
+/**
+ * \@docs-private
+ */
+var VIEWPORT_RULER_PROVIDER = {
+    // If there is already a ViewportRuler available, use that. Otherwise, provide a new one.
+    provide: ViewportRuler,
+    deps: [[new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), ViewportRuler], __WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__["a" /* Platform */], __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */]],
+    useFactory: VIEWPORT_RULER_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var ScrollDispatchModule = /** @class */ (function () {
+    function ScrollDispatchModule() {
+    }
+    ScrollDispatchModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_1__angular_cdk_platform__["b" /* PlatformModule */]],
+                    exports: [CdkScrollable],
+                    declarations: [CdkScrollable],
+                    providers: [SCROLL_DISPATCHER_PROVIDER],
+                },] },
+    ];
+    /** @nocollapse */
+    ScrollDispatchModule.ctorParameters = function () { return []; };
+    return ScrollDispatchModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=scrolling.es5.js.map
 
 
 /***/ }),
@@ -19701,15 +25682,15 @@ var CdkHeaderRowDef = /** @class */ (function (_super) {
         return _super.call(this, template, _differs) || this;
     }
     CdkHeaderRowDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
                     selector: '[cdkHeaderRowDef]',
                     inputs: ['columns: cdkHeaderRowDef'],
                 },] },
     ];
     /** @nocollapse */
     CdkHeaderRowDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["E" /* IterableDiffers */], },
     ]; };
     return CdkHeaderRowDef;
 }(BaseRowDef));
@@ -19726,15 +25707,15 @@ var CdkRowDef = /** @class */ (function (_super) {
         return _super.call(this, template, _differs) || this;
     }
     CdkRowDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
                     selector: '[cdkRowDef]',
                     inputs: ['columns: cdkRowDefColumns', 'when: cdkRowDefWhen'],
                 },] },
     ];
     /** @nocollapse */
     CdkRowDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["E" /* IterableDiffers */], },
     ]; };
     return CdkRowDef;
 }(BaseRowDef));
@@ -19761,11 +25742,11 @@ var CdkCellOutlet = /** @class */ (function () {
      */
     CdkCellOutlet.mostRecentCellOutlet = null;
     CdkCellOutlet.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[cdkCellOutlet]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[cdkCellOutlet]' },] },
     ];
     /** @nocollapse */
     CdkCellOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */], },
     ]; };
     return CdkCellOutlet;
 }());
@@ -19776,14 +25757,14 @@ var CdkHeaderRow = /** @class */ (function () {
     function CdkHeaderRow() {
     }
     CdkHeaderRow.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["m" /* Component */], args: [{selector: 'cdk-header-row',
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["n" /* Component */], args: [{selector: 'cdk-header-row',
                     template: CDK_ROW_TEMPLATE,
                     host: {
                         'class': 'cdk-header-row',
                         'role': 'row',
                     },
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                 },] },
     ];
@@ -19798,14 +25779,14 @@ var CdkRow = /** @class */ (function () {
     function CdkRow() {
     }
     CdkRow.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["m" /* Component */], args: [{selector: 'cdk-row',
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["n" /* Component */], args: [{selector: 'cdk-row',
                     template: CDK_ROW_TEMPLATE,
                     host: {
                         'class': 'cdk-row',
                         'role': 'row',
                     },
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
                 },] },
     ];
@@ -19828,11 +25809,11 @@ var CdkCellDef = /** @class */ (function () {
         this.template = template;
     }
     CdkCellDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[cdkCellDef]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[cdkCellDef]' },] },
     ];
     /** @nocollapse */
     CdkCellDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */], },
     ]; };
     return CdkCellDef;
 }());
@@ -19845,11 +25826,11 @@ var CdkHeaderCellDef = /** @class */ (function () {
         this.template = template;
     }
     CdkHeaderCellDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[cdkHeaderCellDef]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[cdkHeaderCellDef]' },] },
     ];
     /** @nocollapse */
     CdkHeaderCellDef.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */], },
     ]; };
     return CdkHeaderCellDef;
 }());
@@ -19883,14 +25864,14 @@ var CdkColumnDef = /** @class */ (function () {
         configurable: true
     });
     CdkColumnDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[cdkColumnDef]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[cdkColumnDef]' },] },
     ];
     /** @nocollapse */
     CdkColumnDef.ctorParameters = function () { return []; };
     CdkColumnDef.propDecorators = {
-        "name": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Input */], args: ['cdkColumnDef',] },],
-        "cell": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["q" /* ContentChild */], args: [CdkCellDef,] },],
-        "headerCell": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["q" /* ContentChild */], args: [CdkHeaderCellDef,] },],
+        "name": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* Input */], args: ['cdkColumnDef',] },],
+        "cell": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChild */], args: [CdkCellDef,] },],
+        "headerCell": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChild */], args: [CdkHeaderCellDef,] },],
     };
     return CdkColumnDef;
 }());
@@ -19902,7 +25883,7 @@ var CdkHeaderCell = /** @class */ (function () {
         elementRef.nativeElement.classList.add("cdk-column-" + columnDef.cssClassFriendlyName);
     }
     CdkHeaderCell.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
                     selector: 'cdk-header-cell',
                     host: {
                         'class': 'cdk-header-cell',
@@ -19913,7 +25894,7 @@ var CdkHeaderCell = /** @class */ (function () {
     /** @nocollapse */
     CdkHeaderCell.ctorParameters = function () { return [
         { type: CdkColumnDef, },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["u" /* ElementRef */], },
     ]; };
     return CdkHeaderCell;
 }());
@@ -19925,7 +25906,7 @@ var CdkCell = /** @class */ (function () {
         elementRef.nativeElement.classList.add("cdk-column-" + columnDef.cssClassFriendlyName);
     }
     CdkCell.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{
                     selector: 'cdk-cell',
                     host: {
                         'class': 'cdk-cell',
@@ -19936,7 +25917,7 @@ var CdkCell = /** @class */ (function () {
     /** @nocollapse */
     CdkCell.ctorParameters = function () { return [
         { type: CdkColumnDef, },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["u" /* ElementRef */], },
     ]; };
     return CdkCell;
 }());
@@ -20004,11 +25985,11 @@ var RowPlaceholder = /** @class */ (function () {
         this.viewContainer = viewContainer;
     }
     RowPlaceholder.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[rowPlaceholder]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[rowPlaceholder]' },] },
     ];
     /** @nocollapse */
     RowPlaceholder.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */], },
     ]; };
     return RowPlaceholder;
 }());
@@ -20021,11 +26002,11 @@ var HeaderRowPlaceholder = /** @class */ (function () {
         this.viewContainer = viewContainer;
     }
     HeaderRowPlaceholder.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* Directive */], args: [{ selector: '[headerRowPlaceholder]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* Directive */], args: [{ selector: '[headerRowPlaceholder]' },] },
     ];
     /** @nocollapse */
     HeaderRowPlaceholder.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */], },
     ]; };
     return HeaderRowPlaceholder;
 }());
@@ -20045,7 +26026,7 @@ var RowViewRef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return RowViewRef;
-}(__WEBPACK_IMPORTED_MODULE_1__angular_core__["u" /* EmbeddedViewRef */]));
+}(__WEBPACK_IMPORTED_MODULE_1__angular_core__["v" /* EmbeddedViewRef */]));
 /**
  * A data table that connects with a data source to retrieve data of type `T` and renders
  * a header row and data rows. Updates the rows when new data is provided by the data source.
@@ -20104,7 +26085,7 @@ var CdkTable = /** @class */ (function () {
          * @return {?}
          */
         function (fn) {
-            if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])() &&
+            if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* isDevMode */])() &&
                 fn != null && typeof fn !== 'function' && /** @type {?} */ (console) && /** @type {?} */ (console.warn)) {
                 console.warn("trackBy must be a function, but received " + JSON.stringify(fn) + ".");
             }
@@ -20584,32 +26565,32 @@ var CdkTable = /** @class */ (function () {
         });
     };
     CdkTable.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["m" /* Component */], args: [{selector: 'cdk-table',
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["n" /* Component */], args: [{selector: 'cdk-table',
                     exportAs: 'cdkTable',
                     template: CDK_TABLE_TEMPLATE,
                     host: {
                         'class': 'cdk-table',
                     },
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                 },] },
     ];
     /** @nocollapse */
     CdkTable.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* IterableDiffers */], },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectorRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* ElementRef */], },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["g" /* Attribute */], args: ['role',] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["E" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["k" /* ChangeDetectorRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["u" /* ElementRef */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* Attribute */], args: ['role',] },] },
     ]; };
     CdkTable.propDecorators = {
-        "trackBy": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Input */] },],
-        "dataSource": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Input */] },],
-        "_rowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewChild */], args: [RowPlaceholder,] },],
-        "_headerRowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* ViewChild */], args: [HeaderRowPlaceholder,] },],
-        "_contentColumnDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChildren */], args: [CdkColumnDef,] },],
-        "_contentRowDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChildren */], args: [CdkRowDef,] },],
-        "_headerRowDef": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["q" /* ContentChild */], args: [CdkHeaderRowDef,] },],
+        "trackBy": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* Input */] },],
+        "dataSource": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["D" /* Input */] },],
+        "_rowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewChild */], args: [RowPlaceholder,] },],
+        "_headerRowPlaceholder": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewChild */], args: [HeaderRowPlaceholder,] },],
+        "_contentColumnDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* ContentChildren */], args: [CdkColumnDef,] },],
+        "_contentRowDefs": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["s" /* ContentChildren */], args: [CdkRowDef,] },],
+        "_headerRowDef": [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["r" /* ContentChild */], args: [CdkHeaderRowDef,] },],
     };
     return CdkTable;
 }());
@@ -20638,7 +26619,7 @@ var CdkTableModule = /** @class */ (function () {
     function CdkTableModule() {
     }
     CdkTableModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModule */], args: [{
                     imports: [__WEBPACK_IMPORTED_MODULE_6__angular_common__["a" /* CommonModule */]],
                     exports: [EXPORTED_DECLARATIONS],
                     declarations: [EXPORTED_DECLARATIONS]
@@ -20700,17 +26681,17 @@ var CdkTableModule = /** @class */ (function () {
 /* unused harmony export getLocaleCurrencyName */
 /* unused harmony export getLocaleCurrencySymbol */
 /* unused harmony export CURRENCIES */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return parseCookieValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return parseCookieValue; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CommonModule; });
 /* unused harmony export DeprecatedI18NPipesModule */
-/* unused harmony export NgClass */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return NgClass; });
 /* unused harmony export NgForOf */
 /* unused harmony export NgForOfContext */
 /* unused harmony export NgIf */
 /* unused harmony export NgIfContext */
 /* unused harmony export NgPlural */
 /* unused harmony export NgPluralCase */
-/* unused harmony export NgStyle */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NgStyle; });
 /* unused harmony export NgSwitch */
 /* unused harmony export NgSwitchCase */
 /* unused harmony export NgSwitchDefault */
@@ -20733,16 +26714,16 @@ var CdkTableModule = /** @class */ (function () {
 /* unused harmony export DeprecatedCurrencyPipe */
 /* unused harmony export DeprecatedDecimalPipe */
 /* unused harmony export DeprecatedPercentPipe */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return PLATFORM_BROWSER_ID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return PLATFORM_BROWSER_ID; });
 /* unused harmony export ɵPLATFORM_SERVER_ID */
 /* unused harmony export ɵPLATFORM_WORKER_APP_ID */
 /* unused harmony export ɵPLATFORM_WORKER_UI_ID */
-/* unused harmony export isPlatformBrowser */
-/* unused harmony export isPlatformServer */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return isPlatformBrowser; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return isPlatformServer; });
 /* unused harmony export isPlatformWorkerApp */
 /* unused harmony export isPlatformWorkerUi */
 /* unused harmony export VERSION */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return PlatformLocation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return PlatformLocation; });
 /* unused harmony export LOCATION_INITIALIZED */
 /* unused harmony export LocationStrategy */
 /* unused harmony export APP_BASE_HREF */
@@ -20808,7 +26789,7 @@ var PlatformLocation = /** @class */ (function () {
  * \@whatItDoes indicates when a location is initialized
  * \@experimental
  */
-var LOCATION_INITIALIZED = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('Location Initialized');
+var LOCATION_INITIALIZED = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('Location Initialized');
 /**
  * A serializable version of the event from onPopState or onHashChange
  *
@@ -20878,7 +26859,7 @@ var LocationStrategy = /** @class */ (function () {
  *
  * \@stable
  */
-var APP_BASE_HREF = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('appBaseHref');
+var APP_BASE_HREF = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('appBaseHref');
 
 /**
  * @fileoverview added by tsickle
@@ -20923,7 +26904,7 @@ var Location = /** @class */ (function () {
         /**
          * \@internal
          */
-        this._subject = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this._subject = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
         this._platformStrategy = platformStrategy;
         var /** @type {?} */ browserBaseHref = this._platformStrategy.getBaseHref();
         this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
@@ -21179,7 +27160,7 @@ var Location = /** @class */ (function () {
         return url.slice(0, droppedSlashIdx) + url.slice(pathEndIdx);
     };
     Location.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     Location.ctorParameters = function () { return [
@@ -21347,12 +27328,12 @@ var HashLocationStrategy = /** @class */ (function (_super) {
      */
     function () { this._platformLocation.back(); };
     HashLocationStrategy.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HashLocationStrategy.ctorParameters = function () { return [
         { type: PlatformLocation, },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [APP_BASE_HREF,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [APP_BASE_HREF,] },] },
     ]; };
     return HashLocationStrategy;
 }(LocationStrategy));
@@ -21504,12 +27485,12 @@ var PathLocationStrategy = /** @class */ (function (_super) {
      */
     function () { this._platformLocation.back(); };
     PathLocationStrategy.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     PathLocationStrategy.ctorParameters = function () { return [
         { type: PlatformLocation, },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [APP_BASE_HREF,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [APP_BASE_HREF,] },] },
     ]; };
     return PathLocationStrategy;
 }(LocationStrategy));
@@ -22283,7 +28264,7 @@ function findCurrencySymbol(code, format) {
 /**
  * @deprecated from v5
  */
-var DEPRECATED_PLURAL_FN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('UseV4Plurals');
+var DEPRECATED_PLURAL_FN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('UseV4Plurals');
 /**
  * \@experimental
  * @abstract
@@ -22362,12 +28343,12 @@ var NgLocaleLocalization = /** @class */ (function (_super) {
         }
     };
     NgLocaleLocalization.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     NgLocaleLocalization.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [DEPRECATED_PLURAL_FN,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [DEPRECATED_PLURAL_FN,] },] },
     ]; };
     return NgLocaleLocalization;
 }(NgLocalization));
@@ -22849,7 +28830,7 @@ var NgClass = /** @class */ (function () {
             this._keyValueDiffer = null;
             this._rawClass = typeof v === 'string' ? v.split(/\s+/) : v;
             if (this._rawClass) {
-                if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_31" /* ɵisListLikeIterable */])(this._rawClass)) {
+                if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_33" /* ɵisListLikeIterable */])(this._rawClass)) {
                     this._iterableDiffer = this._iterableDiffers.find(this._rawClass).create();
                 }
                 else {
@@ -22925,7 +28906,7 @@ var NgClass = /** @class */ (function () {
                 _this._toggleClass(record.item, true);
             }
             else {
-                throw new Error("NgClass can only toggle CSS classes expressed as strings, got " + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_45" /* ɵstringify */])(record.item));
+                throw new Error("NgClass can only toggle CSS classes expressed as strings, got " + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_47" /* ɵstringify */])(record.item));
             }
         });
         changes.forEachRemovedItem(function (record) { return _this._toggleClass(record.item, false); });
@@ -22991,18 +28972,18 @@ var NgClass = /** @class */ (function () {
         }
     };
     NgClass.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngClass]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngClass]' },] },
     ];
     /** @nocollapse */
     NgClass.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* IterableDiffers */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["E" /* KeyValueDiffers */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Renderer2 */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["E" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* KeyValueDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Renderer2 */], },
     ]; };
     NgClass.propDecorators = {
-        "klass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['class',] },],
-        "ngClass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "klass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['class',] },],
+        "ngClass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgClass;
 }());
@@ -23095,7 +29076,7 @@ var NgComponentOutlet = /** @class */ (function () {
                 if (this._moduleRef)
                     this._moduleRef.destroy();
                 if (this.ngComponentOutletNgModuleFactory) {
-                    var /** @type {?} */ parentModule = elInjector.get(__WEBPACK_IMPORTED_MODULE_0__angular_core__["J" /* NgModuleRef */]);
+                    var /** @type {?} */ parentModule = elInjector.get(__WEBPACK_IMPORTED_MODULE_0__angular_core__["K" /* NgModuleRef */]);
                     this._moduleRef = this.ngComponentOutletNgModuleFactory.create(parentModule.injector);
                 }
                 else {
@@ -23103,7 +29084,7 @@ var NgComponentOutlet = /** @class */ (function () {
                 }
             }
             var /** @type {?} */ componentFactoryResolver = this._moduleRef ? this._moduleRef.componentFactoryResolver :
-                elInjector.get(__WEBPACK_IMPORTED_MODULE_0__angular_core__["o" /* ComponentFactoryResolver */]);
+                elInjector.get(__WEBPACK_IMPORTED_MODULE_0__angular_core__["p" /* ComponentFactoryResolver */]);
             var /** @type {?} */ componentFactory = componentFactoryResolver.resolveComponentFactory(this.ngComponentOutlet);
             this._componentRef = this._viewContainerRef.createComponent(componentFactory, this._viewContainerRef.length, elInjector, this.ngComponentOutletContent);
         }
@@ -23119,17 +29100,17 @@ var NgComponentOutlet = /** @class */ (function () {
             this._moduleRef.destroy();
     };
     NgComponentOutlet.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngComponentOutlet]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngComponentOutlet]' },] },
     ];
     /** @nocollapse */
     NgComponentOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
     ]; };
     NgComponentOutlet.propDecorators = {
-        "ngComponentOutlet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngComponentOutletInjector": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngComponentOutletContent": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngComponentOutletNgModuleFactory": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngComponentOutlet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngComponentOutletInjector": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngComponentOutletContent": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngComponentOutletNgModuleFactory": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgComponentOutlet;
 }());
@@ -23276,7 +29257,7 @@ var NgForOf = /** @class */ (function () {
          * @return {?}
          */
         function (fn) {
-            if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* isDevMode */])() && fn != null && typeof fn !== 'function') {
+            if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_16" /* isDevMode */])() && fn != null && typeof fn !== 'function') {
                 // TODO(vicb): use a log service once there is a public one available
                 if (/** @type {?} */ (console) && /** @type {?} */ (console.warn)) {
                     console.warn("trackBy must be a function, but received " + JSON.stringify(fn) + ". " +
@@ -23393,18 +29374,18 @@ var NgForOf = /** @class */ (function () {
         view.context.$implicit = record.item;
     };
     NgForOf.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngFor][ngForOf]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngFor][ngForOf]' },] },
     ];
     /** @nocollapse */
     NgForOf.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["E" /* IterableDiffers */], },
     ]; };
     NgForOf.propDecorators = {
-        "ngForOf": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngForTrackBy": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngForTemplate": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngForOf": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngForTrackBy": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngForTemplate": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgForOf;
 }());
@@ -23600,17 +29581,17 @@ var NgIf = /** @class */ (function () {
         }
     };
     NgIf.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngIf]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngIf]' },] },
     ];
     /** @nocollapse */
     NgIf.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
     ]; };
     NgIf.propDecorators = {
-        "ngIf": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngIfThen": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngIfElse": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngIf": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngIfThen": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngIfElse": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgIf;
 }());
@@ -23809,12 +29790,12 @@ var NgSwitch = /** @class */ (function () {
         }
     };
     NgSwitch.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngSwitch]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngSwitch]' },] },
     ];
     /** @nocollapse */
     NgSwitch.ctorParameters = function () { return []; };
     NgSwitch.propDecorators = {
-        "ngSwitch": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngSwitch": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgSwitch;
 }());
@@ -23856,16 +29837,16 @@ var NgSwitchCase = /** @class */ (function () {
      */
     function () { this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase)); };
     NgSwitchCase.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngSwitchCase]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngSwitchCase]' },] },
     ];
     /** @nocollapse */
     NgSwitchCase.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
-        { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
+        { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Host */] },] },
     ]; };
     NgSwitchCase.propDecorators = {
-        "ngSwitchCase": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngSwitchCase": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgSwitchCase;
 }());
@@ -23897,13 +29878,13 @@ var NgSwitchDefault = /** @class */ (function () {
         ngSwitch._addDefault(new SwitchView(viewContainer, templateRef));
     }
     NgSwitchDefault.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngSwitchDefault]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngSwitchDefault]' },] },
     ];
     /** @nocollapse */
     NgSwitchDefault.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
-        { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
+        { type: NgSwitch, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Host */] },] },
     ]; };
     return NgSwitchDefault;
 }());
@@ -24015,14 +29996,14 @@ var NgPlural = /** @class */ (function () {
         }
     };
     NgPlural.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngPlural]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngPlural]' },] },
     ];
     /** @nocollapse */
     NgPlural.ctorParameters = function () { return [
         { type: NgLocalization, },
     ]; };
     NgPlural.propDecorators = {
-        "ngPlural": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngPlural": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgPlural;
 }());
@@ -24051,14 +30032,14 @@ var NgPluralCase = /** @class */ (function () {
         ngPlural.addCase(isANumber ? "=" + value : value, new SwitchView(viewContainer, template));
     }
     NgPluralCase.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngPluralCase]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngPluralCase]' },] },
     ];
     /** @nocollapse */
     NgPluralCase.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["g" /* Attribute */], args: ['ngPluralCase',] },] },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_3" /* TemplateRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
-        { type: NgPlural, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* Host */] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["h" /* Attribute */], args: ['ngPluralCase',] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: NgPlural, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Host */] },] },
     ]; };
     return NgPluralCase;
 }());
@@ -24160,16 +30141,16 @@ var NgStyle = /** @class */ (function () {
         this._renderer.setStyle(this._ngEl.nativeElement, name, /** @type {?} */ (value));
     };
     NgStyle.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngStyle]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngStyle]' },] },
     ];
     /** @nocollapse */
     NgStyle.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["E" /* KeyValueDiffers */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Renderer2 */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* KeyValueDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Renderer2 */], },
     ]; };
     NgStyle.propDecorators = {
-        "ngStyle": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngStyle": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgStyle;
 }());
@@ -24304,15 +30285,15 @@ var NgTemplateOutlet = /** @class */ (function () {
         }
     };
     NgTemplateOutlet.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{ selector: '[ngTemplateOutlet]' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: '[ngTemplateOutlet]' },] },
     ];
     /** @nocollapse */
     NgTemplateOutlet.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* ViewContainerRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
     ]; };
     NgTemplateOutlet.propDecorators = {
-        "ngTemplateOutletContext": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "ngTemplateOutlet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "ngTemplateOutletContext": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "ngTemplateOutlet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return NgTemplateOutlet;
 }());
@@ -25017,7 +30998,7 @@ function convertTimezoneToLocal(date, timezone, reverse) {
  * @return {?}
  */
 function invalidPipeArgumentError(type, value) {
-    return Error("InvalidPipeArgument: '" + value + "' for pipe '" + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_45" /* ɵstringify */])(type) + "'");
+    return Error("InvalidPipeArgument: '" + value + "' for pipe '" + Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_47" /* ɵstringify */])(type) + "'");
 }
 
 /**
@@ -25206,11 +31187,11 @@ var DatePipe = /** @class */ (function () {
         return formatDate(date, format, locale || this.locale, timezone);
     };
     DatePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'date', pure: true },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'date', pure: true },] },
     ];
     /** @nocollapse */
     DatePipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DatePipe;
 }());
@@ -25661,11 +31642,11 @@ var DeprecatedDatePipe = /** @class */ (function () {
         'shortTime': 'jm'
     };
     DeprecatedDatePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'date', pure: true },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'date', pure: true },] },
     ];
     /** @nocollapse */
     DeprecatedDatePipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DeprecatedDatePipe;
 }());
@@ -26159,11 +32140,11 @@ var DeprecatedDecimalPipe = /** @class */ (function () {
         return formatNumber(DeprecatedDecimalPipe, this._locale, value, NumberFormatStyle.Decimal, digits);
     };
     DeprecatedDecimalPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'number' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'number' },] },
     ];
     /** @nocollapse */
     DeprecatedDecimalPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DeprecatedDecimalPipe;
 }());
@@ -26205,11 +32186,11 @@ var DeprecatedPercentPipe = /** @class */ (function () {
         return formatNumber(DeprecatedPercentPipe, this._locale, value, NumberFormatStyle.Percent, digits);
     };
     DeprecatedPercentPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'percent' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'percent' },] },
     ];
     /** @nocollapse */
     DeprecatedPercentPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DeprecatedPercentPipe;
 }());
@@ -26261,11 +32242,11 @@ var DeprecatedCurrencyPipe = /** @class */ (function () {
         return formatNumber(DeprecatedCurrencyPipe, this._locale, value, NumberFormatStyle.Currency, digits, currencyCode, symbolDisplay);
     };
     DeprecatedCurrencyPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'currency' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'currency' },] },
     ];
     /** @nocollapse */
     DeprecatedCurrencyPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DeprecatedCurrencyPipe;
 }());
@@ -26442,7 +32423,7 @@ var AsyncPipe = /** @class */ (function () {
             return this._latestReturnedValue;
         }
         this._latestReturnedValue = this._latestValue;
-        return __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* WrappedValue */].wrap(this._latestValue);
+        return __WEBPACK_IMPORTED_MODULE_0__angular_core__["_11" /* WrappedValue */].wrap(this._latestValue);
     };
     /**
      * @param {?} obj
@@ -26467,10 +32448,10 @@ var AsyncPipe = /** @class */ (function () {
      * @return {?}
      */
     function (obj) {
-        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_33" /* ɵisPromise */])(obj)) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_35" /* ɵisPromise */])(obj)) {
             return _promiseStrategy;
         }
-        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_32" /* ɵisObservable */])(obj)) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_34" /* ɵisObservable */])(obj)) {
             return _observableStrategy;
         }
         throw invalidPipeArgumentError(AsyncPipe, obj);
@@ -26505,11 +32486,11 @@ var AsyncPipe = /** @class */ (function () {
         }
     };
     AsyncPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'async', pure: false },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'async', pure: false },] },
     ];
     /** @nocollapse */
     AsyncPipe.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectorRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["k" /* ChangeDetectorRef */], },
     ]; };
     return AsyncPipe;
 }());
@@ -26552,7 +32533,7 @@ var LowerCasePipe = /** @class */ (function () {
         return value.toLowerCase();
     };
     LowerCasePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'lowercase' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'lowercase' },] },
     ];
     /** @nocollapse */
     LowerCasePipe.ctorParameters = function () { return []; };
@@ -26595,7 +32576,7 @@ var TitleCasePipe = /** @class */ (function () {
         return value.split(/\b/g).map(function (word) { return titleCaseWord(word); }).join('');
     };
     TitleCasePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'titlecase' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'titlecase' },] },
     ];
     /** @nocollapse */
     TitleCasePipe.ctorParameters = function () { return []; };
@@ -26626,7 +32607,7 @@ var UpperCasePipe = /** @class */ (function () {
         return value.toUpperCase();
     };
     UpperCasePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'uppercase' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'uppercase' },] },
     ];
     /** @nocollapse */
     UpperCasePipe.ctorParameters = function () { return []; };
@@ -26690,7 +32671,7 @@ var I18nPluralPipe = /** @class */ (function () {
         return pluralMap[key].replace(_INTERPOLATION_REGEXP, value.toString());
     };
     I18nPluralPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'i18nPlural', pure: true },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'i18nPlural', pure: true },] },
     ];
     /** @nocollapse */
     I18nPluralPipe.ctorParameters = function () { return [
@@ -26755,7 +32736,7 @@ var I18nSelectPipe = /** @class */ (function () {
         return '';
     };
     I18nSelectPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'i18nSelect', pure: true },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'i18nSelect', pure: true },] },
     ];
     /** @nocollapse */
     I18nSelectPipe.ctorParameters = function () { return []; };
@@ -26799,7 +32780,7 @@ var JsonPipe = /** @class */ (function () {
      */
     function (value) { return JSON.stringify(value, null, 2); };
     JsonPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'json', pure: false },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'json', pure: false },] },
     ];
     /** @nocollapse */
     JsonPipe.ctorParameters = function () { return []; };
@@ -26870,11 +32851,11 @@ var DecimalPipe = /** @class */ (function () {
         return str;
     };
     DecimalPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'number' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'number' },] },
     ];
     /** @nocollapse */
     DecimalPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return DecimalPipe;
 }());
@@ -26924,11 +32905,11 @@ var PercentPipe = /** @class */ (function () {
         return str;
     };
     PercentPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'percent' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'percent' },] },
     ];
     /** @nocollapse */
     PercentPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return PercentPipe;
 }());
@@ -27001,11 +32982,11 @@ var CurrencyPipe = /** @class */ (function () {
         return str;
     };
     CurrencyPipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'currency' },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'currency' },] },
     ];
     /** @nocollapse */
     CurrencyPipe.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */],] },] },
     ]; };
     return CurrencyPipe;
 }());
@@ -27105,7 +33086,7 @@ var SlicePipe = /** @class */ (function () {
      */
     function (obj) { return typeof obj === 'string' || Array.isArray(obj); };
     SlicePipe.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["R" /* Pipe */], args: [{ name: 'slice', pure: false },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* Pipe */], args: [{ name: 'slice', pure: false },] },
     ];
     /** @nocollapse */
     SlicePipe.ctorParameters = function () { return []; };
@@ -27166,7 +33147,7 @@ var CommonModule = /** @class */ (function () {
     function CommonModule() {
     }
     CommonModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     declarations: [COMMON_DIRECTIVES, COMMON_PIPES],
                     exports: [COMMON_DIRECTIVES, COMMON_PIPES],
                     providers: [
@@ -27188,7 +33169,7 @@ var DeprecatedI18NPipesModule = /** @class */ (function () {
     function DeprecatedI18NPipesModule() {
     }
     DeprecatedI18NPipesModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     declarations: [COMMON_DEPRECATED_I18N_PIPES],
                     exports: [COMMON_DEPRECATED_I18N_PIPES],
                     providers: [{ provide: DEPRECATED_PLURAL_FN, useValue: ɵ0 }],
@@ -27218,7 +33199,7 @@ var DeprecatedI18NPipesModule = /** @class */ (function () {
  *
  * \@stable
  */
-var DOCUMENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('DocumentToken');
+var DOCUMENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('DocumentToken');
 
 /**
  * @fileoverview added by tsickle
@@ -27291,7 +33272,7 @@ function isPlatformWorkerUi(platformId) {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle
@@ -29128,7 +35109,7 @@ var HttpClient = /** @class */ (function () {
         return this.request('PUT', url, addBody(options, body));
     };
     HttpClient.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HttpClient.ctorParameters = function () { return [
@@ -29190,7 +35171,7 @@ var HttpInterceptorHandler = /** @class */ (function () {
  *
  * \@stable
  */
-var HTTP_INTERCEPTORS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('HTTP_INTERCEPTORS');
+var HTTP_INTERCEPTORS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('HTTP_INTERCEPTORS');
 var NoopInterceptor = /** @class */ (function () {
     function NoopInterceptor() {
     }
@@ -29208,7 +35189,7 @@ var NoopInterceptor = /** @class */ (function () {
         return next.handle(req);
     };
     NoopInterceptor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     NoopInterceptor.ctorParameters = function () { return []; };
@@ -29411,12 +35392,12 @@ var JsonpClientBackend = /** @class */ (function () {
         });
     };
     JsonpClientBackend.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     JsonpClientBackend.ctorParameters = function () { return [
         { type: JsonpCallbackContext, },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_6__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_6__angular_common__["b" /* DOCUMENT */],] },] },
     ]; };
     return JsonpClientBackend;
 }());
@@ -29448,7 +35429,7 @@ var JsonpInterceptor = /** @class */ (function () {
         return next.handle(req);
     };
     JsonpInterceptor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     JsonpInterceptor.ctorParameters = function () { return [
@@ -29511,7 +35492,7 @@ var BrowserXhr = /** @class */ (function () {
      */
     function () { return /** @type {?} */ ((new XMLHttpRequest())); };
     BrowserXhr.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     BrowserXhr.ctorParameters = function () { return []; };
@@ -29770,7 +35751,7 @@ var HttpXhrBackend = /** @class */ (function () {
         });
     };
     HttpXhrBackend.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HttpXhrBackend.ctorParameters = function () { return [
@@ -29790,8 +35771,8 @@ var HttpXhrBackend = /** @class */ (function () {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var XSRF_COOKIE_NAME = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('XSRF_COOKIE_NAME');
-var XSRF_HEADER_NAME = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('XSRF_HEADER_NAME');
+var XSRF_COOKIE_NAME = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('XSRF_COOKIE_NAME');
+var XSRF_HEADER_NAME = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('XSRF_HEADER_NAME');
 /**
  * Retrieves the current XSRF token to use with the next outgoing request.
  *
@@ -29831,19 +35812,19 @@ var HttpXsrfCookieExtractor = /** @class */ (function () {
         var /** @type {?} */ cookieString = this.doc.cookie || '';
         if (cookieString !== this.lastCookieString) {
             this.parseCount++;
-            this.lastToken = Object(__WEBPACK_IMPORTED_MODULE_6__angular_common__["e" /* ɵparseCookieValue */])(cookieString, this.cookieName);
+            this.lastToken = Object(__WEBPACK_IMPORTED_MODULE_6__angular_common__["i" /* ɵparseCookieValue */])(cookieString, this.cookieName);
             this.lastCookieString = cookieString;
         }
         return this.lastToken;
     };
     HttpXsrfCookieExtractor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HttpXsrfCookieExtractor.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_6__angular_common__["b" /* DOCUMENT */],] },] },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["P" /* PLATFORM_ID */],] },] },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [XSRF_COOKIE_NAME,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_6__angular_common__["b" /* DOCUMENT */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [XSRF_COOKIE_NAME,] },] },
     ]; };
     return HttpXsrfCookieExtractor;
 }());
@@ -29883,12 +35864,12 @@ var HttpXsrfInterceptor = /** @class */ (function () {
         return next.handle(req);
     };
     HttpXsrfInterceptor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HttpXsrfInterceptor.ctorParameters = function () { return [
         { type: HttpXsrfTokenExtractor, },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [XSRF_HEADER_NAME,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [XSRF_HEADER_NAME,] },] },
     ]; };
     return HttpXsrfInterceptor;
 }());
@@ -29998,7 +35979,7 @@ var HttpClientXsrfModule = /** @class */ (function () {
         };
     };
     HttpClientXsrfModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     providers: [
                         HttpXsrfInterceptor,
                         { provide: HTTP_INTERCEPTORS, useExisting: HttpXsrfInterceptor, multi: true },
@@ -30024,7 +36005,7 @@ var HttpClientModule = /** @class */ (function () {
     function HttpClientModule() {
     }
     HttpClientModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [
                         HttpClientXsrfModule.withOptions({
                             cookieName: 'XSRF-TOKEN',
@@ -30038,7 +36019,7 @@ var HttpClientModule = /** @class */ (function () {
                         {
                             provide: HttpHandler,
                             useFactory: interceptingHandler,
-                            deps: [HttpBackend, [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */](HTTP_INTERCEPTORS)]],
+                            deps: [HttpBackend, [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */](HTTP_INTERCEPTORS)]],
                         },
                         HttpXhrBackend,
                         { provide: HttpBackend, useExisting: HttpXhrBackend },
@@ -30063,7 +36044,7 @@ var HttpClientJsonpModule = /** @class */ (function () {
     function HttpClientJsonpModule() {
     }
     HttpClientJsonpModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     providers: [
                         JsonpClientBackend,
                         { provide: JsonpCallbackContext, useFactory: jsonpCallbackContext },
@@ -65463,154 +71444,154 @@ var Extractor = /** @class */ (function () {
 /* unused harmony export destroyPlatform */
 /* unused harmony export getPlatform */
 /* unused harmony export PlatformRef */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return ApplicationRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_11", function() { return enableProdMode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_14", function() { return isDevMode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_10", function() { return createPlatformFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "K", function() { return NgProbeToken; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return APP_ID; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "O", function() { return PACKAGE_ROOT_URL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Q", function() { return PLATFORM_INITIALIZER; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "P", function() { return PLATFORM_ID; });
-/* unused harmony export APP_BOOTSTRAP_LISTENER */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return APP_INITIALIZER; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return ApplicationInitStatus; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return ApplicationRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_13", function() { return enableProdMode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_16", function() { return isDevMode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_12", function() { return createPlatformFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "L", function() { return NgProbeToken; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return APP_ID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "P", function() { return PACKAGE_ROOT_URL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "R", function() { return PLATFORM_INITIALIZER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Q", function() { return PLATFORM_ID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return APP_BOOTSTRAP_LISTENER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return APP_INITIALIZER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return ApplicationInitStatus; });
 /* unused harmony export DebugElement */
 /* unused harmony export DebugNode */
 /* unused harmony export asNativeElements */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_13", function() { return getDebugNode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_4", function() { return Testability; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_15", function() { return getDebugNode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_6", function() { return Testability; });
 /* unused harmony export TestabilityRegistry */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_16", function() { return setTestabilityGetter; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_1", function() { return TRANSLATIONS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_2", function() { return TRANSLATIONS_FORMAT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "F", function() { return LOCALE_ID; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "G", function() { return MissingTranslationStrategy; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return ApplicationModule; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_18", function() { return setTestabilityGetter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_3", function() { return TRANSLATIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_4", function() { return TRANSLATIONS_FORMAT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "G", function() { return LOCALE_ID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "H", function() { return MissingTranslationStrategy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return ApplicationModule; });
 /* unused harmony export wtfCreateScope */
 /* unused harmony export wtfLeave */
 /* unused harmony export wtfStartTimeRange */
 /* unused harmony export wtfEndTimeRange */
 /* unused harmony export Type */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return EventEmitter; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return ErrorHandler; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "X", function() { return Sanitizer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Y", function() { return SecurityContext; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return EventEmitter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return ErrorHandler; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Y", function() { return Sanitizer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Z", function() { return SecurityContext; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ANALYZE_FOR_ENTRY_COMPONENTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return Attribute; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return ContentChild; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return ContentChildren; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return Attribute; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return ContentChild; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return ContentChildren; });
 /* unused harmony export Query */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_6", function() { return ViewChild; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_8", function() { return ViewChild; });
 /* unused harmony export ViewChildren */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return Component; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return Directive; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return Component; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return Directive; });
 /* unused harmony export HostBinding */
 /* unused harmony export HostListener */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "C", function() { return Input; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "N", function() { return Output; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "R", function() { return Pipe; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "D", function() { return Input; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "O", function() { return Output; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "S", function() { return Pipe; });
 /* unused harmony export CUSTOM_ELEMENTS_SCHEMA */
 /* unused harmony export NO_ERRORS_SCHEMA */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "H", function() { return NgModule; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_8", function() { return ViewEncapsulation; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_5", function() { return Version; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "I", function() { return NgModule; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_10", function() { return ViewEncapsulation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_7", function() { return Version; });
 /* unused harmony export VERSION */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_12", function() { return forwardRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_14", function() { return forwardRef; });
 /* unused harmony export resolveForwardRef */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "B", function() { return Injector; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "C", function() { return Injector; });
 /* unused harmony export ReflectiveInjector */
 /* unused harmony export ResolvedReflectiveFactory */
 /* unused harmony export ReflectiveKey */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "A", function() { return InjectionToken; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return Inject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "M", function() { return Optional; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return Injectable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Z", function() { return Self; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_0", function() { return SkipSelf; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return Host; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "L", function() { return NgZone; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "B", function() { return InjectionToken; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return Inject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "N", function() { return Optional; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "A", function() { return Injectable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_0", function() { return Self; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_2", function() { return SkipSelf; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return Host; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "M", function() { return NgZone; });
 /* unused harmony export RenderComponentType */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "T", function() { return Renderer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "U", function() { return Renderer2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "V", function() { return RendererFactory2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "W", function() { return RendererStyleFlags2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "U", function() { return Renderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "V", function() { return Renderer2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "W", function() { return RendererFactory2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "X", function() { return RendererStyleFlags2; });
 /* unused harmony export RootRenderer */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return COMPILER_OPTIONS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return Compiler; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return CompilerFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return COMPILER_OPTIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return Compiler; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return CompilerFactory; });
 /* unused harmony export ModuleWithComponentFactories */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return ComponentFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return ComponentRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return ComponentFactoryResolver; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return ElementRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "I", function() { return NgModuleFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "J", function() { return NgModuleRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return ComponentFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return ComponentRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return ComponentFactoryResolver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return ElementRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "J", function() { return NgModuleFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "K", function() { return NgModuleRef; });
 /* unused harmony export NgModuleFactoryLoader */
 /* unused harmony export getModuleFactory */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "S", function() { return QueryList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "T", function() { return QueryList; });
 /* unused harmony export SystemJsNgModuleLoader */
 /* unused harmony export SystemJsNgModuleLoaderConfig */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_3", function() { return TemplateRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_7", function() { return ViewContainerRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return EmbeddedViewRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_5", function() { return TemplateRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_9", function() { return ViewContainerRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return EmbeddedViewRef; });
 /* unused harmony export ViewRef */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return ChangeDetectionStrategy; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return ChangeDetectorRef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return ChangeDetectionStrategy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return ChangeDetectorRef; });
 /* unused harmony export DefaultIterableDiffer */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "D", function() { return IterableDiffers; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "E", function() { return KeyValueDiffers; });
-/* unused harmony export SimpleChange */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_9", function() { return WrappedValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_15", function() { return platformCore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "E", function() { return IterableDiffers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "F", function() { return KeyValueDiffers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_1", function() { return SimpleChange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_11", function() { return WrappedValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_17", function() { return platformCore; });
 /* unused harmony export ɵALLOW_MULTIPLE_PLATFORMS */
 /* unused harmony export ɵAPP_ID_RANDOM_PROVIDER */
 /* unused harmony export ɵValueUnwrapper */
 /* unused harmony export ɵdevModeEqual */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_31", function() { return isListLikeIterable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_33", function() { return isListLikeIterable; });
 /* unused harmony export ɵChangeDetectorStatus */
 /* unused harmony export ɵisDefaultChangeDetectionStrategy */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_18", function() { return Console; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_20", function() { return Console; });
 /* unused harmony export ɵComponentFactory */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_17", function() { return CodegenComponentFactoryResolver; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_21", function() { return ReflectionCapabilities; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_19", function() { return CodegenComponentFactoryResolver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_23", function() { return ReflectionCapabilities; });
 /* unused harmony export ɵRenderDebugInfo */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_28", function() { return _global; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_30", function() { return _global; });
 /* unused harmony export ɵlooseIdentical */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_45", function() { return stringify; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_47", function() { return stringify; });
 /* unused harmony export ɵmakeDecorator */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_32", function() { return isObservable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_33", function() { return isPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_34", function() { return isObservable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_35", function() { return isPromise; });
 /* unused harmony export ɵclearOverrides */
 /* unused harmony export ɵoverrideComponentView */
 /* unused harmony export ɵoverrideProvider */
 /* unused harmony export ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_44", function() { return registerModuleFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_19", function() { return EMPTY_ARRAY; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_20", function() { return EMPTY_MAP; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_22", function() { return anchorDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_23", function() { return createComponentFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_24", function() { return createNgModuleFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_25", function() { return createRendererType2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_26", function() { return directiveDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_27", function() { return elementDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_46", function() { return registerModuleFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_21", function() { return EMPTY_ARRAY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_22", function() { return EMPTY_MAP; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_24", function() { return anchorDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_25", function() { return createComponentFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_26", function() { return createNgModuleFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_27", function() { return createRendererType2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_28", function() { return directiveDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_29", function() { return elementDef; });
 /* unused harmony export ɵelementEventFullName */
 /* unused harmony export ɵgetComponentViewDefinitionFactory */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_29", function() { return inlineInterpolate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_30", function() { return interpolate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_34", function() { return moduleDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_35", function() { return moduleProvideDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_36", function() { return ngContentDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_37", function() { return nodeValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_39", function() { return pipeDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_42", function() { return providerDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_38", function() { return pureArrayDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_40", function() { return pureObjectDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_41", function() { return purePipeDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_43", function() { return queryDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_46", function() { return textDef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_47", function() { return unwrapValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_48", function() { return viewDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_31", function() { return inlineInterpolate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_32", function() { return interpolate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_36", function() { return moduleDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_37", function() { return moduleProvideDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_38", function() { return ngContentDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_39", function() { return nodeValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_41", function() { return pipeDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_44", function() { return providerDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_40", function() { return pureArrayDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_42", function() { return pureObjectDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_43", function() { return purePipeDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_45", function() { return queryDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_48", function() { return textDef; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_49", function() { return unwrapValue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_50", function() { return viewDef; });
 /* unused harmony export AUTO_STYLE */
 /* unused harmony export trigger */
 /* unused harmony export animate */
@@ -82512,6 +88493,7573 @@ function transition$$1(stateChangeExpr, steps) {
 
 /***/ }),
 
+/***/ "../../../flex-layout/esm5/flex-layout.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export VERSION */
+/* unused harmony export BaseFxDirective */
+/* unused harmony export BaseFxDirectiveAdapter */
+/* unused harmony export KeyOptions */
+/* unused harmony export ResponsiveActivation */
+/* unused harmony export LayoutDirective */
+/* unused harmony export LayoutAlignDirective */
+/* unused harmony export LayoutGapDirective */
+/* unused harmony export FlexDirective */
+/* unused harmony export FlexAlignDirective */
+/* unused harmony export FlexFillDirective */
+/* unused harmony export FlexOffsetDirective */
+/* unused harmony export FlexOrderDirective */
+/* unused harmony export ClassDirective */
+/* unused harmony export StyleDirective */
+/* unused harmony export negativeOf */
+/* unused harmony export ShowHideDirective */
+/* unused harmony export ImgSrcDirective */
+/* unused harmony export RESPONSIVE_ALIASES */
+/* unused harmony export DEFAULT_BREAKPOINTS */
+/* unused harmony export ScreenTypes */
+/* unused harmony export ORIENTATION_BREAKPOINTS */
+/* unused harmony export BREAKPOINTS */
+/* unused harmony export BreakPointRegistry */
+/* unused harmony export ObservableMedia */
+/* unused harmony export MediaService */
+/* unused harmony export MatchMedia */
+/* unused harmony export MediaChange */
+/* unused harmony export MediaMonitor */
+/* unused harmony export buildMergedBreakPoints */
+/* unused harmony export DEFAULT_BREAKPOINTS_PROVIDER_FACTORY */
+/* unused harmony export DEFAULT_BREAKPOINTS_PROVIDER */
+/* unused harmony export CUSTOM_BREAKPOINTS_PROVIDER_FACTORY */
+/* unused harmony export OBSERVABLE_MEDIA_PROVIDER_FACTORY */
+/* unused harmony export OBSERVABLE_MEDIA_PROVIDER */
+/* unused harmony export MEDIA_MONITOR_PROVIDER_FACTORY */
+/* unused harmony export MEDIA_MONITOR_PROVIDER */
+/* unused harmony export ServerMediaQueryList */
+/* unused harmony export ServerMatchMedia */
+/* unused harmony export MediaQueriesModule */
+/* unused harmony export mergeAlias */
+/* unused harmony export applyCssPrefixes */
+/* unused harmony export validateBasis */
+/* unused harmony export INLINE */
+/* unused harmony export LAYOUT_VALUES */
+/* unused harmony export buildLayoutCSS */
+/* unused harmony export validateValue */
+/* unused harmony export isFlowHorizontal */
+/* unused harmony export validateWrapValue */
+/* unused harmony export validateSuffixes */
+/* unused harmony export mergeByAlias */
+/* unused harmony export extendObject */
+/* unused harmony export StyleUtils */
+/* unused harmony export NgStyleKeyValue */
+/* unused harmony export ngStyleUtils */
+/* unused harmony export removeStyles */
+/* unused harmony export BROWSER_PROVIDER */
+/* unused harmony export CLASS_NAME */
+/* unused harmony export ServerStylesheet */
+/* unused harmony export SERVER_TOKEN */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FlexLayoutModule; });
+/* unused harmony export ɵc */
+/* unused harmony export ɵd */
+/* unused harmony export ɵa */
+/* unused harmony export ɵb */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_operators_map__ = __webpack_require__("../../../../rxjs/_esm5/operators/map.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_BehaviorSubject__ = __webpack_require__("../../../../rxjs/_esm5/BehaviorSubject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operators_filter__ = __webpack_require__("../../../../rxjs/_esm5/operators/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_ReplaySubject__ = __webpack_require__("../../../../rxjs/_esm5/ReplaySubject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__angular_platform_browser__ = __webpack_require__("../../../platform-browser/esm5/platform-browser.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Current version of Angular Flex-Layout.
+ */
+var VERSION = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_7" /* Version */]('2.0.0-beta.12-8bdc586');
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var INLINE = 'inline';
+var LAYOUT_VALUES = ['row', 'column', 'row-reverse', 'column-reverse'];
+/**
+ * Validate the direction|'direction wrap' value and then update the host's inline flexbox styles
+ * @param {?} value
+ * @return {?}
+ */
+function buildLayoutCSS(value) {
+    var _a = validateValue(value), direction = _a[0], wrap = _a[1], isInline = _a[2];
+    return buildCSS(direction, wrap, isInline);
+}
+/**
+ * Validate the value to be one of the acceptable value options
+ * Use default fallback of 'row'
+ * @param {?} value
+ * @return {?}
+ */
+function validateValue(value) {
+    value = value ? value.toLowerCase() : '';
+    var _a = value.split(' '), direction = _a[0], wrap = _a[1], inline = _a[2];
+    // First value must be the `flex-direction`
+    if (!LAYOUT_VALUES.find(function (x) { return x === direction; })) {
+        direction = LAYOUT_VALUES[0];
+    }
+    if (wrap === INLINE) {
+        wrap = (inline !== INLINE) ? inline : '';
+        inline = INLINE;
+    }
+    return [direction, validateWrapValue(wrap), !!inline];
+}
+/**
+ * Determine if the validated, flex-direction value specifies
+ * a horizontal/row flow.
+ * @param {?} value
+ * @return {?}
+ */
+function isFlowHorizontal(value) {
+    var flow = validateValue(value)[0];
+    return flow.indexOf('row') > -1;
+}
+/**
+ * Convert layout-wrap='<value>' to expected flex-wrap style
+ * @param {?} value
+ * @return {?}
+ */
+function validateWrapValue(value) {
+    if (!!value) {
+        switch (value.toLowerCase()) {
+            case 'reverse':
+            case 'wrap-reverse':
+            case 'reverse-wrap':
+                value = 'wrap-reverse';
+                break;
+            case 'no':
+            case 'none':
+            case 'nowrap':
+                value = 'nowrap';
+                break;
+            // All other values fallback to 'wrap'
+            default:
+                value = 'wrap';
+                break;
+        }
+    }
+    return value;
+}
+/**
+ * Build the CSS that should be assigned to the element instance
+ * BUG:
+ *   1) min-height on a column flex container won’t apply to its flex item children in IE 10-11.
+ *      Use height instead if possible; height : <xxx>vh;
+ *
+ *  This way any padding or border specified on the child elements are
+ *  laid out and drawn inside that element's specified width and height.
+ * @param {?} direction
+ * @param {?=} wrap
+ * @param {?=} inline
+ * @return {?}
+ */
+function buildCSS(direction, wrap, inline) {
+    if (wrap === void 0) { wrap = null; }
+    if (inline === void 0) { inline = false; }
+    return {
+        'display': inline ? 'inline-flex' : 'flex',
+        'box-sizing': 'border-box',
+        'flex-direction': direction,
+        'flex-wrap': !!wrap ? wrap : null
+    };
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Extends an object with the *enumerable* and *own* properties of one or more source objects,
+ * similar to Object.assign.
+ *
+ * @param {?} dest The object which will have properties copied to it.
+ * @param {...?} sources The source objects from which properties will be copied.
+ * @return {?}
+ */
+function extendObject(dest) {
+    var sources = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        sources[_i - 1] = arguments[_i];
+    }
+    if (dest == null) {
+        throw TypeError('Cannot convert undefined or null to object');
+    }
+    for (var _a = 0, sources_1 = sources; _a < sources_1.length; _a++) {
+        var source = sources_1[_a];
+        if (source != null) {
+            for (var /** @type {?} */ key in source) {
+                if (source.hasOwnProperty(key)) {
+                    dest[key] = source[key];
+                }
+            }
+        }
+    }
+    return dest;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * @record
+ */
+
+var KeyOptions = /** @class */ (function () {
+    function KeyOptions(baseKey, defaultValue, inputKeys) {
+        this.baseKey = baseKey;
+        this.defaultValue = defaultValue;
+        this.inputKeys = inputKeys;
+    }
+    return KeyOptions;
+}());
+/**
+ * ResponsiveActivation acts as a proxy between the MonitorMedia service (which emits mediaQuery
+ * changes) and the fx API directives. The MQA proxies mediaQuery change events and notifies the
+ * directive via the specified callback.
+ *
+ * - The MQA also determines which directive property should be used to determine the
+ *   current change 'value'... BEFORE the original `onMediaQueryChanges()` method is called.
+ * - The `ngOnDestroy()` method is also head-hooked to enable auto-unsubscribe from the
+ *   MediaQueryServices.
+ *
+ * NOTE: these interceptions enables the logic in the fx API directives to remain terse and clean.
+ */
+var ResponsiveActivation = /** @class */ (function () {
+    /**
+     * Constructor
+     */
+    function ResponsiveActivation(_options, _mediaMonitor, _onMediaChanges) {
+        this._options = _options;
+        this._mediaMonitor = _mediaMonitor;
+        this._onMediaChanges = _onMediaChanges;
+        this._subscribers = [];
+        this._registryMap = this._buildRegistryMap();
+        this._subscribers = this._configureChangeObservers();
+    }
+    Object.defineProperty(ResponsiveActivation.prototype, "registryFromLargest", {
+        /**
+         * Get a readonly sorted list of the breakpoints corresponding to the directive properties
+         * defined in the HTML markup: the sorting is done from largest to smallest. The order is
+         * important when several media queries are 'registered' and from which, the browser uses the
+         * first matching media query.
+         */
+        get: /**
+         * Get a readonly sorted list of the breakpoints corresponding to the directive properties
+         * defined in the HTML markup: the sorting is done from largest to smallest. The order is
+         * important when several media queries are 'registered' and from which, the browser uses the
+         * first matching media query.
+         * @return {?}
+         */
+        function () {
+            return this._registryMap.slice().reverse();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ResponsiveActivation.prototype, "mediaMonitor", {
+        /**
+         * Accessor to the DI'ed directive property
+         * Each directive instance has a reference to the MediaMonitor which is
+         * used HERE to subscribe to mediaQuery change notifications.
+         */
+        get: /**
+         * Accessor to the DI'ed directive property
+         * Each directive instance has a reference to the MediaMonitor which is
+         * used HERE to subscribe to mediaQuery change notifications.
+         * @return {?}
+         */
+        function () {
+            return this._mediaMonitor;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ResponsiveActivation.prototype, "activatedInputKey", {
+        /**
+         * Determine which directive @Input() property is currently active (for the viewport size):
+         * The key must be defined (in use) or fallback to the 'closest' overlapping property key
+         * that is defined; otherwise the default property key will be used.
+         * e.g.
+         *      if `<div fxHide fxHide.gt-sm="false">` is used but the current activated mediaQuery alias
+         *      key is `.md` then `.gt-sm` should be used instead
+         */
+        get: /**
+         * Determine which directive \@Input() property is currently active (for the viewport size):
+         * The key must be defined (in use) or fallback to the 'closest' overlapping property key
+         * that is defined; otherwise the default property key will be used.
+         * e.g.
+         *      if `<div fxHide fxHide.gt-sm="false">` is used but the current activated mediaQuery alias
+         *      key is `.md` then `.gt-sm` should be used instead
+         * @return {?}
+         */
+        function () {
+            return this._activatedInputKey || this._options.baseKey;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ResponsiveActivation.prototype, "activatedInput", {
+        /**
+         * Get the currently activated @Input value or the fallback default @Input value
+         */
+        get: /**
+         * Get the currently activated \@Input value or the fallback default \@Input value
+         * @return {?}
+         */
+        function () {
+            var /** @type {?} */ key = this.activatedInputKey;
+            return this.hasKeyValue(key) ? this._lookupKeyValue(key) : this._options.defaultValue;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Fast validator for presence of attribute on the host element
+     */
+    /**
+     * Fast validator for presence of attribute on the host element
+     * @param {?} key
+     * @return {?}
+     */
+    ResponsiveActivation.prototype.hasKeyValue = /**
+     * Fast validator for presence of attribute on the host element
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        var /** @type {?} */ value = this._options.inputKeys[key];
+        return typeof value !== 'undefined';
+    };
+    /**
+     * Remove interceptors, restore original functions, and forward the onDestroy() call
+     */
+    /**
+     * Remove interceptors, restore original functions, and forward the onDestroy() call
+     * @return {?}
+     */
+    ResponsiveActivation.prototype.destroy = /**
+     * Remove interceptors, restore original functions, and forward the onDestroy() call
+     * @return {?}
+     */
+    function () {
+        this._subscribers.forEach(function (link) {
+            link.unsubscribe();
+        });
+        this._subscribers = [];
+    };
+    /**
+     * For each *defined* API property, register a callback to `_onMonitorEvents( )`
+     * Cache 1..n subscriptions for internal auto-unsubscribes when the the directive destructs
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._configureChangeObservers = /**
+     * For each *defined* API property, register a callback to `_onMonitorEvents( )`
+     * Cache 1..n subscriptions for internal auto-unsubscribes when the the directive destructs
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ subscriptions = [];
+        this._registryMap.forEach(function (bp) {
+            if (_this._keyInUse(bp.key)) {
+                // Inject directive default property key name: to let onMediaChange() calls
+                // know which property is being triggered...
+                var /** @type {?} */ buildChanges = function (change) {
+                    change = change.clone();
+                    change.property = _this._options.baseKey;
+                    return change;
+                };
+                subscriptions.push(_this.mediaMonitor
+                    .observe(bp.alias)
+                    .pipe(Object(__WEBPACK_IMPORTED_MODULE_1_rxjs_operators_map__["a" /* map */])(buildChanges))
+                    .subscribe(function (change) {
+                    _this._onMonitorEvents(change);
+                }));
+            }
+        });
+        return subscriptions;
+    };
+    /**
+     * Build mediaQuery key-hashmap; only for the directive properties that are actually defined/used
+     * in the HTML markup
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._buildRegistryMap = /**
+     * Build mediaQuery key-hashmap; only for the directive properties that are actually defined/used
+     * in the HTML markup
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        return this.mediaMonitor.breakpoints
+            .map(function (bp) {
+            return /** @type {?} */ (extendObject({}, bp, {
+                baseKey: _this._options.baseKey,
+                // e.g. layout, hide, self-align, flex-wrap
+                key: _this._options.baseKey + bp.suffix // e.g.  layoutGtSm, layoutMd, layoutGtLg
+            }));
+        })
+            .filter(function (bp) { return _this._keyInUse(bp.key); });
+    };
+    /**
+     * Synchronizes change notifications with the current mq-activated @Input and calculates the
+     * mq-activated input value or the default value
+     */
+    /**
+     * Synchronizes change notifications with the current mq-activated \@Input and calculates the
+     * mq-activated input value or the default value
+     * @param {?} change
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._onMonitorEvents = /**
+     * Synchronizes change notifications with the current mq-activated \@Input and calculates the
+     * mq-activated input value or the default value
+     * @param {?} change
+     * @return {?}
+     */
+    function (change) {
+        if (change.property == this._options.baseKey) {
+            change.value = this._calculateActivatedValue(change);
+            this._onMediaChanges(change);
+        }
+    };
+    /**
+     * Has the key been specified in the HTML markup and thus is intended
+     * to participate in activation processes.
+     * @param {?} key
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._keyInUse = /**
+     * Has the key been specified in the HTML markup and thus is intended
+     * to participate in activation processes.
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        return this._lookupKeyValue(key) !== undefined;
+    };
+    /**
+     *  Map input key associated with mediaQuery activation to closest defined input key
+     *  then return the values associated with the targeted input property
+     *
+     *  !! change events may arrive out-of-order (activate before deactivate)
+     *     so make sure the deactivate is used ONLY when the keys match
+     *     (since a different activate may be in use)
+     * @param {?} current
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._calculateActivatedValue = /**
+     *  Map input key associated with mediaQuery activation to closest defined input key
+     *  then return the values associated with the targeted input property
+     *
+     *  !! change events may arrive out-of-order (activate before deactivate)
+     *     so make sure the deactivate is used ONLY when the keys match
+     *     (since a different activate may be in use)
+     * @param {?} current
+     * @return {?}
+     */
+    function (current) {
+        var /** @type {?} */ currentKey = this._options.baseKey + current.suffix; // e.g. suffix == 'GtSm',
+        var /** @type {?} */ newKey = this._activatedInputKey; // e.g. newKey == hideGtSm
+        newKey = current.matches ? currentKey : ((newKey == currentKey) ? '' : newKey);
+        this._activatedInputKey = this._validateInputKey(newKey);
+        return this.activatedInput;
+    };
+    /**
+     * For the specified input property key, validate it is defined (used in the markup)
+     * If not see if a overlapping mediaQuery-related input key fallback has been defined
+     *
+     * NOTE: scans in the order defined by activeOverLaps (largest viewport ranges -> smallest ranges)
+     * @param {?} inputKey
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._validateInputKey = /**
+     * For the specified input property key, validate it is defined (used in the markup)
+     * If not see if a overlapping mediaQuery-related input key fallback has been defined
+     *
+     * NOTE: scans in the order defined by activeOverLaps (largest viewport ranges -> smallest ranges)
+     * @param {?} inputKey
+     * @return {?}
+     */
+    function (inputKey) {
+        var _this = this;
+        var /** @type {?} */ isMissingKey = function (key) { return !_this._keyInUse(key); };
+        if (isMissingKey(inputKey)) {
+            this.mediaMonitor.activeOverlaps.some(function (bp) {
+                var /** @type {?} */ key = _this._options.baseKey + bp.suffix;
+                if (!isMissingKey(key)) {
+                    inputKey = key;
+                    return true; // exit .some()
+                }
+                return false;
+            });
+        }
+        return inputKey;
+    };
+    /**
+     * Get the value (if any) for the directive instances \@Input property (aka key)
+     * @param {?} key
+     * @return {?}
+     */
+    ResponsiveActivation.prototype._lookupKeyValue = /**
+     * Get the value (if any) for the directive instances \@Input property (aka key)
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        return this._options.inputKeys[key];
+    };
+    return ResponsiveActivation;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Abstract base class for the Layout API styling directives.
+ * @abstract
+ */
+var BaseFxDirective = /** @class */ (function () {
+    /**
+     * Constructor
+     */
+    function BaseFxDirective(_mediaMonitor, _elementRef, _styler) {
+        this._mediaMonitor = _mediaMonitor;
+        this._elementRef = _elementRef;
+        this._styler = _styler;
+        /**
+         *  Dictionary of input keys with associated values
+         */
+        this._inputMap = {};
+        /**
+         * Has the `ngOnInit()` method fired
+         *
+         * Used to allow *ngFor tasks to finish and support queries like
+         * getComputedStyle() during ngOnInit().
+         */
+        this._hasInitialized = false;
+    }
+    Object.defineProperty(BaseFxDirective.prototype, "hasMediaQueryListener", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return !!this._mqActivation;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BaseFxDirective.prototype, "activatedValue", {
+        /**
+         * Imperatively determine the current activated [input] value;
+         * if called before ngOnInit() this will return `undefined`
+         */
+        get: /**
+         * Imperatively determine the current activated [input] value;
+         * if called before ngOnInit() this will return `undefined`
+         * @return {?}
+         */
+        function () {
+            return this._mqActivation ? this._mqActivation.activatedInput : undefined;
+        },
+        /**
+         * Change the currently activated input value and force-update
+         * the injected CSS (by-passing change detection).
+         *
+         * NOTE: Only the currently activated input value will be modified;
+         *       other input values will NOT be affected.
+         */
+        set: /**
+         * Change the currently activated input value and force-update
+         * the injected CSS (by-passing change detection).
+         *
+         * NOTE: Only the currently activated input value will be modified;
+         *       other input values will NOT be affected.
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) {
+            var /** @type {?} */ key = 'baseKey', /** @type {?} */ previousVal;
+            if (this._mqActivation) {
+                key = this._mqActivation.activatedInputKey;
+                previousVal = this._inputMap[key];
+                this._inputMap[key] = value;
+            }
+            var /** @type {?} */ change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_1" /* SimpleChange */](previousVal, value, false);
+            this.ngOnChanges(/** @type {?} */ (_a = {}, _a[key] = change, _a));
+            var _a;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BaseFxDirective.prototype, "parentElement", {
+        // *********************************************
+        // Accessor Methods
+        // *********************************************
+        /**
+         * Access to host element's parent DOM node
+         */
+        get: /**
+         * Access to host element's parent DOM node
+         * @return {?}
+         */
+        function () {
+            return this._elementRef.nativeElement.parentNode;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BaseFxDirective.prototype, "nativeElement", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this._elementRef.nativeElement;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Access the current value (if any) of the @Input property.
+     */
+    /**
+     * Access the current value (if any) of the \@Input property.
+     * @param {?} key
+     * @return {?}
+     */
+    BaseFxDirective.prototype._queryInput = /**
+     * Access the current value (if any) of the \@Input property.
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        return this._inputMap[key];
+    };
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * Use post-component-initialization event to perform extra
+     * querying such as computed Display style
+     */
+    /**
+     * Use post-component-initialization event to perform extra
+     * querying such as computed Display style
+     * @return {?}
+     */
+    BaseFxDirective.prototype.ngOnInit = /**
+     * Use post-component-initialization event to perform extra
+     * querying such as computed Display style
+     * @return {?}
+     */
+    function () {
+        this._display = this._getDisplayStyle();
+        this._hasInitialized = true;
+    };
+    /**
+     * @param {?} change
+     * @return {?}
+     */
+    BaseFxDirective.prototype.ngOnChanges = /**
+     * @param {?} change
+     * @return {?}
+     */
+    function (change) {
+        throw new Error("BaseFxDirective::ngOnChanges should be overridden in subclass: " + change);
+    };
+    /**
+     * @return {?}
+     */
+    BaseFxDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        if (this._mqActivation) {
+            this._mqActivation.destroy();
+        }
+        delete this._mediaMonitor;
+    };
+    // *********************************************
+    // Protected Methods
+    // *********************************************
+    /**
+     * Was the directive's default selector used ?
+     * If not, use the fallback value!
+     */
+    /**
+     * Was the directive's default selector used ?
+     * If not, use the fallback value!
+     * @param {?} key
+     * @param {?} fallbackVal
+     * @return {?}
+     */
+    BaseFxDirective.prototype._getDefaultVal = /**
+     * Was the directive's default selector used ?
+     * If not, use the fallback value!
+     * @param {?} key
+     * @param {?} fallbackVal
+     * @return {?}
+     */
+    function (key, fallbackVal) {
+        var /** @type {?} */ val = this._queryInput(key);
+        var /** @type {?} */ hasDefaultVal = (val !== undefined && val !== null);
+        return (hasDefaultVal && val !== '') ? val : fallbackVal;
+    };
+    /**
+     * Quick accessor to the current HTMLElement's `display` style
+     * Note: this allows us to preserve the original style
+     * and optional restore it when the mediaQueries deactivate
+     */
+    /**
+     * Quick accessor to the current HTMLElement's `display` style
+     * Note: this allows us to preserve the original style
+     * and optional restore it when the mediaQueries deactivate
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirective.prototype._getDisplayStyle = /**
+     * Quick accessor to the current HTMLElement's `display` style
+     * Note: this allows us to preserve the original style
+     * and optional restore it when the mediaQueries deactivate
+     * @param {?=} source
+     * @return {?}
+     */
+    function (source) {
+        if (source === void 0) { source = this.nativeElement; }
+        var /** @type {?} */ query = 'display';
+        return this._styler.lookupStyle(source, query);
+    };
+    /**
+     * Quick accessor to raw attribute value on the target DOM element
+     */
+    /**
+     * Quick accessor to raw attribute value on the target DOM element
+     * @param {?} attribute
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirective.prototype._getAttributeValue = /**
+     * Quick accessor to raw attribute value on the target DOM element
+     * @param {?} attribute
+     * @param {?=} source
+     * @return {?}
+     */
+    function (attribute, source) {
+        if (source === void 0) { source = this.nativeElement; }
+        return this._styler.lookupAttributeValue(source, attribute);
+    };
+    /**
+     * Determine the DOM element's Flexbox flow (flex-direction).
+     *
+     * Check inline style first then check computed (stylesheet) style.
+     * And optionally add the flow value to element's inline style.
+     */
+    /**
+     * Determine the DOM element's Flexbox flow (flex-direction).
+     *
+     * Check inline style first then check computed (stylesheet) style.
+     * And optionally add the flow value to element's inline style.
+     * @param {?} target
+     * @param {?=} addIfMissing
+     * @return {?}
+     */
+    BaseFxDirective.prototype._getFlowDirection = /**
+     * Determine the DOM element's Flexbox flow (flex-direction).
+     *
+     * Check inline style first then check computed (stylesheet) style.
+     * And optionally add the flow value to element's inline style.
+     * @param {?} target
+     * @param {?=} addIfMissing
+     * @return {?}
+     */
+    function (target, addIfMissing) {
+        if (addIfMissing === void 0) { addIfMissing = false; }
+        var /** @type {?} */ value = 'row';
+        var /** @type {?} */ hasInlineValue = '';
+        if (target) {
+            _a = this._styler.getFlowDirection(target), value = _a[0], hasInlineValue = _a[1];
+            if (!hasInlineValue && addIfMissing) {
+                var /** @type {?} */ style = buildLayoutCSS(value);
+                var /** @type {?} */ elements = [target];
+                this._styler.applyStyleToElements(style, elements);
+            }
+        }
+        return value.trim() || 'row';
+        var _a;
+    };
+    /**
+     * Applies styles given via string pair or object map to the directive element.
+     */
+    /**
+     * Applies styles given via string pair or object map to the directive element.
+     * @param {?} style
+     * @param {?=} value
+     * @param {?=} element
+     * @return {?}
+     */
+    BaseFxDirective.prototype._applyStyleToElement = /**
+     * Applies styles given via string pair or object map to the directive element.
+     * @param {?} style
+     * @param {?=} value
+     * @param {?=} element
+     * @return {?}
+     */
+    function (style, value, element) {
+        if (element === void 0) { element = this.nativeElement; }
+        this._styler.applyStyleToElement(element, style, value);
+    };
+    /**
+     * Applies styles given via string pair or object map to the directive's element.
+     */
+    /**
+     * Applies styles given via string pair or object map to the directive's element.
+     * @param {?} style
+     * @param {?} elements
+     * @return {?}
+     */
+    BaseFxDirective.prototype._applyStyleToElements = /**
+     * Applies styles given via string pair or object map to the directive's element.
+     * @param {?} style
+     * @param {?} elements
+     * @return {?}
+     */
+    function (style, elements) {
+        this._styler.applyStyleToElements(style, elements);
+    };
+    /**
+     *  Save the property value; which may be a complex object.
+     *  Complex objects support property chains
+     */
+    /**
+     *  Save the property value; which may be a complex object.
+     *  Complex objects support property chains
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirective.prototype._cacheInput = /**
+     *  Save the property value; which may be a complex object.
+     *  Complex objects support property chains
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    function (key, source) {
+        if (typeof source === 'object') {
+            for (var /** @type {?} */ prop in source) {
+                this._inputMap[prop] = source[prop];
+            }
+        }
+        else {
+            if (!!key) {
+                this._inputMap[key] = source;
+            }
+        }
+    };
+    /**
+     *  Build a ResponsiveActivation object used to manage subscriptions to mediaChange notifications
+     *  and intelligent lookup of the directive's property value that corresponds to that mediaQuery
+     *  (or closest match).
+     */
+    /**
+     *  Build a ResponsiveActivation object used to manage subscriptions to mediaChange notifications
+     *  and intelligent lookup of the directive's property value that corresponds to that mediaQuery
+     *  (or closest match).
+     * @param {?} key
+     * @param {?} defaultValue
+     * @param {?} onMediaQueryChange
+     * @return {?}
+     */
+    BaseFxDirective.prototype._listenForMediaQueryChanges = /**
+     *  Build a ResponsiveActivation object used to manage subscriptions to mediaChange notifications
+     *  and intelligent lookup of the directive's property value that corresponds to that mediaQuery
+     *  (or closest match).
+     * @param {?} key
+     * @param {?} defaultValue
+     * @param {?} onMediaQueryChange
+     * @return {?}
+     */
+    function (key, defaultValue, onMediaQueryChange) {
+        // tslint:disable-line:max-line-length
+        if (!this._mqActivation) {
+            var /** @type {?} */ keyOptions = new KeyOptions(key, defaultValue, this._inputMap);
+            this._mqActivation = new ResponsiveActivation(keyOptions, this._mediaMonitor, function (change) { return onMediaQueryChange(change); });
+        }
+        return this._mqActivation;
+    };
+    Object.defineProperty(BaseFxDirective.prototype, "childrenNodes", {
+        /**
+         * Special accessor to query for all child 'element' nodes regardless of type, class, etc.
+         */
+        get: /**
+         * Special accessor to query for all child 'element' nodes regardless of type, class, etc.
+         * @return {?}
+         */
+        function () {
+            var /** @type {?} */ obj = this.nativeElement.children;
+            var /** @type {?} */ buffer = [];
+            // iterate backwards ensuring that length is an UInt32
+            for (var /** @type {?} */ i = obj.length; i--;) {
+                buffer[i] = obj[i];
+            }
+            return buffer;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Does this directive have 1 or more responsive keys defined
+     * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+     */
+    /**
+     * Does this directive have 1 or more responsive keys defined
+     * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+     * @param {?} baseKey
+     * @return {?}
+     */
+    BaseFxDirective.prototype.hasResponsiveAPI = /**
+     * Does this directive have 1 or more responsive keys defined
+     * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+     * @param {?} baseKey
+     * @return {?}
+     */
+    function (baseKey) {
+        var /** @type {?} */ totalKeys = Object.keys(this._inputMap).length;
+        var /** @type {?} */ baseValue = this._inputMap[baseKey];
+        return (totalKeys - (!!baseValue ? 1 : 0)) > 0;
+    };
+    /**
+     * Fast validator for presence of attribute on the host element
+     */
+    /**
+     * Fast validator for presence of attribute on the host element
+     * @param {?} key
+     * @return {?}
+     */
+    BaseFxDirective.prototype.hasKeyValue = /**
+     * Fast validator for presence of attribute on the host element
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        return this._mqActivation.hasKeyValue(key);
+    };
+    Object.defineProperty(BaseFxDirective.prototype, "hasInitialized", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this._hasInitialized;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return BaseFxDirective;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Adapter to the BaseFxDirective abstract class so it can be used via composition.
+ * @see BaseFxDirective
+ */
+var BaseFxDirectiveAdapter = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(BaseFxDirectiveAdapter, _super);
+    /**
+     * BaseFxDirectiveAdapter constructor
+     */
+    function BaseFxDirectiveAdapter(_baseKey, // non-responsive @Input property name
+        // non-responsive @Input property name
+        _mediaMonitor, _elementRef, _styler) {
+        var _this = _super.call(this, _mediaMonitor, _elementRef, _styler) || this;
+        _this._baseKey = _baseKey;
+        _this._mediaMonitor = _mediaMonitor;
+        _this._elementRef = _elementRef;
+        _this._styler = _styler;
+        return _this;
+    }
+    Object.defineProperty(BaseFxDirectiveAdapter.prototype, "activeKey", {
+        /**
+         * Accessor to determine which @Input property is "active"
+         * e.g. which property value will be used.
+         */
+        get: /**
+         * Accessor to determine which \@Input property is "active"
+         * e.g. which property value will be used.
+         * @return {?}
+         */
+        function () {
+            var /** @type {?} */ mqa = this._mqActivation;
+            var /** @type {?} */ key = mqa ? mqa.activatedInputKey : this._baseKey;
+            // Note: ClassDirective::SimpleChanges uses 'klazz' instead of 'class' as a key
+            return (key === 'class') ? 'klazz' : key;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BaseFxDirectiveAdapter.prototype, "inputMap", {
+        /** Hash map of all @Input keys/values defined/used */
+        get: /**
+         * Hash map of all \@Input keys/values defined/used
+         * @return {?}
+         */
+        function () {
+            return this._inputMap;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BaseFxDirectiveAdapter.prototype, "mqActivation", {
+        /**
+         * @see BaseFxDirective._mqActivation
+         */
+        get: /**
+         * @see BaseFxDirective._mqActivation
+         * @return {?}
+         */
+        function () {
+            return this._mqActivation;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+      * Does this directive have 1 or more responsive keys defined
+      * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+      */
+    /**
+     * Does this directive have 1 or more responsive keys defined
+     * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype.hasResponsiveAPI = /**
+     * Does this directive have 1 or more responsive keys defined
+     * Note: we exclude the 'baseKey' key (which is NOT considered responsive)
+     * @return {?}
+     */
+    function () {
+        return _super.prototype.hasResponsiveAPI.call(this, this._baseKey);
+    };
+    /**
+     * @see BaseFxDirective._queryInput
+     */
+    /**
+     * @see BaseFxDirective._queryInput
+     * @param {?} key
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype.queryInput = /**
+     * @see BaseFxDirective._queryInput
+     * @param {?} key
+     * @return {?}
+     */
+    function (key) {
+        return key ? this._queryInput(key) : undefined;
+    };
+    /**
+     *  Save the property value.
+     */
+    /**
+     *  Save the property value.
+     * @param {?=} key
+     * @param {?=} source
+     * @param {?=} cacheRaw
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype.cacheInput = /**
+     *  Save the property value.
+     * @param {?=} key
+     * @param {?=} source
+     * @param {?=} cacheRaw
+     * @return {?}
+     */
+    function (key, source, cacheRaw) {
+        if (cacheRaw === void 0) { cacheRaw = false; }
+        if (cacheRaw) {
+            this._cacheInputRaw(key, source);
+        }
+        else if (Array.isArray(source)) {
+            this._cacheInputArray(key, source);
+        }
+        else if (typeof source === 'object') {
+            this._cacheInputObject(key, source);
+        }
+        else if (typeof source === 'string') {
+            this._cacheInputString(key, source);
+        }
+        else {
+            throw new Error("Invalid class value '" + key + "' provided. Did you want to cache the raw value?");
+        }
+    };
+    /**
+     * @see BaseFxDirective._listenForMediaQueryChanges
+     */
+    /**
+     * @see BaseFxDirective._listenForMediaQueryChanges
+     * @param {?} key
+     * @param {?} defaultValue
+     * @param {?} onMediaQueryChange
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype.listenForMediaQueryChanges = /**
+     * @see BaseFxDirective._listenForMediaQueryChanges
+     * @param {?} key
+     * @param {?} defaultValue
+     * @param {?} onMediaQueryChange
+     * @return {?}
+     */
+    function (key, defaultValue, onMediaQueryChange) {
+        return this._listenForMediaQueryChanges(key, defaultValue, onMediaQueryChange);
+    };
+    // ************************************************************
+    // Protected Methods
+    // ************************************************************
+    /**
+     * No implicit transforms of the source.
+     * Required when caching values expected later for KeyValueDiffers
+     */
+    /**
+     * No implicit transforms of the source.
+     * Required when caching values expected later for KeyValueDiffers
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype._cacheInputRaw = /**
+     * No implicit transforms of the source.
+     * Required when caching values expected later for KeyValueDiffers
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    function (key, source) {
+        if (key) {
+            this._inputMap[key] = source;
+        }
+    };
+    /**
+     *  Save the property value for Array values.
+     */
+    /**
+     *  Save the property value for Array values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype._cacheInputArray = /**
+     *  Save the property value for Array values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    function (key, source) {
+        if (key === void 0) { key = ''; }
+        this._inputMap[key] = source ? source.join(' ') : '';
+    };
+    /**
+     *  Save the property value for key/value pair values.
+     */
+    /**
+     *  Save the property value for key/value pair values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype._cacheInputObject = /**
+     *  Save the property value for key/value pair values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    function (key, source) {
+        if (key === void 0) { key = ''; }
+        var /** @type {?} */ classes = [];
+        if (source) {
+            for (var /** @type {?} */ prop in source) {
+                if (!!source[prop]) {
+                    classes.push(prop);
+                }
+            }
+        }
+        this._inputMap[key] = classes.join(' ');
+    };
+    /**
+     *  Save the property value for string values.
+     */
+    /**
+     *  Save the property value for string values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    BaseFxDirectiveAdapter.prototype._cacheInputString = /**
+     *  Save the property value for string values.
+     * @param {?=} key
+     * @param {?=} source
+     * @return {?}
+     */
+    function (key, source) {
+        if (key === void 0) { key = ''; }
+        this._inputMap[key] = source;
+    };
+    return BaseFxDirectiveAdapter;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ *  Injection token unique to the flex-layout library.
+ *  Use this token when build a custom provider (see below).
+ */
+var BREAKPOINTS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('Token (@angular/flex-layout) Breakpoints');
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Registry of 1..n MediaQuery breakpoint ranges
+ * This is published as a provider and may be overriden from custom, application-specific ranges
+ *
+ */
+var BreakPointRegistry = /** @class */ (function () {
+    function BreakPointRegistry(_registry) {
+        this._registry = _registry;
+    }
+    Object.defineProperty(BreakPointRegistry.prototype, "items", {
+        /**
+         * Accessor to raw list
+         */
+        get: /**
+         * Accessor to raw list
+         * @return {?}
+         */
+        function () {
+            return this._registry.slice();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BreakPointRegistry.prototype, "sortedItems", {
+        /**
+         * Accessor to sorted list used for registration with matchMedia API
+         *
+         * NOTE: During breakpoint registration, we want to register the overlaps FIRST
+         *       so the non-overlaps will trigger the MatchMedia:BehaviorSubject last!
+         *       And the largest, non-overlap, matching breakpoint should be the lastReplay value
+         */
+        get: /**
+         * Accessor to sorted list used for registration with matchMedia API
+         *
+         * NOTE: During breakpoint registration, we want to register the overlaps FIRST
+         *       so the non-overlaps will trigger the MatchMedia:BehaviorSubject last!
+         *       And the largest, non-overlap, matching breakpoint should be the lastReplay value
+         * @return {?}
+         */
+        function () {
+            var /** @type {?} */ overlaps = this._registry.filter(function (it) { return it.overlapping === true; });
+            var /** @type {?} */ nonOverlaps = this._registry.filter(function (it) { return it.overlapping !== true; });
+            return overlaps.concat(nonOverlaps);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Search breakpoints by alias (e.g. gt-xs)
+     */
+    /**
+     * Search breakpoints by alias (e.g. gt-xs)
+     * @param {?} alias
+     * @return {?}
+     */
+    BreakPointRegistry.prototype.findByAlias = /**
+     * Search breakpoints by alias (e.g. gt-xs)
+     * @param {?} alias
+     * @return {?}
+     */
+    function (alias) {
+        return this._registry.find(function (bp) { return bp.alias == alias; }) || null;
+    };
+    /**
+     * @param {?} query
+     * @return {?}
+     */
+    BreakPointRegistry.prototype.findByQuery = /**
+     * @param {?} query
+     * @return {?}
+     */
+    function (query) {
+        return this._registry.find(function (bp) { return bp.mediaQuery == query; }) || null;
+    };
+    Object.defineProperty(BreakPointRegistry.prototype, "overlappings", {
+        /**
+         * Get all the breakpoints whose ranges could overlapping `normal` ranges;
+         * e.g. gt-sm overlaps md, lg, and xl
+         */
+        get: /**
+         * Get all the breakpoints whose ranges could overlapping `normal` ranges;
+         * e.g. gt-sm overlaps md, lg, and xl
+         * @return {?}
+         */
+        function () {
+            return this._registry.filter(function (it) { return it.overlapping == true; });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BreakPointRegistry.prototype, "aliases", {
+        /**
+         * Get list of all registered (non-empty) breakpoint aliases
+         */
+        get: /**
+         * Get list of all registered (non-empty) breakpoint aliases
+         * @return {?}
+         */
+        function () {
+            return this._registry.map(function (it) { return it.alias; });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BreakPointRegistry.prototype, "suffixes", {
+        /**
+         * Aliases are mapped to properties using suffixes
+         * e.g.  'gt-sm' for property 'layout'  uses suffix 'GtSm'
+         * for property layoutGtSM.
+         */
+        get: /**
+         * Aliases are mapped to properties using suffixes
+         * e.g.  'gt-sm' for property 'layout'  uses suffix 'GtSm'
+         * for property layoutGtSM.
+         * @return {?}
+         */
+        function () {
+            return this._registry.map(function (it) { return !!it.suffix ? it.suffix : ''; });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    BreakPointRegistry.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    BreakPointRegistry.ctorParameters = function () { return [
+        { type: Array, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [BREAKPOINTS,] },] },
+    ]; };
+    return BreakPointRegistry;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Class instances emitted [to observers] for each mql notification
+ */
+var MediaChange = /** @class */ (function () {
+    function MediaChange(matches, mediaQuery, mqAlias, suffix // e.g.   GtSM, Md, GtLg
+    ) {
+        if (matches === void 0) { matches = false; }
+        if (mediaQuery === void 0) { mediaQuery = 'all'; }
+        if (mqAlias === void 0) { mqAlias = ''; }
+        if (suffix === void 0) { suffix = ''; }
+        this.matches = matches;
+        this.mediaQuery = mediaQuery;
+        this.mqAlias = mqAlias;
+        this.suffix = suffix;
+    }
+    /**
+     * @return {?}
+     */
+    MediaChange.prototype.clone = /**
+     * @return {?}
+     */
+    function () {
+        return new MediaChange(this.matches, this.mediaQuery, this.mqAlias, this.suffix);
+    };
+    return MediaChange;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * MediaMonitor configures listeners to mediaQuery changes and publishes an Observable facade to
+ * convert mediaQuery change callbacks to subscriber notifications. These notifications will be
+ * performed within the ng Zone to trigger change detections and component updates.
+ *
+ * NOTE: both mediaQuery activations and de-activations are announced in notifications
+ */
+var MatchMedia = /** @class */ (function () {
+    function MatchMedia(_zone, _platformId, _document) {
+        this._zone = _zone;
+        this._platformId = _platformId;
+        this._document = _document;
+        this._registry = new Map();
+        this._source = new __WEBPACK_IMPORTED_MODULE_4_rxjs_BehaviorSubject__["a" /* BehaviorSubject */](new MediaChange(true));
+        this._observable$ = this._source.asObservable();
+    }
+    /**
+     * For the specified mediaQuery?
+     */
+    /**
+     * For the specified mediaQuery?
+     * @param {?} mediaQuery
+     * @return {?}
+     */
+    MatchMedia.prototype.isActive = /**
+     * For the specified mediaQuery?
+     * @param {?} mediaQuery
+     * @return {?}
+     */
+    function (mediaQuery) {
+        var /** @type {?} */ mql = this._registry.get(mediaQuery);
+        return !!mql ? mql.matches : false;
+    };
+    /**
+     * External observers can watch for all (or a specific) mql changes.
+     * Typically used by the MediaQueryAdaptor; optionally available to components
+     * who wish to use the MediaMonitor as mediaMonitor$ observable service.
+     *
+     * NOTE: if a mediaQuery is not specified, then ALL mediaQuery activations will
+     *       be announced.
+     */
+    /**
+     * External observers can watch for all (or a specific) mql changes.
+     * Typically used by the MediaQueryAdaptor; optionally available to components
+     * who wish to use the MediaMonitor as mediaMonitor$ observable service.
+     *
+     * NOTE: if a mediaQuery is not specified, then ALL mediaQuery activations will
+     *       be announced.
+     * @param {?=} mediaQuery
+     * @return {?}
+     */
+    MatchMedia.prototype.observe = /**
+     * External observers can watch for all (or a specific) mql changes.
+     * Typically used by the MediaQueryAdaptor; optionally available to components
+     * who wish to use the MediaMonitor as mediaMonitor$ observable service.
+     *
+     * NOTE: if a mediaQuery is not specified, then ALL mediaQuery activations will
+     *       be announced.
+     * @param {?=} mediaQuery
+     * @return {?}
+     */
+    function (mediaQuery) {
+        if (mediaQuery) {
+            this.registerQuery(mediaQuery);
+        }
+        return this._observable$.pipe(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_filter__["a" /* filter */])(function (change) {
+            return mediaQuery ? (change.mediaQuery === mediaQuery) : true;
+        }));
+    };
+    /**
+     * Based on the BreakPointRegistry provider, register internal listeners for each unique
+     * mediaQuery. Each listener emits specific MediaChange data to observers
+     */
+    /**
+     * Based on the BreakPointRegistry provider, register internal listeners for each unique
+     * mediaQuery. Each listener emits specific MediaChange data to observers
+     * @param {?} mediaQuery
+     * @return {?}
+     */
+    MatchMedia.prototype.registerQuery = /**
+     * Based on the BreakPointRegistry provider, register internal listeners for each unique
+     * mediaQuery. Each listener emits specific MediaChange data to observers
+     * @param {?} mediaQuery
+     * @return {?}
+     */
+    function (mediaQuery) {
+        var _this = this;
+        var /** @type {?} */ list = normalizeQuery(mediaQuery);
+        if (list.length > 0) {
+            this._prepareQueryCSS(list, this._document);
+            list.forEach(function (query) {
+                var /** @type {?} */ mql = _this._registry.get(query);
+                var /** @type {?} */ onMQLEvent = function (e) {
+                    _this._zone.run(function () {
+                        var /** @type {?} */ change = new MediaChange(e.matches, query);
+                        _this._source.next(change);
+                    });
+                };
+                if (!mql) {
+                    mql = _this._buildMQL(query);
+                    mql.addListener(onMQLEvent);
+                    _this._registry.set(query, mql);
+                }
+                if (mql.matches) {
+                    onMQLEvent(mql); // Announce activate range for initial subscribers
+                }
+            });
+        }
+    };
+    /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     */
+    /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     * @param {?} query
+     * @return {?}
+     */
+    MatchMedia.prototype._buildMQL = /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     * @param {?} query
+     * @return {?}
+     */
+    function (query) {
+        var /** @type {?} */ canListen = Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["f" /* isPlatformBrowser */])(this._platformId) &&
+            !!(/** @type {?} */ (window)).matchMedia('all').addListener;
+        return canListen ? (/** @type {?} */ (window)).matchMedia(query) : /** @type {?} */ ({
+            matches: query === 'all' || query === '',
+            media: query,
+            addListener: function () {
+            },
+            removeListener: function () {
+            }
+        });
+    };
+    /**
+     * For Webkit engines that only trigger the MediaQueryList Listener
+     * when there is at least one CSS selector for the respective media query.
+     *
+     * @param query string The mediaQuery used to create a faux CSS selector
+     *
+     */
+    /**
+     * For Webkit engines that only trigger the MediaQueryList Listener
+     * when there is at least one CSS selector for the respective media query.
+     *
+     * @param {?} mediaQueries
+     * @param {?} _document
+     * @return {?}
+     */
+    MatchMedia.prototype._prepareQueryCSS = /**
+     * For Webkit engines that only trigger the MediaQueryList Listener
+     * when there is at least one CSS selector for the respective media query.
+     *
+     * @param {?} mediaQueries
+     * @param {?} _document
+     * @return {?}
+     */
+    function (mediaQueries, _document) {
+        var /** @type {?} */ list = mediaQueries.filter(function (it) { return !ALL_STYLES[it]; });
+        if (list.length > 0) {
+            var /** @type {?} */ query = list.join(', ');
+            try {
+                var /** @type {?} */ styleEl_1 = _document.createElement('style');
+                styleEl_1.setAttribute('type', 'text/css');
+                if (!styleEl_1['styleSheet']) {
+                    var /** @type {?} */ cssText = "\n/*\n  @angular/flex-layout - workaround for possible browser quirk with mediaQuery listeners\n  see http://bit.ly/2sd4HMP\n*/\n@media " + query + " {.fx-query-test{ }}\n";
+                    styleEl_1.appendChild(_document.createTextNode(cssText));
+                }
+                _document.head.appendChild(styleEl_1);
+                // Store in private global registry
+                list.forEach(function (mq) { return ALL_STYLES[mq] = styleEl_1; });
+            }
+            catch (/** @type {?} */ e) {
+                console.error(e);
+            }
+        }
+    };
+    MatchMedia.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    MatchMedia.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: Object, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_3__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return MatchMedia;
+}());
+/**
+ * Private global registry for all dynamically-created, injected style tags
+ * @see prepare(query)
+ */
+var ALL_STYLES = {};
+/**
+ * Always convert to unique list of queries; for iteration in ::registerQuery()
+ * @param {?} mediaQuery
+ * @return {?}
+ */
+function normalizeQuery(mediaQuery) {
+    return (typeof mediaQuery === 'undefined') ? [] :
+        (typeof mediaQuery === 'string') ? [mediaQuery] : unique(/** @type {?} */ (mediaQuery));
+}
+/**
+ * Filter duplicate mediaQueries in the list
+ * @param {?} list
+ * @return {?}
+ */
+function unique(list) {
+    var /** @type {?} */ seen = {};
+    return list.filter(function (item) {
+        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+    });
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * For the specified MediaChange, make sure it contains the breakpoint alias
+ * and suffix (if available).
+ * @param {?} dest
+ * @param {?} source
+ * @return {?}
+ */
+function mergeAlias(dest, source) {
+    return extendObject(dest, source ? {
+        mqAlias: source.alias,
+        suffix: source.suffix
+    } : {});
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * MediaMonitor uses the MatchMedia service to observe mediaQuery changes (both activations and
+ * deactivations). These changes are are published as MediaChange notifications.
+ *
+ * Note: all notifications will be performed within the
+ * ng Zone to trigger change detections and component updates.
+ *
+ * It is the MediaMonitor that:
+ *  - auto registers all known breakpoints
+ *  - injects alias information into each raw MediaChange event
+ *  - provides accessor to the currently active BreakPoint
+ *  - publish list of overlapping BreakPoint(s); used by ResponsiveActivation
+ */
+var MediaMonitor = /** @class */ (function () {
+    function MediaMonitor(_breakpoints, _matchMedia) {
+        this._breakpoints = _breakpoints;
+        this._matchMedia = _matchMedia;
+        this._registerBreakpoints();
+    }
+    Object.defineProperty(MediaMonitor.prototype, "breakpoints", {
+        /**
+         * Read-only accessor to the list of breakpoints configured in the BreakPointRegistry provider
+         */
+        get: /**
+         * Read-only accessor to the list of breakpoints configured in the BreakPointRegistry provider
+         * @return {?}
+         */
+        function () {
+            return this._breakpoints.items.slice();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MediaMonitor.prototype, "activeOverlaps", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            var _this = this;
+            var /** @type {?} */ items = this._breakpoints.overlappings.reverse();
+            return items.filter(function (bp) {
+                return _this._matchMedia.isActive(bp.mediaQuery);
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MediaMonitor.prototype, "active", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            var _this = this;
+            var /** @type {?} */ found = null, /** @type {?} */ items = this.breakpoints.reverse();
+            items.forEach(function (bp) {
+                if (bp.alias !== '') {
+                    if (!found && _this._matchMedia.isActive(bp.mediaQuery)) {
+                        found = bp;
+                    }
+                }
+            });
+            var /** @type {?} */ first = this.breakpoints[0];
+            return found || (this._matchMedia.isActive(first.mediaQuery) ? first : null);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * For the specified mediaQuery alias, is the mediaQuery range active?
+     */
+    /**
+     * For the specified mediaQuery alias, is the mediaQuery range active?
+     * @param {?} alias
+     * @return {?}
+     */
+    MediaMonitor.prototype.isActive = /**
+     * For the specified mediaQuery alias, is the mediaQuery range active?
+     * @param {?} alias
+     * @return {?}
+     */
+    function (alias) {
+        var /** @type {?} */ bp = this._breakpoints.findByAlias(alias) || this._breakpoints.findByQuery(alias);
+        return this._matchMedia.isActive(bp ? bp.mediaQuery : alias);
+    };
+    /**
+     * External observers can watch for all (or a specific) mql changes.
+     * If specific breakpoint is observed, only return *activated* events
+     * otherwise return all events for BOTH activated + deactivated changes.
+     */
+    /**
+     * External observers can watch for all (or a specific) mql changes.
+     * If specific breakpoint is observed, only return *activated* events
+     * otherwise return all events for BOTH activated + deactivated changes.
+     * @param {?=} alias
+     * @return {?}
+     */
+    MediaMonitor.prototype.observe = /**
+     * External observers can watch for all (or a specific) mql changes.
+     * If specific breakpoint is observed, only return *activated* events
+     * otherwise return all events for BOTH activated + deactivated changes.
+     * @param {?=} alias
+     * @return {?}
+     */
+    function (alias) {
+        var /** @type {?} */ bp = this._breakpoints.findByAlias(alias || '') ||
+            this._breakpoints.findByQuery(alias || '');
+        var /** @type {?} */ hasAlias = function (change) { return (bp ? change.mqAlias !== '' : true); };
+        // Note: the raw MediaChange events [from MatchMedia] do not contain important alias information
+        var /** @type {?} */ media$ = this._matchMedia.observe(bp ? bp.mediaQuery : alias);
+        return media$.pipe(Object(__WEBPACK_IMPORTED_MODULE_1_rxjs_operators_map__["a" /* map */])(function (change) { return mergeAlias(change, bp); }), Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_filter__["a" /* filter */])(hasAlias));
+    };
+    /**
+     * Immediate calls to matchMedia() to establish listeners
+     * and prepare for immediate subscription notifications
+     * @return {?}
+     */
+    MediaMonitor.prototype._registerBreakpoints = /**
+     * Immediate calls to matchMedia() to establish listeners
+     * and prepare for immediate subscription notifications
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ queries = this._breakpoints.sortedItems.map(function (bp) { return bp.mediaQuery; });
+        this._matchMedia.registerQuery(queries);
+    };
+    MediaMonitor.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    MediaMonitor.ctorParameters = function () { return [
+        { type: BreakPointRegistry, },
+        { type: MatchMedia, },
+    ]; };
+    return MediaMonitor;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Applies CSS prefixes to appropriate style keys.
+ *
+ * Note: `-ms-`, `-moz` and `-webkit-box` are no longer supported. e.g.
+ *    {
+ *      display: -webkit-flex;     NEW - Safari 6.1+. iOS 7.1+, BB10
+ *      display: flex;             NEW, Spec - Firefox, Chrome, Opera
+ *      // display: -webkit-box;   OLD - iOS 6-, Safari 3.1-6, BB7
+ *      // display: -ms-flexbox;   TWEENER - IE 10
+ *      // display: -moz-flexbox;  OLD - Firefox
+ *    }
+ * @param {?} target
+ * @return {?}
+ */
+function applyCssPrefixes(target) {
+    for (var /** @type {?} */ key in target) {
+        var /** @type {?} */ value = target[key] || '';
+        switch (key) {
+            case 'display':
+                if (value === 'flex') {
+                    target['display'] = [
+                        '-webkit-flex',
+                        'flex'
+                    ];
+                }
+                else if (value === 'inline-flex') {
+                    target['display'] = [
+                        '-webkit-inline-flex',
+                        'inline-flex'
+                    ];
+                }
+                else {
+                    target['display'] = value;
+                }
+                break;
+            case 'align-items':
+            case 'align-self':
+            case 'align-content':
+            case 'flex':
+            case 'flex-basis':
+            case 'flex-flow':
+            case 'flex-grow':
+            case 'flex-shrink':
+            case 'flex-wrap':
+            case 'justify-content':
+                target['-webkit-' + key] = value;
+                break;
+            case 'flex-direction':
+                value = value || 'row';
+                target['-webkit-flex-direction'] = value;
+                target['flex-direction'] = value;
+                break;
+            case 'order':
+                target['order'] = target['-webkit-' + key] = isNaN(value) ? '0' : value;
+                break;
+        }
+    }
+    return target;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Utility to emulate a CSS stylesheet
+ *
+ * This stores all of the styles for a given HTML element
+ * and returns them later
+ */
+var ServerStylesheet = /** @class */ (function () {
+    function ServerStylesheet() {
+        this.stylesheet = new Map();
+    }
+    /**
+     * Add an individual style to an HTML element
+     */
+    /**
+     * Add an individual style to an HTML element
+     * @param {?} element
+     * @param {?} style
+     * @param {?} value
+     * @return {?}
+     */
+    ServerStylesheet.prototype.addStyleToElement = /**
+     * Add an individual style to an HTML element
+     * @param {?} element
+     * @param {?} style
+     * @param {?} value
+     * @return {?}
+     */
+    function (element, style, value) {
+        var /** @type {?} */ stylesheet = this.stylesheet.get(element);
+        if (stylesheet) {
+            stylesheet.set(style, value);
+        }
+        else {
+            this.stylesheet.set(element, new Map([[style, value]]));
+        }
+    };
+    /**
+     * Clear the virtual stylesheet
+     */
+    /**
+     * Clear the virtual stylesheet
+     * @return {?}
+     */
+    ServerStylesheet.prototype.clearStyles = /**
+     * Clear the virtual stylesheet
+     * @return {?}
+     */
+    function () {
+        this.stylesheet.clear();
+    };
+    /**
+     * Retrieve a given style for an HTML element
+     */
+    /**
+     * Retrieve a given style for an HTML element
+     * @param {?} el
+     * @param {?} styleName
+     * @return {?}
+     */
+    ServerStylesheet.prototype.getStyleForElement = /**
+     * Retrieve a given style for an HTML element
+     * @param {?} el
+     * @param {?} styleName
+     * @return {?}
+     */
+    function (el, styleName) {
+        var /** @type {?} */ styles = this.stylesheet.get(el);
+        return (styles && styles.get(styleName)) || '';
+    };
+    ServerStylesheet.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    ServerStylesheet.ctorParameters = function () { return []; };
+    return ServerStylesheet;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Token that is provided to tell whether the FlexLayoutServerModule
+ * has been included in the bundle
+ *
+ * NOTE: This can be manually provided to disable styles when using SSR
+ */
+var SERVER_TOKEN = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('FlexLayoutServerLoaded');
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+var StyleUtils = /** @class */ (function () {
+    function StyleUtils(_serverStylesheet, _serverModuleLoaded, _platformId) {
+        this._serverStylesheet = _serverStylesheet;
+        this._serverModuleLoaded = _serverModuleLoaded;
+        this._platformId = _platformId;
+    }
+    /**
+     * Applies styles given via string pair or object map to the directive element
+     */
+    /**
+     * Applies styles given via string pair or object map to the directive element
+     * @param {?} element
+     * @param {?} style
+     * @param {?=} value
+     * @return {?}
+     */
+    StyleUtils.prototype.applyStyleToElement = /**
+     * Applies styles given via string pair or object map to the directive element
+     * @param {?} element
+     * @param {?} style
+     * @param {?=} value
+     * @return {?}
+     */
+    function (element, style, value) {
+        var /** @type {?} */ styles = {};
+        if (typeof style === 'string') {
+            styles[style] = value;
+            style = styles;
+        }
+        styles = applyCssPrefixes(style);
+        this._applyMultiValueStyleToElement(styles, element);
+    };
+    /**
+     * Applies styles given via string pair or object map to the directive's element
+     */
+    /**
+     * Applies styles given via string pair or object map to the directive's element
+     * @param {?} style
+     * @param {?=} elements
+     * @return {?}
+     */
+    StyleUtils.prototype.applyStyleToElements = /**
+     * Applies styles given via string pair or object map to the directive's element
+     * @param {?} style
+     * @param {?=} elements
+     * @return {?}
+     */
+    function (style, elements) {
+        var _this = this;
+        if (elements === void 0) { elements = []; }
+        var /** @type {?} */ styles = applyCssPrefixes(style);
+        elements.forEach(function (el) {
+            _this._applyMultiValueStyleToElement(styles, el);
+        });
+    };
+    /**
+     * Determine the DOM element's Flexbox flow (flex-direction)
+     *
+     * Check inline style first then check computed (stylesheet) style
+     */
+    /**
+     * Determine the DOM element's Flexbox flow (flex-direction)
+     *
+     * Check inline style first then check computed (stylesheet) style
+     * @param {?} target
+     * @return {?}
+     */
+    StyleUtils.prototype.getFlowDirection = /**
+     * Determine the DOM element's Flexbox flow (flex-direction)
+     *
+     * Check inline style first then check computed (stylesheet) style
+     * @param {?} target
+     * @return {?}
+     */
+    function (target) {
+        var /** @type {?} */ query = 'flex-direction';
+        var /** @type {?} */ value = this.lookupStyle(target, query);
+        if (value === FALLBACK_STYLE) {
+            value = '';
+        }
+        var /** @type {?} */ hasInlineValue = this.lookupInlineStyle(target, query) ||
+            (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["g" /* isPlatformServer */])(this._platformId) && this._serverModuleLoaded) ? value : '';
+        return [value || 'row', hasInlineValue];
+    };
+    /**
+     * Find the DOM element's raw attribute value (if any)
+     */
+    /**
+     * Find the DOM element's raw attribute value (if any)
+     * @param {?} element
+     * @param {?} attribute
+     * @return {?}
+     */
+    StyleUtils.prototype.lookupAttributeValue = /**
+     * Find the DOM element's raw attribute value (if any)
+     * @param {?} element
+     * @param {?} attribute
+     * @return {?}
+     */
+    function (element, attribute) {
+        return element.getAttribute(attribute) || '';
+    };
+    /**
+     * Find the DOM element's inline style value (if any)
+     */
+    /**
+     * Find the DOM element's inline style value (if any)
+     * @param {?} element
+     * @param {?} styleName
+     * @return {?}
+     */
+    StyleUtils.prototype.lookupInlineStyle = /**
+     * Find the DOM element's inline style value (if any)
+     * @param {?} element
+     * @param {?} styleName
+     * @return {?}
+     */
+    function (element, styleName) {
+        return element.style[styleName] || element.style.getPropertyValue(styleName);
+    };
+    /**
+     * Determine the inline or inherited CSS style
+     * NOTE: platform-server has no implementation for getComputedStyle
+     */
+    /**
+     * Determine the inline or inherited CSS style
+     * NOTE: platform-server has no implementation for getComputedStyle
+     * @param {?} element
+     * @param {?} styleName
+     * @param {?=} inlineOnly
+     * @return {?}
+     */
+    StyleUtils.prototype.lookupStyle = /**
+     * Determine the inline or inherited CSS style
+     * NOTE: platform-server has no implementation for getComputedStyle
+     * @param {?} element
+     * @param {?} styleName
+     * @param {?=} inlineOnly
+     * @return {?}
+     */
+    function (element, styleName, inlineOnly) {
+        if (inlineOnly === void 0) { inlineOnly = false; }
+        var /** @type {?} */ value = '';
+        if (element) {
+            var /** @type {?} */ immediateValue = value = this.lookupInlineStyle(element, styleName);
+            if (!immediateValue) {
+                if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["f" /* isPlatformBrowser */])(this._platformId)) {
+                    if (!inlineOnly) {
+                        value = getComputedStyle(element).getPropertyValue(styleName);
+                    }
+                }
+                else {
+                    if (this._serverModuleLoaded) {
+                        value = "" + this._serverStylesheet.getStyleForElement(element, styleName);
+                    }
+                }
+            }
+        }
+        // Note: 'inline' is the default of all elements, unless UA stylesheet overrides;
+        //       in which case getComputedStyle() should determine a valid value.
+        return value ? value.trim() : FALLBACK_STYLE;
+    };
+    /**
+     * Applies the styles to the element. The styles object map may contain an array of values
+     * Each value will be added as element style
+     * Keys are sorted to add prefixed styles (like -webkit-x) first, before the standard ones
+     * @param {?} styles
+     * @param {?} element
+     * @return {?}
+     */
+    StyleUtils.prototype._applyMultiValueStyleToElement = /**
+     * Applies the styles to the element. The styles object map may contain an array of values
+     * Each value will be added as element style
+     * Keys are sorted to add prefixed styles (like -webkit-x) first, before the standard ones
+     * @param {?} styles
+     * @param {?} element
+     * @return {?}
+     */
+    function (styles, element) {
+        var _this = this;
+        Object.keys(styles).sort().forEach(function (key) {
+            var /** @type {?} */ values = Array.isArray(styles[key]) ? styles[key] : [styles[key]];
+            values.sort();
+            for (var _i = 0, values_1 = values; _i < values_1.length; _i++) {
+                var value = values_1[_i];
+                if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["f" /* isPlatformBrowser */])(_this._platformId) || !_this._serverModuleLoaded) {
+                    element.style.setProperty(key, value);
+                }
+                else {
+                    _this._serverStylesheet.addStyleToElement(element, key, value);
+                }
+            }
+        });
+    };
+    StyleUtils.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    StyleUtils.ctorParameters = function () { return [
+        { type: ServerStylesheet, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [SERVER_TOKEN,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+    ]; };
+    return StyleUtils;
+}());
+var FALLBACK_STYLE = 'block';
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'layout' flexbox styling directive
+ * Defines the positioning flow direction for the child elements: row or column
+ * Optional values: column or row (default)
+ * @see https://css-tricks.com/almanac/properties/f/flex-direction/
+ *
+ */
+var LayoutDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(LayoutDirective, _super);
+    /* tslint:enable */
+    /**
+     *
+     */
+    function LayoutDirective(monitor, elRef, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this._announcer = new __WEBPACK_IMPORTED_MODULE_6_rxjs_ReplaySubject__["a" /* ReplaySubject */](1);
+        _this.layout$ = _this._announcer.asObservable();
+        return _this;
+    }
+    Object.defineProperty(LayoutDirective.prototype, "layout", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layout', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutDirective.prototype, "layoutLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('layoutLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * On changes to any @Input properties...
+     * Default to use the non-responsive Input value ('fxLayout')
+     * Then conditionally override with the mq-activated Input's current value
+     */
+    /**
+     * On changes to any \@Input properties...
+     * Default to use the non-responsive Input value ('fxLayout')
+     * Then conditionally override with the mq-activated Input's current value
+     * @param {?} changes
+     * @return {?}
+     */
+    LayoutDirective.prototype.ngOnChanges = /**
+     * On changes to any \@Input properties...
+     * Default to use the non-responsive Input value ('fxLayout')
+     * Then conditionally override with the mq-activated Input's current value
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['layout'] != null || this._mqActivation) {
+            this._updateWithDirection();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    LayoutDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('layout', 'row', function (changes) {
+            _this._updateWithDirection(changes.value);
+        });
+        this._updateWithDirection();
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /**
+     * Validate the direction value and then update the host's inline flexbox styles
+     */
+    /**
+     * Validate the direction value and then update the host's inline flexbox styles
+     * @param {?=} value
+     * @return {?}
+     */
+    LayoutDirective.prototype._updateWithDirection = /**
+     * Validate the direction value and then update the host's inline flexbox styles
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._queryInput('layout') || 'row';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        // Update styles and announce to subscribers the *new* direction
+        var /** @type {?} */ css = buildLayoutCSS(!!value ? value : '');
+        this._applyStyleToElement(css);
+        this._announcer.next(css['flex-direction']);
+    };
+    LayoutDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxLayout],\n  [fxLayout.xs], [fxLayout.sm], [fxLayout.md], [fxLayout.lg], [fxLayout.xl],\n  [fxLayout.lt-sm], [fxLayout.lt-md], [fxLayout.lt-lg], [fxLayout.lt-xl],\n  [fxLayout.gt-xs], [fxLayout.gt-sm], [fxLayout.gt-md], [fxLayout.gt-lg]\n" },] },
+    ];
+    /** @nocollapse */
+    LayoutDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: StyleUtils, },
+    ]; };
+    LayoutDirective.propDecorators = {
+        "layout": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout',] },],
+        "layoutXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.xs',] },],
+        "layoutSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.sm',] },],
+        "layoutMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.md',] },],
+        "layoutLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.lg',] },],
+        "layoutXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.xl',] },],
+        "layoutGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.gt-xs',] },],
+        "layoutGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.gt-sm',] },],
+        "layoutGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.gt-md',] },],
+        "layoutGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.gt-lg',] },],
+        "layoutLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.lt-sm',] },],
+        "layoutLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.lt-md',] },],
+        "layoutLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.lt-lg',] },],
+        "layoutLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayout.lt-xl',] },],
+    };
+    return LayoutDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'layout-align' flexbox styling directive
+ *  Defines positioning of child elements along main and cross axis in a layout container
+ *  Optional values: {main-axis} values or {main-axis cross-axis} value pairs
+ *
+ *  \@see https://css-tricks.com/almanac/properties/j/justify-content/
+ *  \@see https://css-tricks.com/almanac/properties/a/align-items/
+ *  \@see https://css-tricks.com/almanac/properties/a/align-content/
+ */
+var LayoutAlignDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(LayoutAlignDirective, _super);
+    /* tslint:enable */
+    function LayoutAlignDirective(monitor, elRef, container, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this._layout = 'row';
+        if (container) {
+            // Subscribe to layout direction changes
+            _this._layoutWatcher = container.layout$.subscribe(_this._onLayoutChange.bind(_this));
+        }
+        return _this;
+    }
+    Object.defineProperty(LayoutAlignDirective.prototype, "align", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('align', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutAlignDirective.prototype, "alignLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype.ngOnChanges = /**
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['align'] != null || this._mqActivation) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('align', 'start stretch', function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+        this._updateWithValue();
+    };
+    /**
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        _super.prototype.ngOnDestroy.call(this);
+        if (this._layoutWatcher) {
+            this._layoutWatcher.unsubscribe();
+        }
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /**
+     *
+     */
+    /**
+     *
+     * @param {?=} value
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype._updateWithValue = /**
+     *
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._queryInput('align') || 'start stretch';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        this._applyStyleToElement(this._buildCSS(value));
+        this._allowStretching(value, !this._layout ? 'row' : this._layout);
+    };
+    /**
+     * Cache the parent container 'flex-direction' and update the 'flex' styles
+     */
+    /**
+     * Cache the parent container 'flex-direction' and update the 'flex' styles
+     * @param {?} direction
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype._onLayoutChange = /**
+     * Cache the parent container 'flex-direction' and update the 'flex' styles
+     * @param {?} direction
+     * @return {?}
+     */
+    function (direction) {
+        var _this = this;
+        this._layout = (direction || '').toLowerCase();
+        if (!LAYOUT_VALUES.find(function (x) { return x === _this._layout; })) {
+            this._layout = 'row';
+        }
+        var /** @type {?} */ value = this._queryInput('align') || 'start stretch';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        this._allowStretching(value, this._layout || 'row');
+    };
+    /**
+     * @param {?} align
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype._buildCSS = /**
+     * @param {?} align
+     * @return {?}
+     */
+    function (align) {
+        var /** @type {?} */ css = {}, _a = align.split(' '), main_axis = _a[0], cross_axis = _a[1]; // tslint:disable-line:variable-name
+        // Main axis
+        switch (main_axis) {
+            case 'center':
+                css['justify-content'] = 'center';
+                break;
+            case 'space-around':
+                css['justify-content'] = 'space-around';
+                break;
+            case 'space-between':
+                css['justify-content'] = 'space-between';
+                break;
+            case 'space-evenly':
+                css['justify-content'] = 'space-evenly';
+                break;
+            case 'end':
+            case 'flex-end':
+                css['justify-content'] = 'flex-end';
+                break;
+            case 'start':
+            case 'flex-start':
+            default:
+                css['justify-content'] = 'flex-start'; // default main axis
+                break;
+        }
+        // Cross-axis
+        switch (cross_axis) {
+            case 'start':
+            case 'flex-start':
+                css['align-items'] = css['align-content'] = 'flex-start';
+                break;
+            case 'baseline':
+                css['align-items'] = 'baseline';
+                break;
+            case 'center':
+                css['align-items'] = css['align-content'] = 'center';
+                break;
+            case 'end':
+            case 'flex-end':
+                css['align-items'] = css['align-content'] = 'flex-end';
+                break;
+            case 'stretch':
+            default:
+                // 'stretch'
+                css['align-items'] = css['align-content'] = 'stretch'; // default cross axis
+                break;
+        }
+        return extendObject(css, {
+            'display': 'flex',
+            'flex-direction': this._layout || 'row',
+            'box-sizing': 'border-box'
+        });
+    };
+    /**
+     * Update container element to 'stretch' as needed...
+     * NOTE: this is only done if the crossAxis is explicitly set to 'stretch'
+     */
+    /**
+     * Update container element to 'stretch' as needed...
+     * NOTE: this is only done if the crossAxis is explicitly set to 'stretch'
+     * @param {?} align
+     * @param {?} layout
+     * @return {?}
+     */
+    LayoutAlignDirective.prototype._allowStretching = /**
+     * Update container element to 'stretch' as needed...
+     * NOTE: this is only done if the crossAxis is explicitly set to 'stretch'
+     * @param {?} align
+     * @param {?} layout
+     * @return {?}
+     */
+    function (align, layout) {
+        var _a = align.split(' '), cross_axis = _a[1]; // tslint:disable-line:variable-name
+        if (cross_axis == 'stretch') {
+            // Use `null` values to remove style
+            this._applyStyleToElement({
+                'box-sizing': 'border-box',
+                'max-width': !isFlowHorizontal(layout) ? '100%' : null,
+                'max-height': isFlowHorizontal(layout) ? '100%' : null
+            });
+        }
+    };
+    LayoutAlignDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxLayoutAlign],\n  [fxLayoutAlign.xs], [fxLayoutAlign.sm], [fxLayoutAlign.md], [fxLayoutAlign.lg],[fxLayoutAlign.xl],\n  [fxLayoutAlign.lt-sm], [fxLayoutAlign.lt-md], [fxLayoutAlign.lt-lg], [fxLayoutAlign.lt-xl],\n  [fxLayoutAlign.gt-xs], [fxLayoutAlign.gt-sm], [fxLayoutAlign.gt-md], [fxLayoutAlign.gt-lg]\n" },] },
+    ];
+    /** @nocollapse */
+    LayoutAlignDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: LayoutDirective, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: StyleUtils, },
+    ]; };
+    LayoutAlignDirective.propDecorators = {
+        "align": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign',] },],
+        "alignXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.xs',] },],
+        "alignSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.sm',] },],
+        "alignMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.md',] },],
+        "alignLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.lg',] },],
+        "alignXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.xl',] },],
+        "alignGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.gt-xs',] },],
+        "alignGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.gt-sm',] },],
+        "alignGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.gt-md',] },],
+        "alignGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.gt-lg',] },],
+        "alignLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.lt-sm',] },],
+        "alignLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.lt-md',] },],
+        "alignLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.lt-lg',] },],
+        "alignLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutAlign.lt-xl',] },],
+    };
+    return LayoutAlignDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Injection token used to inject the document into Directionality.
+ * This is used so that the value can be faked in tests.
+ *
+ * We can't use the real document in tests because changing the real `dir` causes geometry-based
+ * tests in Safari to fail.
+ *
+ * We also can't re-provide the DOCUMENT token from platform-brower because the unit tests
+ * themselves use things like `querySelector` in test code.
+ */
+var DIR_DOCUMENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('cdk-dir-doc');
+/**
+ * The directionality (LTR / RTL) context for the application (or a subtree of it).
+ * Exposes the current direction and a stream of direction changes.
+ */
+var Directionality = /** @class */ (function () {
+    function Directionality(_document) {
+        /**
+         * The current 'ltr' or 'rtl' value.
+         */
+        this.value = 'ltr';
+        /**
+         * Stream that emits whenever the 'ltr' / 'rtl' state changes.
+         */
+        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        if (_document) {
+            // TODO: handle 'auto' value -
+            // We still need to account for dir="auto".
+            // It looks like HTMLElemenet.dir is also "auto" when that's set to the attribute,
+            // but getComputedStyle return either "ltr" or "rtl". avoiding getComputedStyle for now
+            var /** @type {?} */ bodyDir = _document.body ? _document.body.dir : null;
+            var /** @type {?} */ htmlDir = _document.documentElement ? _document.documentElement.dir : null;
+            this.value = /** @type {?} */ ((bodyDir || htmlDir || 'ltr'));
+        }
+    }
+    Directionality.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    Directionality.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [DIR_DOCUMENT,] },] },
+    ]; };
+    return Directionality;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'layout-padding' styling directive
+ *  Defines padding of child elements in a layout container
+ */
+var LayoutGapDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(LayoutGapDirective, _super);
+    /* tslint:enable */
+    function LayoutGapDirective(monitor, elRef, container, _zone, _directionality, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this._zone = _zone;
+        _this._directionality = _directionality;
+        _this._layout = 'row';
+        if (container) {
+            // Subscribe to layout direction changes
+            _this._layoutWatcher = container.layout$.subscribe(_this._onLayoutChange.bind(_this));
+        }
+        _this._directionWatcher =
+            _this._directionality.change.subscribe(_this._updateWithValue.bind(_this));
+        return _this;
+    }
+    Object.defineProperty(LayoutGapDirective.prototype, "gap", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gap', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutGapDirective.prototype, "gapXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutGapDirective.prototype, "gapSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(LayoutGapDirective.prototype, "gapLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('gapLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    LayoutGapDirective.prototype.ngOnChanges = /**
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['gap'] != null || this._mqActivation) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    LayoutGapDirective.prototype.ngAfterContentInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._watchContentChanges();
+        this._listenForMediaQueryChanges('gap', '0', function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+        this._updateWithValue();
+    };
+    /**
+     * @return {?}
+     */
+    LayoutGapDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        _super.prototype.ngOnDestroy.call(this);
+        if (this._layoutWatcher) {
+            this._layoutWatcher.unsubscribe();
+        }
+        if (this._observer) {
+            this._observer.disconnect();
+        }
+        if (this._directionWatcher) {
+            this._directionWatcher.unsubscribe();
+        }
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /**
+     * Watch for child nodes to be added... and apply the layout gap styles to each.
+     * NOTE: this does NOT! differentiate between viewChildren and contentChildren
+     */
+    /**
+     * Watch for child nodes to be added... and apply the layout gap styles to each.
+     * NOTE: this does NOT! differentiate between viewChildren and contentChildren
+     * @return {?}
+     */
+    LayoutGapDirective.prototype._watchContentChanges = /**
+     * Watch for child nodes to be added... and apply the layout gap styles to each.
+     * NOTE: this does NOT! differentiate between viewChildren and contentChildren
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._zone.runOutsideAngular(function () {
+            if (typeof MutationObserver !== 'undefined') {
+                _this._observer = new MutationObserver(function (mutations) {
+                    var /** @type {?} */ validatedChanges = function (it) {
+                        return (it.addedNodes && it.addedNodes.length > 0) ||
+                            (it.removedNodes && it.removedNodes.length > 0);
+                    };
+                    // update gap styles only for child 'added' or 'removed' events
+                    if (mutations.some(validatedChanges)) {
+                        _this._updateWithValue();
+                    }
+                });
+                _this._observer.observe(_this.nativeElement, { childList: true });
+            }
+        });
+    };
+    /**
+     * Cache the parent container 'flex-direction' and update the 'margin' styles
+     */
+    /**
+     * Cache the parent container 'flex-direction' and update the 'margin' styles
+     * @param {?} direction
+     * @return {?}
+     */
+    LayoutGapDirective.prototype._onLayoutChange = /**
+     * Cache the parent container 'flex-direction' and update the 'margin' styles
+     * @param {?} direction
+     * @return {?}
+     */
+    function (direction) {
+        var _this = this;
+        this._layout = (direction || '').toLowerCase();
+        if (!LAYOUT_VALUES.find(function (x) { return x === _this._layout; })) {
+            this._layout = 'row';
+        }
+        this._updateWithValue();
+    };
+    /**
+     *
+     */
+    /**
+     *
+     * @param {?=} value
+     * @return {?}
+     */
+    LayoutGapDirective.prototype._updateWithValue = /**
+     *
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        var _this = this;
+        value = value || this._queryInput('gap') || '0';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        // Gather all non-hidden Element nodes
+        var /** @type {?} */ items = this.childrenNodes
+            .filter(function (el) { return el.nodeType === 1 && _this._getDisplayStyle(el) != 'none'; })
+            .sort(function (a, b) {
+            var /** @type {?} */ orderA = +_this._styler.lookupStyle(a, 'order');
+            var /** @type {?} */ orderB = +_this._styler.lookupStyle(b, 'order');
+            if (isNaN(orderA) || isNaN(orderB) || orderA === orderB) {
+                return 0;
+            }
+            else {
+                return orderA > orderB ? 1 : -1;
+            }
+        });
+        if (items.length > 0) {
+            var /** @type {?} */ lastItem = items.pop();
+            // For each `element` children EXCEPT the last,
+            // set the margin right/bottom styles...
+            this._applyStyleToElements(this._buildCSS(value), items);
+            // Clear all gaps for all visible elements
+            this._applyStyleToElements(this._buildCSS(), [lastItem]);
+        }
+    };
+    /**
+     * Prepare margin CSS, remove any previous explicitly
+     * assigned margin assignments
+     * @param {?=} value
+     * @return {?}
+     */
+    LayoutGapDirective.prototype._buildCSS = /**
+     * Prepare margin CSS, remove any previous explicitly
+     * assigned margin assignments
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        if (value === void 0) { value = null; }
+        var /** @type {?} */ key, /** @type {?} */ margins = {
+            'margin-left': null,
+            'margin-right': null,
+            'margin-top': null,
+            'margin-bottom': null
+        };
+        switch (this._layout) {
+            case 'column':
+            case 'column-reverse':
+                key = 'margin-bottom';
+                break;
+            case 'row':
+            case 'row-reverse':
+            default:
+                key = this._directionality.value === 'rtl' ? 'margin-left' : 'margin-right';
+                break;
+        }
+        margins[key] = value;
+        return margins;
+    };
+    LayoutGapDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n  [fxLayoutGap],\n  [fxLayoutGap.xs], [fxLayoutGap.sm], [fxLayoutGap.md], [fxLayoutGap.lg], [fxLayoutGap.xl],\n  [fxLayoutGap.lt-sm], [fxLayoutGap.lt-md], [fxLayoutGap.lt-lg], [fxLayoutGap.lt-xl],\n  [fxLayoutGap.gt-xs], [fxLayoutGap.gt-sm], [fxLayoutGap.gt-md], [fxLayoutGap.gt-lg]\n"
+                },] },
+    ];
+    /** @nocollapse */
+    LayoutGapDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: LayoutDirective, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: Directionality, },
+        { type: StyleUtils, },
+    ]; };
+    LayoutGapDirective.propDecorators = {
+        "gap": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap',] },],
+        "gapXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.xs',] },],
+        "gapSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.sm',] },],
+        "gapMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.md',] },],
+        "gapLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.lg',] },],
+        "gapXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.xl',] },],
+        "gapGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.gt-xs',] },],
+        "gapGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.gt-sm',] },],
+        "gapGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.gt-md',] },],
+        "gapGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.gt-lg',] },],
+        "gapLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.lt-sm',] },],
+        "gapLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.lt-md',] },],
+        "gapLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.lt-lg',] },],
+        "gapLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxLayoutGap.lt-xl',] },],
+    };
+    return LayoutGapDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * The flex API permits 3 or 1 parts of the value:
+ *    - `flex-grow flex-shrink flex-basis`, or
+ *    - `flex-basis`
+ * @param {?} basis
+ * @param {?=} grow
+ * @param {?=} shrink
+ * @return {?}
+ */
+function validateBasis(basis, grow, shrink) {
+    if (grow === void 0) { grow = '1'; }
+    if (shrink === void 0) { shrink = '1'; }
+    var /** @type {?} */ parts = [grow, shrink, basis];
+    var /** @type {?} */ j = basis.indexOf('calc');
+    if (j > 0) {
+        parts[2] = _validateCalcValue(basis.substring(j).trim());
+        var /** @type {?} */ matches = basis.substr(0, j).trim().split(' ');
+        if (matches.length == 2) {
+            parts[0] = matches[0];
+            parts[1] = matches[1];
+        }
+    }
+    else if (j == 0) {
+        parts[2] = _validateCalcValue(basis.trim());
+    }
+    else {
+        var /** @type {?} */ matches = basis.split(' ');
+        parts = (matches.length === 3) ? matches : [
+            grow, shrink, basis
+        ];
+    }
+    return parts;
+}
+/**
+ * Calc expressions require whitespace before & after any expression operators
+ * This is a simple, crude whitespace padding solution.
+ *   - '3 3 calc(15em + 20px)'
+ *   - calc(100% / 7 * 2)
+ *   - 'calc(15em + 20px)'
+ *   - 'calc(15em+20px)'
+ *   - '37px'
+ *   = '43%'
+ * @param {?} calc
+ * @return {?}
+ */
+function _validateCalcValue(calc) {
+    return calc.replace(/[\s]/g, '').replace(/[\/\*\+\-]/g, ' $& ');
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Directive to control the size of a flex item using flex-basis, flex-grow, and flex-shrink.
+ * Corresponds to the css `flex` shorthand property.
+ *
+ * @see https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+ */
+var FlexDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(FlexDirective, _super);
+    /* tslint:enable */
+    // Note: Explicitly @SkipSelf on LayoutDirective because we are looking
+    //       for the parent flex container for this flex item.
+    function FlexDirective(monitor, elRef, _container, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this._container = _container;
+        _this.styleUtils = styleUtils;
+        _this._cacheInput('flex', '');
+        _this._cacheInput('shrink', 1);
+        _this._cacheInput('grow', 1);
+        if (_container) {
+            // If this flex item is inside of a flex container marked with
+            // Subscribe to layout immediate parent direction changes
+            // If this flex item is inside of a flex container marked with
+            // Subscribe to layout immediate parent direction changes
+            _this._layoutWatcher = _container.layout$.subscribe(function (direction) {
+                // `direction` === null if parent container does not have a `fxLayout`
+                // `direction` === null if parent container does not have a `fxLayout`
+                _this._onLayoutChange(direction);
+            });
+        }
+        return _this;
+    }
+    Object.defineProperty(FlexDirective.prototype, "shrink", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('shrink', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "grow", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('grow', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flex", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flex', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexDirective.prototype, "flexLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('flexLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    /**
+     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+     */
+    /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    FlexDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['flex'] != null || this._mqActivation) {
+            this._updateStyle();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    FlexDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('flex', '', function (changes) {
+            _this._updateStyle(changes.value);
+        });
+        this._updateStyle();
+    };
+    /**
+     * @return {?}
+     */
+    FlexDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        _super.prototype.ngOnDestroy.call(this);
+        if (this._layoutWatcher) {
+            this._layoutWatcher.unsubscribe();
+        }
+    };
+    /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     */
+    /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     * @param {?=} direction
+     * @return {?}
+     */
+    FlexDirective.prototype._onLayoutChange = /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     * @param {?=} direction
+     * @return {?}
+     */
+    function (direction) {
+        this._layout = direction || this._layout || 'row';
+        this._updateStyle();
+    };
+    /**
+     * @param {?=} value
+     * @return {?}
+     */
+    FlexDirective.prototype._updateStyle = /**
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        var /** @type {?} */ flexBasis = value || this._queryInput('flex') || '';
+        if (this._mqActivation) {
+            flexBasis = this._mqActivation.activatedInput;
+        }
+        var /** @type {?} */ basis = String(flexBasis).replace(';', '');
+        var /** @type {?} */ parts = validateBasis(basis, this._queryInput('grow'), this._queryInput('shrink'));
+        this._applyStyleToElement(this._validateValue.apply(this, parts));
+    };
+    /**
+     * Validate the value to be one of the acceptable value options
+     * Use default fallback of 'row'
+     */
+    /**
+     * Validate the value to be one of the acceptable value options
+     * Use default fallback of 'row'
+     * @param {?} grow
+     * @param {?} shrink
+     * @param {?} basis
+     * @return {?}
+     */
+    FlexDirective.prototype._validateValue = /**
+     * Validate the value to be one of the acceptable value options
+     * Use default fallback of 'row'
+     * @param {?} grow
+     * @param {?} shrink
+     * @param {?} basis
+     * @return {?}
+     */
+    function (grow, shrink, basis) {
+        // The flex-direction of this element's flex container. Defaults to 'row'.
+        var /** @type {?} */ layout = this._getFlowDirection(this.parentElement, true);
+        var /** @type {?} */ direction = (layout.indexOf('column') > -1) ? 'column' : 'row';
+        var /** @type {?} */ css, /** @type {?} */ isValue;
+        grow = (grow == '0') ? 0 : grow;
+        shrink = (shrink == '0') ? 0 : shrink;
+        // flex-basis allows you to specify the initial/starting main-axis size of the element,
+        // before anything else is computed. It can either be a percentage or an absolute value.
+        // It is, however, not the breaking point for flex-grow/shrink properties
+        //
+        // flex-grow can be seen as this:
+        //   0: Do not stretch. Either size to element's content width, or obey 'flex-basis'.
+        //   1: (Default value). Stretch; will be the same size to all other flex items on
+        //       the same row since they have a default value of 1.
+        //   ≥2 (integer n): Stretch. Will be n times the size of other elements
+        //      with 'flex-grow: 1' on the same row.
+        // Use `null` to clear existing styles.
+        var /** @type {?} */ clearStyles = {
+            'max-width': null,
+            'max-height': null,
+            'min-width': null,
+            'min-height': null
+        };
+        switch (basis || '') {
+            case '':
+                css = extendObject(clearStyles, { 'flex': grow + " " + shrink + " 0.000000001px" });
+                break;
+            case 'initial': // default
+            case 'nogrow':
+                grow = 0;
+                css = extendObject(clearStyles, { 'flex': '0 1 auto' });
+                break;
+            case 'grow':
+                css = extendObject(clearStyles, { 'flex': '1 1 100%' });
+                break;
+            case 'noshrink':
+                shrink = 0;
+                css = extendObject(clearStyles, { 'flex': '1 0 auto' });
+                break;
+            case 'auto':
+                css = extendObject(clearStyles, { 'flex': grow + " " + shrink + " auto" });
+                break;
+            case 'none':
+                grow = 0;
+                shrink = 0;
+                css = extendObject(clearStyles, { 'flex': '0 0 auto' });
+                break;
+            default:
+                var /** @type {?} */ hasCalc = String(basis).indexOf('calc') > -1;
+                var /** @type {?} */ isPercent = String(basis).indexOf('%') > -1 && !hasCalc;
+                isValue = hasCalc ||
+                    String(basis).indexOf('px') > -1 ||
+                    String(basis).indexOf('em') > -1 ||
+                    String(basis).indexOf('vw') > -1 ||
+                    String(basis).indexOf('vh') > -1;
+                // Defaults to percentage sizing unless `px` is explicitly set
+                if (!isValue && !isPercent && !isNaN(/** @type {?} */ (basis))) {
+                    basis = basis + '%';
+                }
+                if (basis === '0px') {
+                    basis = '0%';
+                }
+                css = extendObject(clearStyles, {
+                    // fix issue #5345
+                    'flex': grow + " " + shrink + " " + (isValue ? basis : '100%')
+                });
+                break;
+        }
+        var /** @type {?} */ max = isFlowHorizontal(direction) ? 'max-width' : 'max-height';
+        var /** @type {?} */ min = isFlowHorizontal(direction) ? 'min-width' : 'min-height';
+        var /** @type {?} */ usingCalc = (String(basis).indexOf('calc') > -1) || (basis == 'auto');
+        var /** @type {?} */ isPx = String(basis).indexOf('px') > -1 || usingCalc;
+        // make box inflexible when shrink and grow are both zero
+        // should not set a min when the grow is zero
+        // should not set a max when the shrink is zero
+        var /** @type {?} */ isFixed = !grow && !shrink;
+        css[min] = (basis == '0%') ? 0 : isFixed || (isPx && grow) ? basis : null;
+        css[max] = (basis == '0%') ? 0 : isFixed || (!usingCalc && shrink) ? basis : null;
+        return extendObject(css, { 'box-sizing': 'border-box' });
+    };
+    FlexDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxFlex],\n  [fxFlex.xs], [fxFlex.sm], [fxFlex.md], [fxFlex.lg], [fxFlex.xl],\n  [fxFlex.lt-sm], [fxFlex.lt-md], [fxFlex.lt-lg], [fxFlex.lt-xl],\n  [fxFlex.gt-xs], [fxFlex.gt-sm], [fxFlex.gt-md], [fxFlex.gt-lg],\n"
+                },] },
+    ];
+    /** @nocollapse */
+    FlexDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: LayoutDirective, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */] },] },
+        { type: StyleUtils, },
+    ]; };
+    FlexDirective.propDecorators = {
+        "shrink": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShrink',] },],
+        "grow": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxGrow',] },],
+        "flex": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex',] },],
+        "flexXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.xs',] },],
+        "flexSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.sm',] },],
+        "flexMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.md',] },],
+        "flexLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.lg',] },],
+        "flexXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.xl',] },],
+        "flexGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.gt-xs',] },],
+        "flexGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.gt-sm',] },],
+        "flexGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.gt-md',] },],
+        "flexGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.gt-lg',] },],
+        "flexLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.lt-sm',] },],
+        "flexLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.lt-md',] },],
+        "flexLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.lt-lg',] },],
+        "flexLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlex.lt-xl',] },],
+    };
+    return FlexDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'flex-align' flexbox styling directive
+ * Allows element-specific overrides for cross-axis alignments in a layout container
+ * @see https://css-tricks.com/almanac/properties/a/align-self/
+ */
+var FlexAlignDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(FlexAlignDirective, _super);
+    /* tslint:enable */
+    function FlexAlignDirective(monitor, elRef, styleUtils) {
+        return _super.call(this, monitor, elRef, styleUtils) || this;
+    }
+    Object.defineProperty(FlexAlignDirective.prototype, "align", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('align', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexAlignDirective.prototype, "alignGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('alignGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+     */
+    /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    FlexAlignDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['align'] != null || this._mqActivation) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    FlexAlignDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('align', 'stretch', function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+        this._updateWithValue();
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /**
+     * @param {?=} value
+     * @return {?}
+     */
+    FlexAlignDirective.prototype._updateWithValue = /**
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._queryInput('align') || 'stretch';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        this._applyStyleToElement(this._buildCSS(value));
+    };
+    /**
+     * @param {?} align
+     * @return {?}
+     */
+    FlexAlignDirective.prototype._buildCSS = /**
+     * @param {?} align
+     * @return {?}
+     */
+    function (align) {
+        var /** @type {?} */ css = {};
+        // Cross-axis
+        switch (align) {
+            case 'start':
+                css['align-self'] = 'flex-start';
+                break;
+            case 'end':
+                css['align-self'] = 'flex-end';
+                break;
+            default:
+                css['align-self'] = align;
+                break;
+        }
+        return css;
+    };
+    FlexAlignDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n  [fxFlexAlign],\n  [fxFlexAlign.xs], [fxFlexAlign.sm], [fxFlexAlign.md], [fxFlexAlign.lg], [fxFlexAlign.xl],\n  [fxFlexAlign.lt-sm], [fxFlexAlign.lt-md], [fxFlexAlign.lt-lg], [fxFlexAlign.lt-xl],\n  [fxFlexAlign.gt-xs], [fxFlexAlign.gt-sm], [fxFlexAlign.gt-md], [fxFlexAlign.gt-lg]\n"
+                },] },
+    ];
+    /** @nocollapse */
+    FlexAlignDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: StyleUtils, },
+    ]; };
+    FlexAlignDirective.propDecorators = {
+        "align": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign',] },],
+        "alignXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.xs',] },],
+        "alignSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.sm',] },],
+        "alignMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.md',] },],
+        "alignLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.lg',] },],
+        "alignXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.xl',] },],
+        "alignLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.lt-sm',] },],
+        "alignLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.lt-md',] },],
+        "alignLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.lt-lg',] },],
+        "alignLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.lt-xl',] },],
+        "alignGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.gt-xs',] },],
+        "alignGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.gt-sm',] },],
+        "alignGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.gt-md',] },],
+        "alignGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexAlign.gt-lg',] },],
+    };
+    return FlexAlignDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+var FLEX_FILL_CSS = {
+    'margin': 0,
+    'width': '100%',
+    'height': '100%',
+    'min-width': '100%',
+    'min-height': '100%'
+};
+/**
+ * 'fxFill' flexbox styling directive
+ *  Maximizes width and height of element in a layout container
+ *
+ *  NOTE: fxFill is NOT responsive API!!
+ */
+var FlexFillDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(FlexFillDirective, _super);
+    function FlexFillDirective(monitor, elRef, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this.elRef = elRef;
+        _this._applyStyleToElement(FLEX_FILL_CSS);
+        return _this;
+    }
+    FlexFillDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxFill],\n  [fxFlexFill]\n" },] },
+    ];
+    /** @nocollapse */
+    FlexFillDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: StyleUtils, },
+    ]; };
+    return FlexFillDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'flex-offset' flexbox styling directive
+ * Configures the 'margin-left' of the element in a layout container
+ */
+var FlexOffsetDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(FlexOffsetDirective, _super);
+    /* tslint:enable */
+    function FlexOffsetDirective(monitor, elRef, _container, _directionality, styleUtils) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this._container = _container;
+        _this._directionality = _directionality;
+        /**
+         * The flex-direction of this element's host container. Defaults to 'row'.
+         */
+        _this._layout = 'row';
+        _this._directionWatcher =
+            _this._directionality.change.subscribe(_this._updateWithValue.bind(_this));
+        _this.watchParentFlow();
+        return _this;
+    }
+    Object.defineProperty(FlexOffsetDirective.prototype, "offset", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offset', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOffsetDirective.prototype, "offsetGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('offsetGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+     */
+    /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['offset'] != null || this._mqActivation) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * Cleanup
+     */
+    /**
+     * Cleanup
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype.ngOnDestroy = /**
+     * Cleanup
+     * @return {?}
+     */
+    function () {
+        _super.prototype.ngOnDestroy.call(this);
+        if (this._layoutWatcher) {
+            this._layoutWatcher.unsubscribe();
+        }
+        if (this._directionWatcher) {
+            this._directionWatcher.unsubscribe();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('offset', 0, function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+    };
+    /**
+     * If parent flow-direction changes, then update the margin property
+     * used to offset
+     */
+    /**
+     * If parent flow-direction changes, then update the margin property
+     * used to offset
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype.watchParentFlow = /**
+     * If parent flow-direction changes, then update the margin property
+     * used to offset
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (this._container) {
+            // Subscribe to layout immediate parent direction changes (if any)
+            this._layoutWatcher = this._container.layout$.subscribe(function (direction) {
+                // `direction` === null if parent container does not have a `fxLayout`
+                // `direction` === null if parent container does not have a `fxLayout`
+                _this._onLayoutChange(direction);
+            });
+        }
+    };
+    /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     */
+    /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     * @param {?=} direction
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype._onLayoutChange = /**
+     * Caches the parent container's 'flex-direction' and updates the element's style.
+     * Used as a handler for layout change events from the parent flex container.
+     * @param {?=} direction
+     * @return {?}
+     */
+    function (direction) {
+        this._layout = direction || this._layout || 'row';
+        this._updateWithValue();
+    };
+    /**
+     * Using the current fxFlexOffset value, update the inline CSS
+     * NOTE: this will assign `margin-left` if the parent flex-direction == 'row',
+     *       otherwise `margin-top` is used for the offset.
+     */
+    /**
+     * Using the current fxFlexOffset value, update the inline CSS
+     * NOTE: this will assign `margin-left` if the parent flex-direction == 'row',
+     *       otherwise `margin-top` is used for the offset.
+     * @param {?=} value
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype._updateWithValue = /**
+     * Using the current fxFlexOffset value, update the inline CSS
+     * NOTE: this will assign `margin-left` if the parent flex-direction == 'row',
+     *       otherwise `margin-top` is used for the offset.
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._queryInput('offset') || 0;
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        this._applyStyleToElement(this._buildCSS(value));
+    };
+    /**
+     * @param {?} offset
+     * @return {?}
+     */
+    FlexOffsetDirective.prototype._buildCSS = /**
+     * @param {?} offset
+     * @return {?}
+     */
+    function (offset) {
+        var /** @type {?} */ isPercent = String(offset).indexOf('%') > -1;
+        var /** @type {?} */ isPx = String(offset).indexOf('px') > -1;
+        if (!isPx && !isPercent && !isNaN(offset)) {
+            offset = offset + '%';
+        }
+        var /** @type {?} */ horizontalLayoutKey = this._directionality.value === 'rtl' ? 'margin-right' : 'margin-left';
+        // The flex-direction of this element's flex container. Defaults to 'row'.
+        var /** @type {?} */ layout = this._getFlowDirection(this.parentElement, true);
+        return isFlowHorizontal(layout) ? (_a = {}, _a[horizontalLayoutKey] = "" + offset, _a) :
+            { 'margin-top': "" + offset };
+        var _a;
+    };
+    FlexOffsetDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxFlexOffset],\n  [fxFlexOffset.xs], [fxFlexOffset.sm], [fxFlexOffset.md], [fxFlexOffset.lg], [fxFlexOffset.xl],\n  [fxFlexOffset.lt-sm], [fxFlexOffset.lt-md], [fxFlexOffset.lt-lg], [fxFlexOffset.lt-xl],\n  [fxFlexOffset.gt-xs], [fxFlexOffset.gt-sm], [fxFlexOffset.gt-md], [fxFlexOffset.gt-lg]\n" },] },
+    ];
+    /** @nocollapse */
+    FlexOffsetDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: LayoutDirective, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */] },] },
+        { type: Directionality, },
+        { type: StyleUtils, },
+    ]; };
+    FlexOffsetDirective.propDecorators = {
+        "offset": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset',] },],
+        "offsetXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.xs',] },],
+        "offsetSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.sm',] },],
+        "offsetMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.md',] },],
+        "offsetLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.lg',] },],
+        "offsetXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.xl',] },],
+        "offsetLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.lt-sm',] },],
+        "offsetLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.lt-md',] },],
+        "offsetLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.lt-lg',] },],
+        "offsetLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.lt-xl',] },],
+        "offsetGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.gt-xs',] },],
+        "offsetGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.gt-sm',] },],
+        "offsetGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.gt-md',] },],
+        "offsetGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOffset.gt-lg',] },],
+    };
+    return FlexOffsetDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * 'flex-order' flexbox styling directive
+ * Configures the positional ordering of the element in a sorted layout container
+ * @see https://css-tricks.com/almanac/properties/o/order/
+ */
+var FlexOrderDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(FlexOrderDirective, _super);
+    /* tslint:enable */
+    function FlexOrderDirective(monitor, elRef, styleUtils) {
+        return _super.call(this, monitor, elRef, styleUtils) || this;
+    }
+    Object.defineProperty(FlexOrderDirective.prototype, "order", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('order', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FlexOrderDirective.prototype, "orderXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FlexOrderDirective.prototype, "orderSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(FlexOrderDirective.prototype, "orderLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('orderLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+     */
+    /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    FlexOrderDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property, see onMediaQueryChanges()
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (changes['order'] != null || this._mqActivation) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    FlexOrderDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        this._listenForMediaQueryChanges('order', '0', function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+        this._updateWithValue();
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /**
+     * @param {?=} value
+     * @return {?}
+     */
+    FlexOrderDirective.prototype._updateWithValue = /**
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._queryInput('order') || '0';
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        this._applyStyleToElement(this._buildCSS(value));
+    };
+    /**
+     * @param {?} value
+     * @return {?}
+     */
+    FlexOrderDirective.prototype._buildCSS = /**
+     * @param {?} value
+     * @return {?}
+     */
+    function (value) {
+        value = parseInt(value, 10);
+        return { order: isNaN(value) ? 0 : value };
+    };
+    FlexOrderDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{ selector: "\n  [fxFlexOrder],\n  [fxFlexOrder.xs], [fxFlexOrder.sm], [fxFlexOrder.md], [fxFlexOrder.lg], [fxFlexOrder.xl],\n  [fxFlexOrder.lt-sm], [fxFlexOrder.lt-md], [fxFlexOrder.lt-lg], [fxFlexOrder.lt-xl],\n  [fxFlexOrder.gt-xs], [fxFlexOrder.gt-sm], [fxFlexOrder.gt-md], [fxFlexOrder.gt-lg]\n" },] },
+    ];
+    /** @nocollapse */
+    FlexOrderDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: StyleUtils, },
+    ]; };
+    FlexOrderDirective.propDecorators = {
+        "order": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder',] },],
+        "orderXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.xs',] },],
+        "orderSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.sm',] },],
+        "orderMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.md',] },],
+        "orderLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.lg',] },],
+        "orderXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.xl',] },],
+        "orderGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.gt-xs',] },],
+        "orderGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.gt-sm',] },],
+        "orderGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.gt-md',] },],
+        "orderGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.gt-lg',] },],
+        "orderLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.lt-sm',] },],
+        "orderLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.lt-md',] },],
+        "orderLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.lt-lg',] },],
+        "orderLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxFlexOrder.lt-xl',] },],
+    };
+    return FlexOrderDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Adapts the 'deprecated' Angular Renderer v1 API to use the new Renderer2 instance
+ * This is required for older versions of NgStyle and NgClass that require
+ * the v1 API (but should use the v2 instances)
+ */
+var RendererAdapter = /** @class */ (function () {
+    function RendererAdapter(_renderer) {
+        this._renderer = _renderer;
+    }
+    /**
+     * @param {?} el
+     * @param {?} className
+     * @param {?} isAdd
+     * @return {?}
+     */
+    RendererAdapter.prototype.setElementClass = /**
+     * @param {?} el
+     * @param {?} className
+     * @param {?} isAdd
+     * @return {?}
+     */
+    function (el, className, isAdd) {
+        if (isAdd) {
+            this._renderer.addClass(el, className);
+        }
+        else {
+            this._renderer.removeClass(el, className);
+        }
+    };
+    /**
+     * @param {?} el
+     * @param {?} styleName
+     * @param {?} styleValue
+     * @return {?}
+     */
+    RendererAdapter.prototype.setElementStyle = /**
+     * @param {?} el
+     * @param {?} styleName
+     * @param {?} styleValue
+     * @return {?}
+     */
+    function (el, styleName, styleValue) {
+        if (styleValue) {
+            this._renderer.setStyle(el, styleName, styleValue);
+        }
+        else {
+            this._renderer.removeStyle(el, styleName);
+        }
+    };
+    // new API is forwarded
+    /**
+     * @param {?} el
+     * @param {?} name
+     * @return {?}
+     */
+    RendererAdapter.prototype.addClass = /**
+     * @param {?} el
+     * @param {?} name
+     * @return {?}
+     */
+    function (el, name) {
+        this._renderer.addClass(el, name);
+    };
+    /**
+     * @param {?} el
+     * @param {?} name
+     * @return {?}
+     */
+    RendererAdapter.prototype.removeClass = /**
+     * @param {?} el
+     * @param {?} name
+     * @return {?}
+     */
+    function (el, name) {
+        this._renderer.removeClass(el, name);
+    };
+    /**
+     * @param {?} el
+     * @param {?} style
+     * @param {?} value
+     * @param {?=} flags
+     * @return {?}
+     */
+    RendererAdapter.prototype.setStyle = /**
+     * @param {?} el
+     * @param {?} style
+     * @param {?} value
+     * @param {?=} flags
+     * @return {?}
+     */
+    function (el, style, value, flags) {
+        this._renderer.setStyle(el, style, value, flags);
+    };
+    /**
+     * @param {?} el
+     * @param {?} style
+     * @param {?=} flags
+     * @return {?}
+     */
+    RendererAdapter.prototype.removeStyle = /**
+     * @param {?} el
+     * @param {?} style
+     * @param {?=} flags
+     * @return {?}
+     */
+    function (el, style, flags) {
+        this._renderer.removeStyle(el, style, flags);
+    };
+    // ******************************************************************
+    // !! Renderer is an abstract class with abstract methods
+    //
+    // These are implementation of those methods... and do NOTHING since
+    // we only use setElementStyle() and setElementClass()
+    // ******************************************************************
+    /* tslint:disable */
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.animate = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('animate'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.attachViewAfter = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('attachViewAfter'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.detachView = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('detachView'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.destroyView = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('destroyView'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.createElement = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('createElement'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.createViewRoot = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('createViewRoot'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.createTemplateAnchor = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('createTemplateAnchor'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.createText = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('createText'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.invokeElementMethod = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('invokeElementMethod'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.projectNodes = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('projectNodes'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.selectRootElement = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('selectRootElement'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.setBindingDebugInfo = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('setBindingDebugInfo'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.setElementProperty = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('setElementProperty'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.setElementAttribute = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('setElementAttribute'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.setText = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('setText'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.listen = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('listen'); };
+    /**
+     * @return {?}
+     */
+    RendererAdapter.prototype.listenGlobal = /**
+     * @return {?}
+     */
+    function () { throw _notImplemented('listenGlobal'); };
+    return RendererAdapter;
+}());
+/**
+ * @param {?} methodName
+ * @return {?}
+ */
+function _notImplemented(methodName) {
+    return new Error("The method RendererAdapter::" + methodName + "() has not been implemented");
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Directive to add responsive support for ngClass.
+ * This maintains the core functionality of 'ngClass' and adds responsive API
+ * Note: this class is a no-op when rendered on the server
+ */
+var ClassDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(ClassDirective, _super);
+    /* tslint:enable */
+    function ClassDirective(monitor, _iterableDiffers, _keyValueDiffers, _ngEl, _renderer, _ngClassInstance, _styler) {
+        var _this = _super.call(this, monitor, _ngEl, _styler) || this;
+        _this.monitor = monitor;
+        _this._iterableDiffers = _iterableDiffers;
+        _this._keyValueDiffers = _keyValueDiffers;
+        _this._ngEl = _ngEl;
+        _this._renderer = _renderer;
+        _this._ngClassInstance = _ngClassInstance;
+        _this._styler = _styler;
+        _this._configureAdapters();
+        return _this;
+    }
+    Object.defineProperty(ClassDirective.prototype, "ngClassBase", {
+        set: /**
+         * Intercept ngClass assignments so we cache the default classes
+         * which are merged with activated styles or used as fallbacks.
+         * Note: Base ngClass values are applied during ngDoCheck()
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) {
+            var /** @type {?} */ key = 'ngClass';
+            this._base.cacheInput(key, val, true);
+            this._ngClassInstance.ngClass = this._base.queryInput(key);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "klazz", {
+        set: /**
+         * Capture class assignments so we cache the default classes
+         * which are merged with activated styles and used as fallbacks.
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) {
+            var /** @type {?} */ key = 'class';
+            this._base.cacheInput(key, val);
+            this._ngClassInstance.klass = val;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassXs', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassXl', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassLtSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassLtMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassLtLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassLtXl', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassGtXs', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassGtSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassGtMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ClassDirective.prototype, "ngClassGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngClassGtLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    // ******************************************************************
+    // Lifecycle Hooks
+    // ******************************************************************
+    /**
+     * For @Input changes on the current mq activation property
+     */
+    /**
+     * For \@Input changes on the current mq activation property
+     * @param {?} changes
+     * @return {?}
+     */
+    ClassDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (this._base.activeKey in changes) {
+            this._ngClassInstance.ngClass = this._base.mqActivation.activatedInput || '';
+        }
+    };
+    /**
+     * @return {?}
+     */
+    ClassDirective.prototype.ngOnInit = /**
+     * @return {?}
+     */
+    function () {
+        this._configureMQListener();
+    };
+    /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     */
+    /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     * @return {?}
+     */
+    ClassDirective.prototype.ngDoCheck = /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     * @return {?}
+     */
+    function () {
+        this._ngClassInstance.ngDoCheck();
+    };
+    /**
+     * @return {?}
+     */
+    ClassDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._base.ngOnDestroy();
+        delete this._ngClassInstance;
+    };
+    // ******************************************************************
+    // Internal Methods
+    // ******************************************************************
+    /**
+     * Configure adapters (that delegate to an internal ngClass instance) if responsive
+     * keys have been defined.
+     */
+    /**
+     * Configure adapters (that delegate to an internal ngClass instance) if responsive
+     * keys have been defined.
+     * @return {?}
+     */
+    ClassDirective.prototype._configureAdapters = /**
+     * Configure adapters (that delegate to an internal ngClass instance) if responsive
+     * keys have been defined.
+     * @return {?}
+     */
+    function () {
+        this._base = new BaseFxDirectiveAdapter('ngClass', this.monitor, this._ngEl, this._styler);
+        if (!this._ngClassInstance) {
+            // Create an instance NgClass Directive instance only if `ngClass=""` has NOT been defined on
+            // the same host element; since the responsive variations may be defined...
+            var /** @type {?} */ adapter = new RendererAdapter(this._renderer);
+            this._ngClassInstance = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* NgClass */](this._iterableDiffers, this._keyValueDiffers, this._ngEl, /** @type {?} */ (adapter));
+        }
+    };
+    /**
+     * Build an mqActivation object that bridges mql change events to onMediaQueryChange handlers
+     * NOTE: We delegate subsequent activity to the NgClass logic
+     *       Identify the activated input value and update the ngClass iterables...
+     *       Use ngDoCheck() to actually apply the values to the element
+     */
+    /**
+     * Build an mqActivation object that bridges mql change events to onMediaQueryChange handlers
+     * NOTE: We delegate subsequent activity to the NgClass logic
+     *       Identify the activated input value and update the ngClass iterables...
+     *       Use ngDoCheck() to actually apply the values to the element
+     * @param {?=} baseKey
+     * @return {?}
+     */
+    ClassDirective.prototype._configureMQListener = /**
+     * Build an mqActivation object that bridges mql change events to onMediaQueryChange handlers
+     * NOTE: We delegate subsequent activity to the NgClass logic
+     *       Identify the activated input value and update the ngClass iterables...
+     *       Use ngDoCheck() to actually apply the values to the element
+     * @param {?=} baseKey
+     * @return {?}
+     */
+    function (baseKey) {
+        var _this = this;
+        if (baseKey === void 0) { baseKey = 'ngClass'; }
+        var /** @type {?} */ fallbackValue = this._base.queryInput(baseKey);
+        this._base.listenForMediaQueryChanges(baseKey, fallbackValue, function (changes) {
+            _this._ngClassInstance.ngClass = changes.value || '';
+            _this._ngClassInstance.ngDoCheck();
+        });
+    };
+    ClassDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n    [ngClass.xs], [ngClass.sm], [ngClass.md], [ngClass.lg], [ngClass.xl],\n    [ngClass.lt-sm], [ngClass.lt-md], [ngClass.lt-lg], [ngClass.lt-xl],\n    [ngClass.gt-xs], [ngClass.gt-sm], [ngClass.gt-md], [ngClass.gt-lg]\n  "
+                },] },
+    ];
+    /** @nocollapse */
+    ClassDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["E" /* IterableDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* KeyValueDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Renderer2 */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* NgClass */], decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: StyleUtils, },
+    ]; };
+    ClassDirective.propDecorators = {
+        "ngClassBase": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass',] },],
+        "klazz": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['class',] },],
+        "ngClassXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.xs',] },],
+        "ngClassSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.sm',] },],
+        "ngClassMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.md',] },],
+        "ngClassLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.lg',] },],
+        "ngClassXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.xl',] },],
+        "ngClassLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.lt-sm',] },],
+        "ngClassLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.lt-md',] },],
+        "ngClassLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.lt-lg',] },],
+        "ngClassLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.lt-xl',] },],
+        "ngClassGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.gt-xs',] },],
+        "ngClassGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.gt-sm',] },],
+        "ngClassGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.gt-md',] },],
+        "ngClassGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngClass.gt-lg',] },],
+    };
+    return ClassDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * NgStyle allowed inputs
+ */
+var NgStyleKeyValue = /** @class */ (function () {
+    function NgStyleKeyValue(key, value, noQuotes) {
+        if (noQuotes === void 0) { noQuotes = true; }
+        this.key = key;
+        this.value = value;
+        this.key = noQuotes ? key.replace(/['"]/g, '').trim() : key.trim();
+        this.value = noQuotes ? value.replace(/['"]/g, '').trim() : value.trim();
+        this.value = this.value.replace(/;/, '');
+    }
+    return NgStyleKeyValue;
+}());
+/**
+ * Transform Operators for \@angular/flex-layout NgStyle Directive
+ */
+var ngStyleUtils = {
+    getType: getType,
+    buildRawList: buildRawList,
+    buildMapFromList: buildMapFromList,
+    buildMapFromSet: buildMapFromSet
+};
+/**
+ * @param {?} target
+ * @return {?}
+ */
+function getType(target) {
+    var /** @type {?} */ what = typeof target;
+    if (what === 'object') {
+        return (target.constructor === Array) ? 'array' :
+            (target.constructor === Set) ? 'set' : 'object';
+    }
+    return what;
+}
+/**
+ * Split string of key:value pairs into Array of k-v pairs
+ * e.g.  'key:value; key:value; key:value;' -> ['key:value',...]
+ * @param {?} source
+ * @param {?=} delimiter
+ * @return {?}
+ */
+function buildRawList(source, delimiter) {
+    if (delimiter === void 0) { delimiter = ';'; }
+    return String(source)
+        .trim()
+        .split(delimiter)
+        .map(function (val) { return val.trim(); })
+        .filter(function (val) { return val !== ''; });
+}
+/**
+ * Convert array of key:value strings to a iterable map object
+ * @param {?} styles
+ * @param {?=} sanitize
+ * @return {?}
+ */
+function buildMapFromList(styles, sanitize) {
+    var /** @type {?} */ sanitizeValue = function (it) {
+        if (sanitize) {
+            it.value = sanitize(it.value);
+        }
+        return it;
+    };
+    return styles
+        .map(stringToKeyValue)
+        .filter(function (entry) { return !!entry; })
+        .map(sanitizeValue)
+        .reduce(keyValuesToMap, {});
+}
+/**
+ * Convert Set<string> or raw Object to an iterable NgStyleMap
+ * @param {?} source
+ * @param {?=} sanitize
+ * @return {?}
+ */
+function buildMapFromSet(source, sanitize) {
+    var /** @type {?} */ list = new Array();
+    if (getType(source) == 'set') {
+        source.forEach(function (entry) { return list.push(entry); });
+    }
+    else {
+        // simple hashmap
+        Object.keys(source).forEach(function (key) {
+            list.push(key + ":" + source[key]);
+        });
+    }
+    return buildMapFromList(list, sanitize);
+}
+/**
+ * Convert 'key:value' -> [key, value]
+ * @param {?} it
+ * @return {?}
+ */
+function stringToKeyValue(it) {
+    var _a = it.split(':'), key = _a[0], val = _a[1];
+    return val ? new NgStyleKeyValue(key, val) : null;
+}
+/**
+ * Convert [ [key,value] ] -> { key : value }
+ * @param {?} map
+ * @param {?} entry
+ * @return {?}
+ */
+function keyValuesToMap(map$$1, entry) {
+    if (!!entry.key) {
+        map$$1[entry.key] = entry.value;
+    }
+    return map$$1;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Directive to add responsive support for ngStyle.
+ *
+ */
+var StyleDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(StyleDirective, _super);
+    /* tslint:enable */
+    /**
+     *  Constructor for the ngStyle subclass; which adds selectors and
+     *  a MediaQuery Activation Adapter
+     */
+    function StyleDirective(monitor, _sanitizer, _ngEl, _renderer, _differs, _ngStyleInstance, _styler) {
+        var _this = _super.call(this, monitor, _ngEl, _styler) || this;
+        _this.monitor = monitor;
+        _this._sanitizer = _sanitizer;
+        _this._ngEl = _ngEl;
+        _this._renderer = _renderer;
+        _this._differs = _differs;
+        _this._ngStyleInstance = _ngStyleInstance;
+        _this._styler = _styler;
+        _this._configureAdapters();
+        return _this;
+    }
+    Object.defineProperty(StyleDirective.prototype, "ngStyleBase", {
+        set: /**
+         * Intercept ngStyle assignments so we cache the default styles
+         * which are merged with activated styles or used as fallbacks.
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) {
+            var /** @type {?} */ key = 'ngStyle';
+            this._base.cacheInput(key, val, true); // convert val to hashmap
+            this._ngStyleInstance.ngStyle = this._base.queryInput(key);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StyleDirective.prototype, "ngStyleXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleXs', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StyleDirective.prototype, "ngStyleSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleXl', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleLtSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleLtMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleLtLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleLtXl', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleGtXs', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleGtSm', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleGtMd', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(StyleDirective.prototype, "ngStyleGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._base.cacheInput('ngStyleGtLg', val, true); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // ******************************************************************
+    // Lifecycle Hooks
+    // ******************************************************************
+    /**
+     * For @Input changes on the current mq activation property
+     */
+    /**
+     * For \@Input changes on the current mq activation property
+     * @param {?} changes
+     * @return {?}
+     */
+    StyleDirective.prototype.ngOnChanges = /**
+     * For \@Input changes on the current mq activation property
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (this._base.activeKey in changes) {
+            this._ngStyleInstance.ngStyle = this._base.mqActivation.activatedInput || '';
+        }
+    };
+    /**
+     * @return {?}
+     */
+    StyleDirective.prototype.ngOnInit = /**
+     * @return {?}
+     */
+    function () {
+        this._configureMQListener();
+    };
+    /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     */
+    /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     * @return {?}
+     */
+    StyleDirective.prototype.ngDoCheck = /**
+     * For ChangeDetectionStrategy.onPush and ngOnChanges() updates
+     * @return {?}
+     */
+    function () {
+        this._ngStyleInstance.ngDoCheck();
+    };
+    /**
+     * @return {?}
+     */
+    StyleDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._base.ngOnDestroy();
+        delete this._ngStyleInstance;
+    };
+    // ******************************************************************
+    // Internal Methods
+    // ******************************************************************
+    /**
+       * Configure adapters (that delegate to an internal ngClass instance) if responsive
+       * keys have been defined.
+       */
+    /**
+     * Configure adapters (that delegate to an internal ngClass instance) if responsive
+     * keys have been defined.
+     * @return {?}
+     */
+    StyleDirective.prototype._configureAdapters = /**
+     * Configure adapters (that delegate to an internal ngClass instance) if responsive
+     * keys have been defined.
+     * @return {?}
+     */
+    function () {
+        this._base = new BaseFxDirectiveAdapter('ngStyle', this.monitor, this._ngEl, this._styler);
+        if (!this._ngStyleInstance) {
+            // Create an instance NgClass Directive instance only if `ngClass=""` has NOT been
+            // defined on the same host element; since the responsive variations may be defined...
+            var /** @type {?} */ adapter = new RendererAdapter(this._renderer);
+            this._ngStyleInstance = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["d" /* NgStyle */](this._differs, this._ngEl, /** @type {?} */ (adapter));
+        }
+        this._buildCacheInterceptor();
+        this._fallbackToStyle();
+    };
+    /**
+     * Build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * Build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @param {?=} baseKey
+     * @return {?}
+     */
+    StyleDirective.prototype._configureMQListener = /**
+     * Build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @param {?=} baseKey
+     * @return {?}
+     */
+    function (baseKey) {
+        var _this = this;
+        if (baseKey === void 0) { baseKey = 'ngStyle'; }
+        var /** @type {?} */ fallbackValue = this._base.queryInput(baseKey);
+        this._base.listenForMediaQueryChanges(baseKey, fallbackValue, function (changes) {
+            _this._ngStyleInstance.ngStyle = changes.value || '';
+            _this._ngStyleInstance.ngDoCheck();
+        });
+    };
+    // ************************************************************************
+    // Private Internal Methods
+    // ************************************************************************
+    /**
+     * Build intercept to convert raw strings to ngStyleMap
+     */
+    /**
+     * Build intercept to convert raw strings to ngStyleMap
+     * @return {?}
+     */
+    StyleDirective.prototype._buildCacheInterceptor = /**
+     * Build intercept to convert raw strings to ngStyleMap
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ cacheInput = this._base.cacheInput.bind(this._base);
+        this._base.cacheInput = function (key, source, cacheRaw, merge) {
+            if (cacheRaw === void 0) { cacheRaw = false; }
+            if (merge === void 0) { merge = true; }
+            var /** @type {?} */ styles = _this._buildStyleMap(source);
+            if (merge) {
+                styles = extendObject({}, _this._base.inputMap['ngStyle'], styles);
+            }
+            cacheInput(key, styles, cacheRaw);
+        };
+    };
+    /**
+     * Convert raw strings to ngStyleMap; which is required by ngStyle
+     * NOTE: Raw string key-value pairs MUST be delimited by `;`
+     *       Comma-delimiters are not supported due to complexities of
+     *       possible style values such as `rgba(x,x,x,x)` and others
+     */
+    /**
+     * Convert raw strings to ngStyleMap; which is required by ngStyle
+     * NOTE: Raw string key-value pairs MUST be delimited by `;`
+     *       Comma-delimiters are not supported due to complexities of
+     *       possible style values such as `rgba(x,x,x,x)` and others
+     * @param {?} styles
+     * @return {?}
+     */
+    StyleDirective.prototype._buildStyleMap = /**
+     * Convert raw strings to ngStyleMap; which is required by ngStyle
+     * NOTE: Raw string key-value pairs MUST be delimited by `;`
+     *       Comma-delimiters are not supported due to complexities of
+     *       possible style values such as `rgba(x,x,x,x)` and others
+     * @param {?} styles
+     * @return {?}
+     */
+    function (styles) {
+        var _this = this;
+        var /** @type {?} */ sanitizer = function (val) {
+            // Always safe-guard (aka sanitize) style property values
+            return _this._sanitizer.sanitize(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* SecurityContext */].STYLE, val) || '';
+        };
+        if (styles) {
+            switch (ngStyleUtils.getType(styles)) {
+                case 'string': return ngStyleUtils.buildMapFromList(ngStyleUtils.buildRawList(styles), sanitizer);
+                case 'array': return ngStyleUtils.buildMapFromList(/** @type {?} */ (styles), sanitizer);
+                case 'set': return ngStyleUtils.buildMapFromSet(styles, sanitizer);
+                default: return ngStyleUtils.buildMapFromSet(styles, sanitizer);
+            }
+        }
+        return styles;
+    };
+    /**
+     * Initial lookup of raw 'class' value (if any)
+     */
+    /**
+     * Initial lookup of raw 'class' value (if any)
+     * @return {?}
+     */
+    StyleDirective.prototype._fallbackToStyle = /**
+     * Initial lookup of raw 'class' value (if any)
+     * @return {?}
+     */
+    function () {
+        if (!this._base.queryInput('ngStyle')) {
+            this.ngStyleBase = this._getAttributeValue('style') || '';
+        }
+    };
+    StyleDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n    [ngStyle.xs], [ngStyle.sm], [ngStyle.md], [ngStyle.lg], [ngStyle.xl],\n    [ngStyle.lt-sm], [ngStyle.lt-md], [ngStyle.lt-lg], [ngStyle.lt-xl],\n    [ngStyle.gt-xs], [ngStyle.gt-sm], [ngStyle.gt-md], [ngStyle.gt-lg]\n  "
+                },] },
+    ];
+    /** @nocollapse */
+    StyleDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: __WEBPACK_IMPORTED_MODULE_7__angular_platform_browser__["c" /* DomSanitizer */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Renderer2 */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* KeyValueDiffers */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_common__["d" /* NgStyle */], decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: StyleUtils, },
+    ]; };
+    StyleDirective.propDecorators = {
+        "ngStyleBase": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle',] },],
+        "ngStyleXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.xs',] },],
+        "ngStyleSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.sm',] },],
+        "ngStyleMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.md',] },],
+        "ngStyleLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.lg',] },],
+        "ngStyleXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.xl',] },],
+        "ngStyleLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.lt-sm',] },],
+        "ngStyleLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.lt-md',] },],
+        "ngStyleLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.lt-lg',] },],
+        "ngStyleLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.lt-xl',] },],
+        "ngStyleGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.gt-xs',] },],
+        "ngStyleGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.gt-sm',] },],
+        "ngStyleGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.gt-md',] },],
+        "ngStyleGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['ngStyle.gt-lg',] },],
+    };
+    return StyleDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+var FALSY = ['false', false, 0];
+/**
+ * For fxHide selectors, we invert the 'value'
+ * and assign to the equivalent fxShow selector cache
+ *  - When 'hide' === '' === true, do NOT show the element
+ *  - When 'hide' === false or 0... we WILL show the element
+ * @param {?} hide
+ * @return {?}
+ */
+function negativeOf(hide) {
+    return (hide === '') ? false :
+        ((hide === 'false') || (hide === 0)) ? true : !hide;
+}
+/**
+ * 'show' Layout API directive
+ *
+ */
+var ShowHideDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(ShowHideDirective, _super);
+    /* tslint:enable */
+    /**
+     *
+     */
+    function ShowHideDirective(monitor, layout, elRef, styleUtils, platformId, serverModuleLoaded) {
+        var _this = _super.call(this, monitor, elRef, styleUtils) || this;
+        _this.layout = layout;
+        _this.elRef = elRef;
+        _this.styleUtils = styleUtils;
+        _this.platformId = platformId;
+        _this.serverModuleLoaded = serverModuleLoaded;
+        if (layout) {
+            /**
+                   * The Layout can set the display:flex (and incorrectly affect the Hide/Show directives.
+                   * Whenever Layout [on the same element] resets its CSS, then update the Hide/Show CSS
+                   */
+            /**
+             * The Layout can set the display:flex (and incorrectly affect the Hide/Show directives.
+             * Whenever Layout [on the same element] resets its CSS, then update the Hide/Show CSS
+             */
+            _this._layoutWatcher = layout.layout$.subscribe(function () { return _this._updateWithValue(); });
+        }
+        return _this;
+    }
+    Object.defineProperty(ShowHideDirective.prototype, "show", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('show', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ShowHideDirective.prototype, "showXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ShowHideDirective.prototype, "showSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "showGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hide", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('show', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ShowHideDirective.prototype, "hideXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showXs', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ShowHideDirective.prototype, "hideSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showSm', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showMd', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLg', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showXl', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtSm', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtMd', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtLg', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showLtXl', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtXs', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtSm', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtMd', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    Object.defineProperty(ShowHideDirective.prototype, "hideGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('showGtLg', negativeOf(val)); },
+        enumerable: true,
+        configurable: true
+    });
+    
+    // *********************************************
+    // Lifecycle Methods
+    // *********************************************
+    /**
+     * Override accessor to the current HTMLElement's `display` style
+     * Note: Show/Hide will not change the display to 'flex' but will set it to 'block'
+     * unless it was already explicitly specified inline or in a CSS stylesheet.
+     */
+    /**
+     * Override accessor to the current HTMLElement's `display` style
+     * Note: Show/Hide will not change the display to 'flex' but will set it to 'block'
+     * unless it was already explicitly specified inline or in a CSS stylesheet.
+     * @return {?}
+     */
+    ShowHideDirective.prototype._getDisplayStyle = /**
+     * Override accessor to the current HTMLElement's `display` style
+     * Note: Show/Hide will not change the display to 'flex' but will set it to 'block'
+     * unless it was already explicitly specified inline or in a CSS stylesheet.
+     * @return {?}
+     */
+    function () {
+        return this.layout ? 'flex' : _super.prototype._getDisplayStyle.call(this);
+    };
+    /**
+     * On changes to any @Input properties...
+     * Default to use the non-responsive Input value ('fxShow')
+     * Then conditionally override with the mq-activated Input's current value
+     */
+    /**
+     * On changes to any \@Input properties...
+     * Default to use the non-responsive Input value ('fxShow')
+     * Then conditionally override with the mq-activated Input's current value
+     * @param {?} changes
+     * @return {?}
+     */
+    ShowHideDirective.prototype.ngOnChanges = /**
+     * On changes to any \@Input properties...
+     * Default to use the non-responsive Input value ('fxShow')
+     * Then conditionally override with the mq-activated Input's current value
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        if (this.hasInitialized && (changes['show'] != null || this._mqActivation)) {
+            this._updateWithValue();
+        }
+    };
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     */
+    /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    ShowHideDirective.prototype.ngOnInit = /**
+     * After the initial onChanges, build an mqActivation object that bridges
+     * mql change events to onMediaQueryChange handlers
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        var /** @type {?} */ value = this._getDefaultVal('show', true);
+        // Build _mqActivation controller
+        this._listenForMediaQueryChanges('show', value, function (changes) {
+            _this._updateWithValue(changes.value);
+        });
+        this._updateWithValue();
+    };
+    /**
+     * @return {?}
+     */
+    ShowHideDirective.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        _super.prototype.ngOnDestroy.call(this);
+        if (this._layoutWatcher) {
+            this._layoutWatcher.unsubscribe();
+        }
+    };
+    // *********************************************
+    // Protected methods
+    // *********************************************
+    /** Validate the visibility value and then update the host's inline display style */
+    /**
+     * Validate the visibility value and then update the host's inline display style
+     * @param {?=} value
+     * @return {?}
+     */
+    ShowHideDirective.prototype._updateWithValue = /**
+     * Validate the visibility value and then update the host's inline display style
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        value = value || this._getDefaultVal('show', true);
+        if (this._mqActivation) {
+            value = this._mqActivation.activatedInput;
+        }
+        var /** @type {?} */ shouldShow = this._validateTruthy(value);
+        this._applyStyleToElement(this._buildCSS(shouldShow));
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["g" /* isPlatformServer */])(this.platformId) && this.serverModuleLoaded) {
+            this.nativeElement.style.setProperty('display', '');
+        }
+    };
+    /** Build the CSS that should be assigned to the element instance */
+    /**
+     * Build the CSS that should be assigned to the element instance
+     * @param {?} show
+     * @return {?}
+     */
+    ShowHideDirective.prototype._buildCSS = /**
+     * Build the CSS that should be assigned to the element instance
+     * @param {?} show
+     * @return {?}
+     */
+    function (show) {
+        return { 'display': show ? this._display : 'none' };
+    };
+    /**  Validate the to be not FALSY */
+    /**
+     * Validate the to be not FALSY
+     * @param {?} show
+     * @return {?}
+     */
+    ShowHideDirective.prototype._validateTruthy = /**
+     * Validate the to be not FALSY
+     * @param {?} show
+     * @return {?}
+     */
+    function (show) {
+        return (FALSY.indexOf(show) == -1);
+    };
+    ShowHideDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n  [fxShow],\n  [fxShow.xs], [fxShow.sm], [fxShow.md], [fxShow.lg], [fxShow.xl],\n  [fxShow.lt-sm], [fxShow.lt-md], [fxShow.lt-lg], [fxShow.lt-xl],\n  [fxShow.gt-xs], [fxShow.gt-sm], [fxShow.gt-md], [fxShow.gt-lg],\n  [fxHide],\n  [fxHide.xs], [fxHide.sm], [fxHide.md], [fxHide.lg], [fxHide.xl],\n  [fxHide.lt-sm], [fxHide.lt-md], [fxHide.lt-lg], [fxHide.lt-xl],\n  [fxHide.gt-xs], [fxHide.gt-sm], [fxHide.gt-md], [fxHide.gt-lg]\n"
+                },] },
+    ];
+    /** @nocollapse */
+    ShowHideDirective.ctorParameters = function () { return [
+        { type: MediaMonitor, },
+        { type: LayoutDirective, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: StyleUtils, },
+        { type: Object, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [SERVER_TOKEN,] },] },
+    ]; };
+    ShowHideDirective.propDecorators = {
+        "show": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow',] },],
+        "showXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.xs',] },],
+        "showSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.sm',] },],
+        "showMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.md',] },],
+        "showLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.lg',] },],
+        "showXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.xl',] },],
+        "showLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.lt-sm',] },],
+        "showLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.lt-md',] },],
+        "showLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.lt-lg',] },],
+        "showLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.lt-xl',] },],
+        "showGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.gt-xs',] },],
+        "showGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.gt-sm',] },],
+        "showGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.gt-md',] },],
+        "showGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxShow.gt-lg',] },],
+        "hide": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide',] },],
+        "hideXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.xs',] },],
+        "hideSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.sm',] },],
+        "hideMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.md',] },],
+        "hideLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.lg',] },],
+        "hideXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.xl',] },],
+        "hideLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.lt-sm',] },],
+        "hideLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.lt-md',] },],
+        "hideLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.lt-lg',] },],
+        "hideLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.lt-xl',] },],
+        "hideGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.gt-xs',] },],
+        "hideGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.gt-sm',] },],
+        "hideGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.gt-md',] },],
+        "hideGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['fxHide.gt-lg',] },],
+    };
+    return ShowHideDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * This directive provides a responsive API for the HTML <img> 'src' attribute
+ * and will update the img.src property upon each responsive activation.
+ *
+ * e.g.
+ *      <img src="defaultScene.jpg" src.xs="mobileScene.jpg"></img>
+ *
+ * @see https://css-tricks.com/responsive-images-youre-just-changing-resolutions-use-src/
+ */
+var ImgSrcDirective = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(ImgSrcDirective, _super);
+    /* tslint:enable */
+    function ImgSrcDirective(_elRef, _monitor, _styler, _platformId, _serverModuleLoaded) {
+        var _this = _super.call(this, _monitor, _elRef, _styler) || this;
+        _this._elRef = _elRef;
+        _this._monitor = _monitor;
+        _this._styler = _styler;
+        _this._platformId = _platformId;
+        _this._serverModuleLoaded = _serverModuleLoaded;
+        _this._cacheInput('src', _elRef.nativeElement.getAttribute('src') || '');
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["g" /* isPlatformServer */])(_this._platformId) && _this._serverModuleLoaded) {
+            _this.nativeElement.setAttribute('src', '');
+        }
+        return _this;
+    }
+    Object.defineProperty(ImgSrcDirective.prototype, "srcBase", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this.cacheDefaultSrc(val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcLtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcLtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcLtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcLtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcLtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcLtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcLtXl", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcLtXl', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcGtXs", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcGtXs', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcGtSm", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcGtSm', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcGtMd", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcGtMd', val); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "srcGtLg", {
+        set: /**
+         * @param {?} val
+         * @return {?}
+         */
+        function (val) { this._cacheInput('srcGtLg', val); },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Listen for responsive changes to update the img.src attribute
+     */
+    /**
+     * Listen for responsive changes to update the img.src attribute
+     * @return {?}
+     */
+    ImgSrcDirective.prototype.ngOnInit = /**
+     * Listen for responsive changes to update the img.src attribute
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        _super.prototype.ngOnInit.call(this);
+        if (this.hasResponsiveKeys) {
+            // Listen for responsive changes
+            this._listenForMediaQueryChanges('src', this.defaultSrc, function () {
+                _this._updateSrcFor();
+            });
+        }
+        this._updateSrcFor();
+    };
+    /**
+     * Update the 'src' property of the host <img> element
+     */
+    /**
+     * Update the 'src' property of the host <img> element
+     * @return {?}
+     */
+    ImgSrcDirective.prototype.ngOnChanges = /**
+     * Update the 'src' property of the host <img> element
+     * @return {?}
+     */
+    function () {
+        if (this.hasInitialized) {
+            this._updateSrcFor();
+        }
+    };
+    /**
+     * Use the [responsively] activated input value to update
+     * the host img src attribute or assign a default `img.src=''`
+     * if the src has not been defined.
+     *
+     * Do nothing to standard `<img src="">` usages, only when responsive
+     * keys are present do we actually call `setAttribute()`
+     */
+    /**
+     * Use the [responsively] activated input value to update
+     * the host img src attribute or assign a default `img.src=''`
+     * if the src has not been defined.
+     *
+     * Do nothing to standard `<img src="">` usages, only when responsive
+     * keys are present do we actually call `setAttribute()`
+     * @return {?}
+     */
+    ImgSrcDirective.prototype._updateSrcFor = /**
+     * Use the [responsively] activated input value to update
+     * the host img src attribute or assign a default `img.src=''`
+     * if the src has not been defined.
+     *
+     * Do nothing to standard `<img src="">` usages, only when responsive
+     * keys are present do we actually call `setAttribute()`
+     * @return {?}
+     */
+    function () {
+        if (this.hasResponsiveKeys) {
+            var /** @type {?} */ url = this.activatedValue || this.defaultSrc;
+            if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["g" /* isPlatformServer */])(this._platformId) && this._serverModuleLoaded) {
+                this._styler.applyStyleToElement(this.nativeElement, { 'content': url ? "url(" + url + ")" : '' });
+            }
+            else {
+                this.nativeElement.setAttribute('src', String(url));
+            }
+        }
+    };
+    /**
+     * Cache initial value of 'src', this will be used as fallback when breakpoint
+     * activations change.
+     * NOTE: The default 'src' property is not bound using @Input(), so perform
+     * a post-ngOnInit() lookup of the default src value (if any).
+     */
+    /**
+     * Cache initial value of 'src', this will be used as fallback when breakpoint
+     * activations change.
+     * NOTE: The default 'src' property is not bound using \@Input(), so perform
+     * a post-ngOnInit() lookup of the default src value (if any).
+     * @param {?=} value
+     * @return {?}
+     */
+    ImgSrcDirective.prototype.cacheDefaultSrc = /**
+     * Cache initial value of 'src', this will be used as fallback when breakpoint
+     * activations change.
+     * NOTE: The default 'src' property is not bound using \@Input(), so perform
+     * a post-ngOnInit() lookup of the default src value (if any).
+     * @param {?=} value
+     * @return {?}
+     */
+    function (value) {
+        this._cacheInput('src', value || '');
+    };
+    Object.defineProperty(ImgSrcDirective.prototype, "defaultSrc", {
+        /**
+         * Empty values are maintained, undefined values are exposed as ''
+         */
+        get: /**
+         * Empty values are maintained, undefined values are exposed as ''
+         * @return {?}
+         */
+        function () {
+            return this._queryInput('src') || '';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ImgSrcDirective.prototype, "hasResponsiveKeys", {
+        /**
+         * Does the <img> have 1 or more src.<xxx> responsive inputs
+         * defined... these will be mapped to activated breakpoints.
+         */
+        get: /**
+         * Does the <img> have 1 or more src.<xxx> responsive inputs
+         * defined... these will be mapped to activated breakpoints.
+         * @return {?}
+         */
+        function () {
+            return Object.keys(this._inputMap).length > 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ImgSrcDirective.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "\n  img[src.xs],    img[src.sm],    img[src.md],    img[src.lg],   img[src.xl],\n  img[src.lt-sm], img[src.lt-md], img[src.lt-lg], img[src.lt-xl],\n  img[src.gt-xs], img[src.gt-sm], img[src.gt-md], img[src.gt-lg]\n"
+                },] },
+    ];
+    /** @nocollapse */
+    ImgSrcDirective.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: MediaMonitor, },
+        { type: StyleUtils, },
+        { type: Object, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [SERVER_TOKEN,] },] },
+    ]; };
+    ImgSrcDirective.propDecorators = {
+        "srcBase": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src',] },],
+        "srcXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.xs',] },],
+        "srcSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.sm',] },],
+        "srcMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.md',] },],
+        "srcLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.lg',] },],
+        "srcXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.xl',] },],
+        "srcLtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.lt-sm',] },],
+        "srcLtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.lt-md',] },],
+        "srcLtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.lt-lg',] },],
+        "srcLtXl": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.lt-xl',] },],
+        "srcGtXs": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.gt-xs',] },],
+        "srcGtSm": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.gt-sm',] },],
+        "srcGtMd": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.gt-md',] },],
+        "srcGtLg": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['src.gt-lg',] },],
+    };
+    return ImgSrcDirective;
+}(BaseFxDirective));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+var RESPONSIVE_ALIASES = [
+    'xs', 'gt-xs', 'sm', 'gt-sm', 'md', 'gt-md', 'lg', 'gt-lg', 'xl'
+];
+var DEFAULT_BREAKPOINTS = [
+    {
+        alias: 'xs',
+        mediaQuery: '(min-width: 0px) and (max-width: 599px)'
+    },
+    {
+        alias: 'gt-xs',
+        overlapping: true,
+        mediaQuery: '(min-width: 600px)'
+    },
+    {
+        alias: 'lt-sm',
+        overlapping: true,
+        mediaQuery: '(max-width: 599px)'
+    },
+    {
+        alias: 'sm',
+        mediaQuery: '(min-width: 600px) and (max-width: 959px)'
+    },
+    {
+        alias: 'gt-sm',
+        overlapping: true,
+        mediaQuery: '(min-width: 960px)'
+    },
+    {
+        alias: 'lt-md',
+        overlapping: true,
+        mediaQuery: '(max-width: 959px)'
+    },
+    {
+        alias: 'md',
+        mediaQuery: '(min-width: 960px) and (max-width: 1279px)'
+    },
+    {
+        alias: 'gt-md',
+        overlapping: true,
+        mediaQuery: '(min-width: 1280px)'
+    },
+    {
+        alias: 'lt-lg',
+        overlapping: true,
+        mediaQuery: '(max-width: 1279px)'
+    },
+    {
+        alias: 'lg',
+        mediaQuery: '(min-width: 1280px) and (max-width: 1919px)'
+    },
+    {
+        alias: 'gt-lg',
+        overlapping: true,
+        mediaQuery: '(min-width: 1920px)'
+    },
+    {
+        alias: 'lt-xl',
+        overlapping: true,
+        mediaQuery: '(max-width: 1920px)'
+    },
+    {
+        alias: 'xl',
+        mediaQuery: '(min-width: 1920px) and (max-width: 5000px)'
+    }
+];
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/* tslint:disable */
+var HANDSET_PORTRAIT = '(orientations: portrait) and (max-width: 599px)';
+var HANDSET_LANDSCAPE = '(orientations: landscape) and (max-width: 959px)';
+var TABLET_LANDSCAPE = '(orientations: landscape) and (min-width: 960px) and (max-width: 1279px)';
+var TABLET_PORTRAIT = '(orientations: portrait) and (min-width: 600px) and (max-width: 839px)';
+var WEB_PORTRAIT = '(orientations: portrait) and (min-width: 840px)';
+var WEB_LANDSCAPE = '(orientations: landscape) and (min-width: 1280px)';
+var ScreenTypes = {
+    'HANDSET': HANDSET_PORTRAIT + ", " + HANDSET_LANDSCAPE,
+    'TABLET': TABLET_PORTRAIT + " , " + TABLET_LANDSCAPE,
+    'WEB': WEB_PORTRAIT + ", " + WEB_LANDSCAPE + " ",
+    'HANDSET_PORTRAIT': "" + HANDSET_PORTRAIT,
+    'TABLET_PORTRAIT': TABLET_PORTRAIT + " ",
+    'WEB_PORTRAIT': "" + WEB_PORTRAIT,
+    'HANDSET_LANDSCAPE': HANDSET_LANDSCAPE + "]",
+    'TABLET_LANDSCAPE': "" + TABLET_LANDSCAPE,
+    'WEB_LANDSCAPE': "" + WEB_LANDSCAPE
+};
+/**
+ * Extended Breakpoints for handset/tablets with landscape or portrait orientations
+ */
+var ORIENTATION_BREAKPOINTS = [
+    { 'alias': 'handset', 'mediaQuery': ScreenTypes.HANDSET },
+    { 'alias': 'handset.landscape', 'mediaQuery': ScreenTypes.HANDSET_LANDSCAPE },
+    { 'alias': 'handset.portrait', 'mediaQuery': ScreenTypes.HANDSET_PORTRAIT },
+    { 'alias': 'tablet', 'mediaQuery': ScreenTypes.TABLET },
+    { 'alias': 'tablet.landscape', 'mediaQuery': ScreenTypes.TABLET },
+    { 'alias': 'tablet.portrait', 'mediaQuery': ScreenTypes.TABLET_PORTRAIT },
+    { 'alias': 'web', 'mediaQuery': ScreenTypes.WEB, overlapping: true },
+    { 'alias': 'web.landscape', 'mediaQuery': ScreenTypes.WEB_LANDSCAPE, overlapping: true },
+    { 'alias': 'web.portrait', 'mediaQuery': ScreenTypes.WEB_PORTRAIT, overlapping: true }
+];
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Base class for MediaService and pseudo-token for
+ * @abstract
+ */
+var ObservableMedia = /** @class */ (function () {
+    function ObservableMedia() {
+    }
+    return ObservableMedia;
+}());
+/**
+ * Class internalizes a MatchMedia service and exposes an Subscribable and Observable interface.
+ * This an Observable with that exposes a feature to subscribe to mediaQuery
+ * changes and a validator method (`isActive(<alias>)`) to test if a mediaQuery (or alias) is
+ * currently active.
+ *
+ * !! Only mediaChange activations (not de-activations) are announced by the ObservableMedia
+ *
+ * This class uses the BreakPoint Registry to inject alias information into the raw MediaChange
+ * notification. For custom mediaQuery notifications, alias information will not be injected and
+ * those fields will be ''.
+ *
+ * !! This is not an actual Observable. It is a wrapper of an Observable used to publish additional
+ * methods like `isActive(<alias>). To access the Observable and use RxJS operators, use
+ * `.asObservable()` with syntax like media.asObservable().map(....).
+ *
+ *  \@usage
+ *
+ *  // RxJS
+ *  import {filter} from 'rxjs/operators/filter';
+ *  import { ObservableMedia } from '\@angular/flex-layout';
+ *
+ *  \@Component({ ... })
+ *  export class AppComponent {
+ *    status : string = '';
+ *
+ *    constructor(  media:ObservableMedia ) {
+ *      let onChange = (change:MediaChange) => {
+ *        this.status = change ? `'${change.mqAlias}' = (${change.mediaQuery})` : '';
+ *      };
+ *
+ *      // Subscribe directly or access observable to use filter/map operators
+ *      // e.g.
+ *      //      media.subscribe(onChange);
+ *
+ *      media.asObservable()
+ *        .pipe(
+ *          filter((change:MediaChange) => true)   // silly noop filter
+ *        ).subscribe(onChange);
+ *    }
+ *  }
+ */
+var MediaService = /** @class */ (function () {
+    function MediaService(breakpoints, mediaWatcher) {
+        this.breakpoints = breakpoints;
+        this.mediaWatcher = mediaWatcher;
+        /**
+         * Should we announce gt-<xxx> breakpoint activations ?
+         */
+        this.filterOverlaps = true;
+        this._registerBreakPoints();
+        this.observable$ = this._buildObservable();
+    }
+    /**
+     * Test if specified query/alias is active.
+     */
+    /**
+     * Test if specified query/alias is active.
+     * @param {?} alias
+     * @return {?}
+     */
+    MediaService.prototype.isActive = /**
+     * Test if specified query/alias is active.
+     * @param {?} alias
+     * @return {?}
+     */
+    function (alias) {
+        var /** @type {?} */ query = this._toMediaQuery(alias);
+        return this.mediaWatcher.isActive(query);
+    };
+    /**
+     * Proxy to the Observable subscribe method
+     */
+    /**
+     * Proxy to the Observable subscribe method
+     * @param {?=} next
+     * @param {?=} error
+     * @param {?=} complete
+     * @return {?}
+     */
+    MediaService.prototype.subscribe = /**
+     * Proxy to the Observable subscribe method
+     * @param {?=} next
+     * @param {?=} error
+     * @param {?=} complete
+     * @return {?}
+     */
+    function (next, error, complete) {
+        return this.observable$.subscribe(next, error, complete);
+    };
+    /**
+     * Access to observable for use with operators like
+     * .filter(), .map(), etc.
+     */
+    /**
+     * Access to observable for use with operators like
+     * .filter(), .map(), etc.
+     * @return {?}
+     */
+    MediaService.prototype.asObservable = /**
+     * Access to observable for use with operators like
+     * .filter(), .map(), etc.
+     * @return {?}
+     */
+    function () {
+        return this.observable$;
+    };
+    /**
+     * Register all the mediaQueries registered in the BreakPointRegistry
+     * This is needed so subscribers can be auto-notified of all standard, registered
+     * mediaQuery activations
+     * @return {?}
+     */
+    MediaService.prototype._registerBreakPoints = /**
+     * Register all the mediaQueries registered in the BreakPointRegistry
+     * This is needed so subscribers can be auto-notified of all standard, registered
+     * mediaQuery activations
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ queries = this.breakpoints.sortedItems.map(function (bp) { return bp.mediaQuery; });
+        this.mediaWatcher.registerQuery(queries);
+    };
+    /**
+     * Prepare internal observable
+     *
+     * NOTE: the raw MediaChange events [from MatchMedia] do not
+     *       contain important alias information; as such this info
+     *       must be injected into the MediaChange
+     * @return {?}
+     */
+    MediaService.prototype._buildObservable = /**
+     * Prepare internal observable
+     *
+     * NOTE: the raw MediaChange events [from MatchMedia] do not
+     *       contain important alias information; as such this info
+     *       must be injected into the MediaChange
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ self = this;
+        var /** @type {?} */ media$ = this.mediaWatcher.observe();
+        var /** @type {?} */ activationsOnly = function (change) {
+            return change.matches === true;
+        };
+        var /** @type {?} */ addAliasInformation = function (change) {
+            return mergeAlias(change, _this._findByQuery(change.mediaQuery));
+        };
+        var /** @type {?} */ excludeOverlaps = function (change) {
+            var /** @type {?} */ bp = _this.breakpoints.findByQuery(change.mediaQuery);
+            return !bp ? true : !(self.filterOverlaps && bp.overlapping);
+        };
+        /**
+             * Only pass/announce activations (not de-activations)
+             * Inject associated (if any) alias information into the MediaChange event
+             * Exclude mediaQuery activations for overlapping mQs. List bounded mQ ranges only
+             */
+        return media$.pipe(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_filter__["a" /* filter */])(activationsOnly), Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_filter__["a" /* filter */])(excludeOverlaps), Object(__WEBPACK_IMPORTED_MODULE_1_rxjs_operators_map__["a" /* map */])(addAliasInformation));
+    };
+    /**
+     * Breakpoint locator by alias
+     * @param {?} alias
+     * @return {?}
+     */
+    MediaService.prototype._findByAlias = /**
+     * Breakpoint locator by alias
+     * @param {?} alias
+     * @return {?}
+     */
+    function (alias) {
+        return this.breakpoints.findByAlias(alias);
+    };
+    /**
+     * Breakpoint locator by mediaQuery
+     * @param {?} query
+     * @return {?}
+     */
+    MediaService.prototype._findByQuery = /**
+     * Breakpoint locator by mediaQuery
+     * @param {?} query
+     * @return {?}
+     */
+    function (query) {
+        return this.breakpoints.findByQuery(query);
+    };
+    /**
+     * Find associated breakpoint (if any)
+     * @param {?} query
+     * @return {?}
+     */
+    MediaService.prototype._toMediaQuery = /**
+     * Find associated breakpoint (if any)
+     * @param {?} query
+     * @return {?}
+     */
+    function (query) {
+        var /** @type {?} */ bp = this._findByAlias(query) || this._findByQuery(query);
+        return bp ? bp.mediaQuery : query;
+    };
+    MediaService.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    MediaService.ctorParameters = function () { return [
+        { type: BreakPointRegistry, },
+        { type: MatchMedia, },
+    ]; };
+    return MediaService;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var ALIAS_DELIMITERS = /(\.|-|_)/g;
+/**
+ * @param {?} part
+ * @return {?}
+ */
+function firstUpperCase(part) {
+    var /** @type {?} */ first = part.length > 0 ? part.charAt(0) : '';
+    var /** @type {?} */ remainder = (part.length > 1) ? part.slice(1) : '';
+    return first.toUpperCase() + remainder;
+}
+/**
+ * Converts snake-case to SnakeCase.
+ * @param {?} name Text to UpperCamelCase
+ * @return {?}
+ */
+function camelCase(name) {
+    return name
+        .replace(ALIAS_DELIMITERS, '|')
+        .split('|')
+        .map(firstUpperCase)
+        .join('');
+}
+/**
+ * For each breakpoint, ensure that a Suffix is defined;
+ * fallback to UpperCamelCase the unique Alias value
+ * @param {?} list
+ * @return {?}
+ */
+function validateSuffixes(list) {
+    list.forEach(function (bp) {
+        if (!bp.suffix || bp.suffix === '') {
+            bp.suffix = camelCase(bp.alias); // create Suffix value based on alias
+            bp.overlapping = bp.overlapping || false; // ensure default value
+        }
+    });
+    return list;
+}
+/**
+ * Merge a custom breakpoint list with the default list based on unique alias values
+ *  - Items are added if the alias is not in the default list
+ *  - Items are merged with the custom override if the alias exists in the default list
+ * @param {?} defaults
+ * @param {?=} custom
+ * @return {?}
+ */
+function mergeByAlias(defaults, custom) {
+    if (custom === void 0) { custom = []; }
+    var /** @type {?} */ merged = defaults.map(function (bp) { return extendObject({}, bp); });
+    var /** @type {?} */ findByAlias = function (alias) {
+        return merged.reduce(function (result, bp) {
+            return result || ((bp.alias === alias) ? bp : null);
+        }, null);
+    };
+    // Merge custom breakpoints
+    custom.forEach(function (bp) {
+        var /** @type {?} */ target = findByAlias(bp.alias);
+        if (target) {
+            extendObject(target, bp);
+        }
+        else {
+            merged.push(bp);
+        }
+    });
+    return validateSuffixes(merged);
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Options to identify which breakpoint types to include as part of
+ * a BreakPoint provider
+ * @record
+ */
+
+/**
+ * Add new custom items to the default list or override existing default with custom overrides
+ * @param {?=} _custom
+ * @param {?=} options
+ * @return {?}
+ */
+function buildMergedBreakPoints(_custom, options) {
+    options = extendObject({}, {
+        defaults: true,
+        // exclude pre-configured, internal default breakpoints
+        orientation: false // exclude pre-configured, internal orientations breakpoints
+    }, options || {});
+    return function () {
+        // Order so the defaults are loaded last; so ObservableMedia will report these last!
+        var /** @type {?} */ defaults = (options && options.orientations) ?
+            ORIENTATION_BREAKPOINTS.concat(DEFAULT_BREAKPOINTS) : DEFAULT_BREAKPOINTS;
+        return (options && options.defaults) ?
+            mergeByAlias(defaults, _custom || []) : mergeByAlias(_custom || []);
+    };
+}
+/**
+ *  Ensure that only a single global BreakPoint list is instantiated...
+ * @return {?}
+ */
+function DEFAULT_BREAKPOINTS_PROVIDER_FACTORY() {
+    return validateSuffixes(DEFAULT_BREAKPOINTS);
+}
+/**
+ * Default Provider that does not support external customization nor provide
+ * the extra extended breakpoints:   "handset", "tablet", and "web"
+ *
+ *  NOTE: !! breakpoints are considered to have unique 'alias' properties,
+ *        custom breakpoints matching existing breakpoints will override the properties
+ *        of the existing (and not be added as an extra breakpoint entry).
+ *        [xs, gt-xs, sm, gt-sm, md, gt-md, lg, gt-lg, xl]
+ */
+var DEFAULT_BREAKPOINTS_PROVIDER = {
+    // tslint:disable-line:variable-name
+    provide: BREAKPOINTS,
+    useFactory: DEFAULT_BREAKPOINTS_PROVIDER_FACTORY
+};
+/**
+ * Use with FlexLayoutModule.CUSTOM_BREAKPOINTS_PROVIDER_FACTORY!
+ * @param {?=} _custom
+ * @param {?=} options
+ * @return {?}
+ */
+function CUSTOM_BREAKPOINTS_PROVIDER_FACTORY(_custom, options) {
+    return {
+        provide: /** @type {?} */ (BREAKPOINTS),
+        useFactory: buildMergedBreakPoints(_custom, options)
+    };
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Ensure a single global ObservableMedia service provider
+ * @param {?} parentService
+ * @param {?} matchMedia
+ * @param {?} breakpoints
+ * @return {?}
+ */
+function OBSERVABLE_MEDIA_PROVIDER_FACTORY(parentService, matchMedia, breakpoints) {
+    return parentService || new MediaService(breakpoints, matchMedia);
+}
+/**
+ *  Provider to return global service for observable service for all MediaQuery activations
+ */
+var OBSERVABLE_MEDIA_PROVIDER = {
+    // tslint:disable-line:variable-name
+    provide: ObservableMedia,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), ObservableMedia],
+        MatchMedia,
+        BreakPointRegistry
+    ],
+    useFactory: OBSERVABLE_MEDIA_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Ensure a single global service provider
+ * @param {?} parentMonitor
+ * @param {?} breakpoints
+ * @param {?} matchMedia
+ * @return {?}
+ */
+function MEDIA_MONITOR_PROVIDER_FACTORY(parentMonitor, breakpoints, matchMedia) {
+    return parentMonitor || new MediaMonitor(breakpoints, matchMedia);
+}
+/**
+ * Export provider that uses a global service factory (above)
+ */
+var MEDIA_MONITOR_PROVIDER = {
+    provide: MediaMonitor,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), MediaMonitor],
+        BreakPointRegistry,
+        MatchMedia,
+    ],
+    useFactory: MEDIA_MONITOR_PROVIDER_FACTORY
+};
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Special server-only class to simulate a MediaQueryList and
+ * - supports manual activation to simulate mediaQuery matching
+ * - manages listeners
+ */
+var ServerMediaQueryList = /** @class */ (function () {
+    function ServerMediaQueryList(_mediaQuery) {
+        this._mediaQuery = _mediaQuery;
+        this._isActive = false;
+        this._listeners = [];
+    }
+    Object.defineProperty(ServerMediaQueryList.prototype, "matches", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this._isActive;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ServerMediaQueryList.prototype, "media", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this._mediaQuery;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Destroy the current list by deactivating the
+     * listeners and clearing the internal list
+     */
+    /**
+     * Destroy the current list by deactivating the
+     * listeners and clearing the internal list
+     * @return {?}
+     */
+    ServerMediaQueryList.prototype.destroy = /**
+     * Destroy the current list by deactivating the
+     * listeners and clearing the internal list
+     * @return {?}
+     */
+    function () {
+        this.deactivate();
+        this._listeners = [];
+    };
+    /** Notify all listeners that 'matches === TRUE' */
+    /**
+     * Notify all listeners that 'matches === TRUE'
+     * @return {?}
+     */
+    ServerMediaQueryList.prototype.activate = /**
+     * Notify all listeners that 'matches === TRUE'
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!this._isActive) {
+            this._isActive = true;
+            this._listeners.forEach(function (callback) {
+                callback(_this);
+            });
+        }
+        return this;
+    };
+    /** Notify all listeners that 'matches === false' */
+    /**
+     * Notify all listeners that 'matches === false'
+     * @return {?}
+     */
+    ServerMediaQueryList.prototype.deactivate = /**
+     * Notify all listeners that 'matches === false'
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (this._isActive) {
+            this._isActive = false;
+            this._listeners.forEach(function (callback) {
+                callback(_this);
+            });
+        }
+        return this;
+    };
+    /** Add a listener to our internal list to activate later */
+    /**
+     * Add a listener to our internal list to activate later
+     * @param {?} listener
+     * @return {?}
+     */
+    ServerMediaQueryList.prototype.addListener = /**
+     * Add a listener to our internal list to activate later
+     * @param {?} listener
+     * @return {?}
+     */
+    function (listener) {
+        if (this._listeners.indexOf(listener) === -1) {
+            this._listeners.push(listener);
+        }
+        if (this._isActive) {
+            listener(this);
+        }
+    };
+    /** Don't need to remove listeners in the server environment */
+    /**
+     * Don't need to remove listeners in the server environment
+     * @param {?} _
+     * @return {?}
+     */
+    ServerMediaQueryList.prototype.removeListener = /**
+     * Don't need to remove listeners in the server environment
+     * @param {?} _
+     * @return {?}
+     */
+    function (_) {
+    };
+    return ServerMediaQueryList;
+}());
+/**
+ * Special server-only implementation of MatchMedia that uses the above
+ * ServerMediaQueryList as its internal representation
+ *
+ * Also contains methods to activate and deactivate breakpoints
+ */
+var ServerMatchMedia = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(ServerMatchMedia, _super);
+    function ServerMatchMedia(_zone, _platformId, _document) {
+        var _this = _super.call(this, _zone, _platformId, _document) || this;
+        _this._zone = _zone;
+        _this._platformId = _platformId;
+        _this._document = _document;
+        _this._registry = new Map();
+        _this._source = new __WEBPACK_IMPORTED_MODULE_4_rxjs_BehaviorSubject__["a" /* BehaviorSubject */](new MediaChange(true));
+        _this._observable$ = _this._source.asObservable();
+        return _this;
+    }
+    /** Activate the specified breakpoint if we're on the server, no-op otherwise */
+    /**
+     * Activate the specified breakpoint if we're on the server, no-op otherwise
+     * @param {?} bp
+     * @return {?}
+     */
+    ServerMatchMedia.prototype.activateBreakpoint = /**
+     * Activate the specified breakpoint if we're on the server, no-op otherwise
+     * @param {?} bp
+     * @return {?}
+     */
+    function (bp) {
+        var /** @type {?} */ lookupBreakpoint = this._registry.get(bp.mediaQuery);
+        if (lookupBreakpoint) {
+            lookupBreakpoint.activate();
+        }
+    };
+    /** Deactivate the specified breakpoint if we're on the server, no-op otherwise */
+    /**
+     * Deactivate the specified breakpoint if we're on the server, no-op otherwise
+     * @param {?} bp
+     * @return {?}
+     */
+    ServerMatchMedia.prototype.deactivateBreakpoint = /**
+     * Deactivate the specified breakpoint if we're on the server, no-op otherwise
+     * @param {?} bp
+     * @return {?}
+     */
+    function (bp) {
+        var /** @type {?} */ lookupBreakpoint = this._registry.get(bp.mediaQuery);
+        if (lookupBreakpoint) {
+            lookupBreakpoint.deactivate();
+        }
+    };
+    /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     */
+    /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     * @param {?} query
+     * @return {?}
+     */
+    ServerMatchMedia.prototype._buildMQL = /**
+     * Call window.matchMedia() to build a MediaQueryList; which
+     * supports 0..n listeners for activation/deactivation
+     * @param {?} query
+     * @return {?}
+     */
+    function (query) {
+        return new ServerMediaQueryList(query);
+    };
+    ServerMatchMedia.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    ServerMatchMedia.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: Object, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_3__angular_common__["b" /* DOCUMENT */],] },] },
+    ]; };
+    return ServerMatchMedia;
+}(MatchMedia));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * *****************************************************************
+ * Define module for the MediaQuery API
+ * *****************************************************************
+ */
+var MediaQueriesModule = /** @class */ (function () {
+    function MediaQueriesModule() {
+    }
+    MediaQueriesModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    providers: [
+                        DEFAULT_BREAKPOINTS_PROVIDER,
+                        BreakPointRegistry,
+                        MatchMedia,
+                        MediaMonitor,
+                        OBSERVABLE_MEDIA_PROVIDER
+                    ]
+                },] },
+    ];
+    /** @nocollapse */
+    MediaQueriesModule.ctorParameters = function () { return []; };
+    return MediaQueriesModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Find all of the server-generated stylings, if any, and remove them
+ * This will be in the form of inline classes and the style block in the
+ * head of the DOM
+ * @param {?} _document
+ * @param {?} platformId
+ * @return {?}
+ */
+function removeStyles(_document, platformId) {
+    return function () {
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["f" /* isPlatformBrowser */])(platformId)) {
+            var /** @type {?} */ elements = Array.from(_document.querySelectorAll("[class*=" + CLASS_NAME + "]"));
+            var /** @type {?} */ classRegex_1 = new RegExp(/\bflex-layout-.+?\b/, 'g');
+            elements.forEach(function (el) {
+                el.classList.contains(CLASS_NAME + "ssr") && el.parentNode ?
+                    el.parentNode.removeChild(el) : el.className.replace(classRegex_1, '');
+            });
+        }
+    };
+}
+/**
+ *  Provider to remove SSR styles on the browser
+ */
+var BROWSER_PROVIDER = {
+    provide: /** @type {?} */ (__WEBPACK_IMPORTED_MODULE_0__angular_core__["b" /* APP_BOOTSTRAP_LISTENER */]),
+    useFactory: removeStyles,
+    deps: [__WEBPACK_IMPORTED_MODULE_3__angular_common__["b" /* DOCUMENT */], __WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */]],
+    multi: true
+};
+var CLASS_NAME = 'flex-layout-';
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Directive to listen for changes of direction of part of the DOM.
+ *
+ * Provides itself as Directionality such that descendant directives only need to ever inject
+ * Directionality to get the closest direction.
+ */
+var Dir = /** @class */ (function () {
+    function Dir() {
+        this._dir = 'ltr';
+        /**
+         * Whether the `value` has been set to its initial value.
+         */
+        this._isInitialized = false;
+        /**
+         * Event emitted when the direction changes.
+         */
+        this.change = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+    }
+    Object.defineProperty(Dir.prototype, "dir", {
+        get: /**
+         * \@docs-private
+         * @return {?}
+         */
+        function () { return this._dir; },
+        set: /**
+         * @param {?} v
+         * @return {?}
+         */
+        function (v) {
+            var /** @type {?} */ old = this._dir;
+            this._dir = v;
+            if (old !== this._dir && this._isInitialized) {
+                this.change.emit(this._dir);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Dir.prototype, "value", {
+        /** Current layout direction of the element. */
+        get: /**
+         * Current layout direction of the element.
+         * @return {?}
+         */
+        function () { return this.dir; },
+        enumerable: true,
+        configurable: true
+    });
+    /** Initialize once default value has been set. */
+    /**
+     * Initialize once default value has been set.
+     * @return {?}
+     */
+    Dir.prototype.ngAfterContentInit = /**
+     * Initialize once default value has been set.
+     * @return {?}
+     */
+    function () {
+        this._isInitialized = true;
+    };
+    /**
+     * @return {?}
+     */
+    Dir.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this.change.complete();
+    };
+    Dir.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: '[dir]',
+                    providers: [{ provide: Directionality, useExisting: Dir }],
+                    host: { '[dir]': 'dir' },
+                    exportAs: 'dir',
+                },] },
+    ];
+    /** @nocollapse */
+    Dir.ctorParameters = function () { return []; };
+    Dir.propDecorators = {
+        "change": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */], args: ['dirChange',] },],
+        "dir": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+    };
+    return Dir;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var BidiModule = /** @class */ (function () {
+    function BidiModule() {
+    }
+    BidiModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    exports: [Dir],
+                    declarations: [Dir],
+                    providers: [
+                        { provide: DIR_DOCUMENT, useExisting: __WEBPACK_IMPORTED_MODULE_3__angular_common__["b" /* DOCUMENT */] },
+                        Directionality,
+                    ]
+                },] },
+    ];
+    /** @nocollapse */
+    BidiModule.ctorParameters = function () { return []; };
+    return BidiModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Since the equivalent results are easily achieved with a css class attached to each
+ * layout child, these have been deprecated and removed from the API.
+ *
+ *  import {LayoutPaddingDirective} from './api/flexbox/layout-padding';
+ *  import {LayoutMarginDirective} from './api/flexbox/layout-margin';
+ */
+var ALL_DIRECTIVES = [
+    LayoutDirective,
+    LayoutGapDirective,
+    LayoutAlignDirective,
+    FlexDirective,
+    FlexOrderDirective,
+    FlexOffsetDirective,
+    FlexFillDirective,
+    FlexAlignDirective,
+    ShowHideDirective,
+    ClassDirective,
+    StyleDirective,
+    ImgSrcDirective
+];
+/**
+ *
+ */
+var FlexLayoutModule = /** @class */ (function () {
+    function FlexLayoutModule(serverModuleLoaded, platformId) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__angular_common__["g" /* isPlatformServer */])(platformId) && !serverModuleLoaded) {
+            console.warn('Warning: Flex Layout loaded on the server without FlexLayoutServerModule');
+        }
+    }
+    /**
+     * External uses can easily add custom breakpoints AND include internal orientations
+     * breakpoints; which are not available by default.
+     *
+     * !! Selector aliases are not auto-configured. Developers must subclass
+     * the API directives to support extra selectors for the orientations breakpoints !!
+     */
+    /**
+     * External uses can easily add custom breakpoints AND include internal orientations
+     * breakpoints; which are not available by default.
+     *
+     * !! Selector aliases are not auto-configured. Developers must subclass
+     * the API directives to support extra selectors for the orientations breakpoints !!
+     * @param {?} breakpoints
+     * @param {?=} options
+     * @return {?}
+     */
+    FlexLayoutModule.provideBreakPoints = /**
+     * External uses can easily add custom breakpoints AND include internal orientations
+     * breakpoints; which are not available by default.
+     *
+     * !! Selector aliases are not auto-configured. Developers must subclass
+     * the API directives to support extra selectors for the orientations breakpoints !!
+     * @param {?} breakpoints
+     * @param {?=} options
+     * @return {?}
+     */
+    function (breakpoints, options) {
+        return {
+            ngModule: FlexLayoutModule,
+            providers: [
+                CUSTOM_BREAKPOINTS_PROVIDER_FACTORY(breakpoints, options || { orientations: false })
+            ]
+        };
+    };
+    FlexLayoutModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [MediaQueriesModule, BidiModule],
+                    exports: [MediaQueriesModule].concat(ALL_DIRECTIVES),
+                    declarations: ALL_DIRECTIVES.slice(),
+                    providers: [
+                        ServerStylesheet,
+                        StyleUtils,
+                        BROWSER_PROVIDER,
+                    ]
+                },] },
+    ];
+    /** @nocollapse */
+    FlexLayoutModule.ctorParameters = function () { return [
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [SERVER_TOKEN,] },] },
+        { type: Object, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* PLATFORM_ID */],] },] },
+    ]; };
+    return FlexLayoutModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @module
+ * @description
+ * Entry point for all public APIs of Angular Flex-Layout.
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=flex-layout.es5.js.map
+
+
+/***/ }),
+
 /***/ "../../../material/esm5/button.es5.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -82564,7 +96112,7 @@ var MatButtonCssMatStyler = /** @class */ (function () {
     function MatButtonCssMatStyler() {
     }
     MatButtonCssMatStyler.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'button[mat-button], a[mat-button]',
                     host: { 'class': 'mat-button' }
                 },] },
@@ -82581,7 +96129,7 @@ var MatRaisedButtonCssMatStyler = /** @class */ (function () {
     function MatRaisedButtonCssMatStyler() {
     }
     MatRaisedButtonCssMatStyler.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'button[mat-raised-button], a[mat-raised-button]',
                     host: { 'class': 'mat-raised-button' }
                 },] },
@@ -82598,7 +96146,7 @@ var MatIconButtonCssMatStyler = /** @class */ (function () {
     function MatIconButtonCssMatStyler() {
     }
     MatIconButtonCssMatStyler.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'button[mat-icon-button], a[mat-icon-button]',
                     host: { 'class': 'mat-icon-button' }
                 },] },
@@ -82617,15 +96165,15 @@ var MatFab = /** @class */ (function () {
         (button || anchor).color = DEFAULT_ROUND_BUTTON_COLOR;
     }
     MatFab.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'button[mat-fab], a[mat-fab]',
                     host: { 'class': 'mat-fab' }
                 },] },
     ];
     /** @nocollapse */
     MatFab.ctorParameters = function () { return [
-        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatButton; }),] },] },
-        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatAnchor; }),] },] },
+        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* forwardRef */])(function () { return MatButton; }),] },] },
+        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* forwardRef */])(function () { return MatAnchor; }),] },] },
     ]; };
     return MatFab;
 }());
@@ -82640,15 +96188,15 @@ var MatMiniFab = /** @class */ (function () {
         (button || anchor).color = DEFAULT_ROUND_BUTTON_COLOR;
     }
     MatMiniFab.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'button[mat-mini-fab], a[mat-mini-fab]',
                     host: { 'class': 'mat-mini-fab' }
                 },] },
     ];
     /** @nocollapse */
     MatMiniFab.ctorParameters = function () { return [
-        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatButton; }),] },] },
-        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_12" /* forwardRef */])(function () { return MatAnchor; }),] },] },
+        { type: MatButton, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* forwardRef */])(function () { return MatButton; }),] },] },
+        { type: MatAnchor, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* forwardRef */])(function () { return MatAnchor; }),] },] },
     ]; };
     return MatMiniFab;
 }());
@@ -82747,7 +96295,7 @@ var MatButton = /** @class */ (function (_super) {
         return attributes.some(function (attribute) { return _this._getHostElement().hasAttribute(attribute); });
     };
     MatButton.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: "button[mat-button], button[mat-raised-button], button[mat-icon-button],\n             button[mat-fab], button[mat-mini-fab]",
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: "button[mat-button], button[mat-raised-button], button[mat-icon-button],\n             button[mat-fab], button[mat-mini-fab]",
                     exportAs: 'matButton',
                     host: {
                         '[disabled]': 'disabled || null',
@@ -82755,16 +96303,16 @@ var MatButton = /** @class */ (function (_super) {
                     template: "<span class=\"mat-button-wrapper\"><ng-content></ng-content></span><div matRipple class=\"mat-button-ripple\" [class.mat-button-ripple-round]=\"_isRoundButton || _isIconButton\" [matRippleDisabled]=\"_isRippleDisabled()\" [matRippleCentered]=\"_isIconButton\" [matRippleTrigger]=\"_getHostElement()\"></div><div class=\"mat-button-focus-overlay\"></div>",
                     styles: [".mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{box-sizing:border-box;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;outline:0;border:none;-webkit-tap-highlight-color:transparent;display:inline-block;white-space:nowrap;text-decoration:none;vertical-align:baseline;text-align:center;margin:0;min-width:88px;line-height:36px;padding:0 16px;border-radius:2px}[disabled].mat-button,[disabled].mat-fab,[disabled].mat-icon-button,[disabled].mat-mini-fab,[disabled].mat-raised-button{cursor:default}.cdk-keyboard-focused.mat-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-icon-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-raised-button .mat-button-focus-overlay,.cdk-program-focused.mat-button .mat-button-focus-overlay,.cdk-program-focused.mat-fab .mat-button-focus-overlay,.cdk-program-focused.mat-icon-button .mat-button-focus-overlay,.cdk-program-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-program-focused.mat-raised-button .mat-button-focus-overlay{opacity:1}.mat-button::-moz-focus-inner,.mat-fab::-moz-focus-inner,.mat-icon-button::-moz-focus-inner,.mat-mini-fab::-moz-focus-inner,.mat-raised-button::-moz-focus-inner{border:0}.mat-fab,.mat-mini-fab,.mat-raised-button{transform:translate3d(0,0,0);transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.mat-fab:not([class*=mat-elevation-z]),.mat-mini-fab:not([class*=mat-elevation-z]),.mat-raised-button:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-raised-button:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}[disabled].mat-fab,[disabled].mat-mini-fab,[disabled].mat-raised-button{box-shadow:none}.mat-button .mat-button-focus-overlay,.mat-icon-button .mat-button-focus-overlay{transition:none;opacity:0}.mat-button:hover .mat-button-focus-overlay{opacity:1}.mat-fab{min-width:0;border-radius:50%;width:56px;height:56px;padding:0;flex-shrink:0}.mat-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-fab .mat-button-wrapper{padding:16px 0;display:inline-block;line-height:24px}.mat-mini-fab{min-width:0;border-radius:50%;width:40px;height:40px;padding:0;flex-shrink:0}.mat-mini-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-mini-fab .mat-button-wrapper{padding:8px 0;display:inline-block;line-height:24px}.mat-icon-button{padding:0;min-width:0;width:40px;height:40px;flex-shrink:0;line-height:40px;border-radius:50%}.mat-icon-button .mat-icon,.mat-icon-button i{line-height:24px}.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{color:currentColor}.mat-button .mat-button-wrapper>*,.mat-fab .mat-button-wrapper>*,.mat-icon-button .mat-button-wrapper>*,.mat-mini-fab .mat-button-wrapper>*,.mat-raised-button .mat-button-wrapper>*{vertical-align:middle}.mat-button-focus-overlay,.mat-button-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}.mat-button-focus-overlay{background-color:rgba(0,0,0,.12);border-radius:inherit;opacity:0;transition:opacity .2s cubic-bezier(.35,0,.25,1),background-color .2s cubic-bezier(.35,0,.25,1)}@media screen and (-ms-high-contrast:active){.mat-button-focus-overlay{background-color:rgba(255,255,255,.5)}}.mat-button-ripple-round{border-radius:50%;z-index:1}@media screen and (-ms-high-contrast:active){.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{outline:solid 1px}}"],
                     inputs: ['disabled', 'disableRipple', 'color'],
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                 },] },
     ];
     /** @nocollapse */
     MatButton.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
         { type: __WEBPACK_IMPORTED_MODULE_5__angular_cdk_platform__["a" /* Platform */], },
-        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["b" /* FocusMonitor */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["c" /* FocusMonitor */], },
     ]; };
     return MatButton;
 }(_MatButtonMixinBase));
@@ -82792,7 +96340,7 @@ var MatAnchor = /** @class */ (function (_super) {
         }
     };
     MatAnchor.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: "a[mat-button], a[mat-raised-button], a[mat-icon-button], a[mat-fab], a[mat-mini-fab]",
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: "a[mat-button], a[mat-raised-button], a[mat-icon-button], a[mat-fab], a[mat-mini-fab]",
                     exportAs: 'matButton, matAnchor',
                     host: {
                         '[attr.tabindex]': 'disabled ? -1 : 0',
@@ -82803,16 +96351,16 @@ var MatAnchor = /** @class */ (function (_super) {
                     inputs: ['disabled', 'disableRipple', 'color'],
                     template: "<span class=\"mat-button-wrapper\"><ng-content></ng-content></span><div matRipple class=\"mat-button-ripple\" [class.mat-button-ripple-round]=\"_isRoundButton || _isIconButton\" [matRippleDisabled]=\"_isRippleDisabled()\" [matRippleCentered]=\"_isIconButton\" [matRippleTrigger]=\"_getHostElement()\"></div><div class=\"mat-button-focus-overlay\"></div>",
                     styles: [".mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{box-sizing:border-box;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;outline:0;border:none;-webkit-tap-highlight-color:transparent;display:inline-block;white-space:nowrap;text-decoration:none;vertical-align:baseline;text-align:center;margin:0;min-width:88px;line-height:36px;padding:0 16px;border-radius:2px}[disabled].mat-button,[disabled].mat-fab,[disabled].mat-icon-button,[disabled].mat-mini-fab,[disabled].mat-raised-button{cursor:default}.cdk-keyboard-focused.mat-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-icon-button .mat-button-focus-overlay,.cdk-keyboard-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-keyboard-focused.mat-raised-button .mat-button-focus-overlay,.cdk-program-focused.mat-button .mat-button-focus-overlay,.cdk-program-focused.mat-fab .mat-button-focus-overlay,.cdk-program-focused.mat-icon-button .mat-button-focus-overlay,.cdk-program-focused.mat-mini-fab .mat-button-focus-overlay,.cdk-program-focused.mat-raised-button .mat-button-focus-overlay{opacity:1}.mat-button::-moz-focus-inner,.mat-fab::-moz-focus-inner,.mat-icon-button::-moz-focus-inner,.mat-mini-fab::-moz-focus-inner,.mat-raised-button::-moz-focus-inner{border:0}.mat-fab,.mat-mini-fab,.mat-raised-button{transform:translate3d(0,0,0);transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.mat-fab:not([class*=mat-elevation-z]),.mat-mini-fab:not([class*=mat-elevation-z]),.mat-raised-button:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]),.mat-raised-button:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}[disabled].mat-fab,[disabled].mat-mini-fab,[disabled].mat-raised-button{box-shadow:none}.mat-button .mat-button-focus-overlay,.mat-icon-button .mat-button-focus-overlay{transition:none;opacity:0}.mat-button:hover .mat-button-focus-overlay{opacity:1}.mat-fab{min-width:0;border-radius:50%;width:56px;height:56px;padding:0;flex-shrink:0}.mat-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-fab .mat-button-wrapper{padding:16px 0;display:inline-block;line-height:24px}.mat-mini-fab{min-width:0;border-radius:50%;width:40px;height:40px;padding:0;flex-shrink:0}.mat-mini-fab:not([class*=mat-elevation-z]){box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12)}.mat-mini-fab:not([disabled]):active:not([class*=mat-elevation-z]){box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-mini-fab .mat-button-wrapper{padding:8px 0;display:inline-block;line-height:24px}.mat-icon-button{padding:0;min-width:0;width:40px;height:40px;flex-shrink:0;line-height:40px;border-radius:50%}.mat-icon-button .mat-icon,.mat-icon-button i{line-height:24px}.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{color:currentColor}.mat-button .mat-button-wrapper>*,.mat-fab .mat-button-wrapper>*,.mat-icon-button .mat-button-wrapper>*,.mat-mini-fab .mat-button-wrapper>*,.mat-raised-button .mat-button-wrapper>*{vertical-align:middle}.mat-button-focus-overlay,.mat-button-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}.mat-button-focus-overlay{background-color:rgba(0,0,0,.12);border-radius:inherit;opacity:0;transition:opacity .2s cubic-bezier(.35,0,.25,1),background-color .2s cubic-bezier(.35,0,.25,1)}@media screen and (-ms-high-contrast:active){.mat-button-focus-overlay{background-color:rgba(255,255,255,.5)}}.mat-button-ripple-round{border-radius:50%;z-index:1}@media screen and (-ms-high-contrast:active){.mat-button,.mat-fab,.mat-icon-button,.mat-mini-fab,.mat-raised-button{outline:solid 1px}}"],
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                 },] },
     ];
     /** @nocollapse */
     MatAnchor.ctorParameters = function () { return [
         { type: __WEBPACK_IMPORTED_MODULE_5__angular_cdk_platform__["a" /* Platform */], },
-        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["b" /* FocusMonitor */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_a11y__["c" /* FocusMonitor */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
     ]; };
     return MatAnchor;
 }(MatButton));
@@ -82826,7 +96374,7 @@ var MatButtonModule = /** @class */ (function () {
     function MatButtonModule() {
     }
     MatButtonModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [
                         __WEBPACK_IMPORTED_MODULE_1__angular_common__["a" /* CommonModule */],
                         __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["b" /* MatRippleModule */],
@@ -82922,7 +96470,7 @@ var MatCardContent = /** @class */ (function () {
     function MatCardContent() {
     }
     MatCardContent.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'mat-card-content',
                     host: { 'class': 'mat-card-content' }
                 },] },
@@ -82939,7 +96487,7 @@ var MatCardTitle = /** @class */ (function () {
     function MatCardTitle() {
     }
     MatCardTitle.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: "mat-card-title, [mat-card-title], [matCardTitle]",
                     host: {
                         'class': 'mat-card-title'
@@ -82958,7 +96506,7 @@ var MatCardSubtitle = /** @class */ (function () {
     function MatCardSubtitle() {
     }
     MatCardSubtitle.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: "mat-card-subtitle, [mat-card-subtitle], [matCardSubtitle]",
                     host: {
                         'class': 'mat-card-subtitle'
@@ -82981,7 +96529,7 @@ var MatCardActions = /** @class */ (function () {
         this.align = 'start';
     }
     MatCardActions.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'mat-card-actions',
                     exportAs: 'matCardActions',
                     host: {
@@ -82993,7 +96541,7 @@ var MatCardActions = /** @class */ (function () {
     /** @nocollapse */
     MatCardActions.ctorParameters = function () { return []; };
     MatCardActions.propDecorators = {
-        "align": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "align": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return MatCardActions;
 }());
@@ -83005,7 +96553,7 @@ var MatCardFooter = /** @class */ (function () {
     function MatCardFooter() {
     }
     MatCardFooter.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'mat-card-footer',
                     host: { 'class': 'mat-card-footer' }
                 },] },
@@ -83022,7 +96570,7 @@ var MatCardImage = /** @class */ (function () {
     function MatCardImage() {
     }
     MatCardImage.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-image], [matCardImage]',
                     host: { 'class': 'mat-card-image' }
                 },] },
@@ -83039,7 +96587,7 @@ var MatCardSmImage = /** @class */ (function () {
     function MatCardSmImage() {
     }
     MatCardSmImage.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-sm-image], [matCardImageSmall]',
                     host: { 'class': 'mat-card-sm-image' }
                 },] },
@@ -83056,7 +96604,7 @@ var MatCardMdImage = /** @class */ (function () {
     function MatCardMdImage() {
     }
     MatCardMdImage.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-md-image], [matCardImageMedium]',
                     host: { 'class': 'mat-card-md-image' }
                 },] },
@@ -83073,7 +96621,7 @@ var MatCardLgImage = /** @class */ (function () {
     function MatCardLgImage() {
     }
     MatCardLgImage.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-lg-image], [matCardImageLarge]',
                     host: { 'class': 'mat-card-lg-image' }
                 },] },
@@ -83090,7 +96638,7 @@ var MatCardXlImage = /** @class */ (function () {
     function MatCardXlImage() {
     }
     MatCardXlImage.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-xl-image], [matCardImageXLarge]',
                     host: { 'class': 'mat-card-xl-image' }
                 },] },
@@ -83107,7 +96655,7 @@ var MatCardAvatar = /** @class */ (function () {
     function MatCardAvatar() {
     }
     MatCardAvatar.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-card-avatar], [matCardAvatar]',
                     host: { 'class': 'mat-card-avatar' }
                 },] },
@@ -83131,13 +96679,13 @@ var MatCard = /** @class */ (function () {
     function MatCard() {
     }
     MatCard.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-card',
                     exportAs: 'matCard',
                     template: "<ng-content></ng-content><ng-content select=\"mat-card-footer\"></ng-content>",
                     styles: [".mat-card{transition:box-shadow 280ms cubic-bezier(.4,0,.2,1);display:block;position:relative;padding:24px;border-radius:2px}.mat-card:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-card .mat-divider{position:absolute;left:0;width:100%}[dir=rtl] .mat-card .mat-divider{left:auto;right:0}.mat-card .mat-divider.mat-divider-inset{position:static;margin:0}@media screen and (-ms-high-contrast:active){.mat-card{outline:solid 1px}}.mat-card-flat{box-shadow:none}.mat-card-actions,.mat-card-content,.mat-card-subtitle,.mat-card-title{display:block;margin-bottom:16px}.mat-card-actions{margin-left:-16px;margin-right:-16px;padding:8px 0}.mat-card-actions-align-end{display:flex;justify-content:flex-end}.mat-card-image{width:calc(100% + 48px);margin:0 -24px 16px -24px}.mat-card-xl-image{width:240px;height:240px;margin:-8px}.mat-card-footer{display:block;margin:0 -24px -24px -24px}.mat-card-actions .mat-button,.mat-card-actions .mat-raised-button{margin:0 4px}.mat-card-header{display:flex;flex-direction:row}.mat-card-header-text{margin:0 8px}.mat-card-avatar{height:40px;width:40px;border-radius:50%;flex-shrink:0}.mat-card-lg-image,.mat-card-md-image,.mat-card-sm-image{margin:-8px 0}.mat-card-title-group{display:flex;justify-content:space-between;margin:0 -8px}.mat-card-sm-image{width:80px;height:80px}.mat-card-md-image{width:112px;height:112px}.mat-card-lg-image{width:152px;height:152px}@media (max-width:600px){.mat-card{padding:24px 16px}.mat-card-actions{margin-left:-8px;margin-right:-8px}.mat-card-image{width:calc(100% + 32px);margin:16px -16px}.mat-card-title-group{margin:0}.mat-card-xl-image{margin-left:0;margin-right:0}.mat-card-header{margin:-8px 0 0 0}.mat-card-footer{margin-left:-16px;margin-right:-16px}}.mat-card-content>:first-child,.mat-card>:first-child{margin-top:0}.mat-card-content>:last-child:not(.mat-card-footer),.mat-card>:last-child:not(.mat-card-footer){margin-bottom:0}.mat-card-image:first-child{margin-top:-24px}.mat-card>.mat-card-actions:last-child{margin-bottom:-16px;padding-bottom:0}.mat-card-actions .mat-button:first-child,.mat-card-actions .mat-raised-button:first-child{margin-left:0;margin-right:0}.mat-card-subtitle:not(:first-child),.mat-card-title:not(:first-child){margin-top:-4px}.mat-card-header .mat-card-subtitle:not(:first-child){margin-top:-8px}.mat-card>.mat-card-xl-image:first-child{margin-top:-8px}.mat-card>.mat-card-xl-image:last-child{margin-bottom:-8px}"],
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                     host: { 'class': 'mat-card' }
                 },] },
     ];
@@ -83154,11 +96702,11 @@ var MatCardHeader = /** @class */ (function () {
     function MatCardHeader() {
     }
     MatCardHeader.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card-header',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-card-header',
                     template: "<ng-content select=\"[mat-card-avatar], [matCardAvatar]\"></ng-content><div class=\"mat-card-header-text\"><ng-content select=\"mat-card-title, mat-card-subtitle, [mat-card-title], [mat-card-subtitle]\"></ng-content></div><ng-content></ng-content>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                     host: { 'class': 'mat-card-header' }
                 },] },
     ];
@@ -83175,11 +96723,11 @@ var MatCardTitleGroup = /** @class */ (function () {
     function MatCardTitleGroup() {
     }
     MatCardTitleGroup.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-card-title-group',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-card-title-group',
                     template: "<div><ng-content select=\"mat-card-title, mat-card-subtitle, [mat-card-title], [mat-card-subtitle]\"></ng-content></div><ng-content select=\"img\"></ng-content><ng-content></ng-content>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                     host: { 'class': 'mat-card-title-group' }
                 },] },
     ];
@@ -83197,7 +96745,7 @@ var MatCardModule = /** @class */ (function () {
     function MatCardModule() {
     }
     MatCardModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */]],
                     exports: [
                         MatCard,
@@ -83371,7 +96919,7 @@ var AnimationDurations = /** @class */ (function () {
 /**
  * Injection token that configures whether the Material sanity checks are enabled.
  */
-var MATERIAL_SANITY_CHECKS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('mat-sanity-checks');
+var MATERIAL_SANITY_CHECKS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-sanity-checks');
 /**
  * Module that captures anything that should be loaded and/or run for *all* Angular Material
  * components. This includes Bidi, etc.
@@ -83412,7 +96960,7 @@ var MatCommonModule = /** @class */ (function () {
      * @return {?}
      */
     function () {
-        return this._sanityChecksEnabled && Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_14" /* isDevMode */])() && !this._isTestEnv();
+        return this._sanityChecksEnabled && Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_16" /* isDevMode */])() && !this._isTestEnv();
     };
     /**
      * Whether the code is running in tests.
@@ -83479,7 +97027,7 @@ var MatCommonModule = /** @class */ (function () {
         this._hasCheckedHammer = true;
     };
     MatCommonModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [__WEBPACK_IMPORTED_MODULE_1__angular_cdk_bidi__["a" /* BidiModule */]],
                     exports: [__WEBPACK_IMPORTED_MODULE_1__angular_cdk_bidi__["a" /* BidiModule */]],
                     providers: [{
@@ -83489,7 +97037,7 @@ var MatCommonModule = /** @class */ (function () {
     ];
     /** @nocollapse */
     MatCommonModule.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [MATERIAL_SANITY_CHECKS,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MATERIAL_SANITY_CHECKS,] },] },
     ]; };
     return MatCommonModule;
 }());
@@ -83776,11 +97324,11 @@ function mixinErrorState(base) {
 /**
  * InjectionToken for datepicker that can be used to override default locale code.
  */
-var MAT_DATE_LOCALE = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('MAT_DATE_LOCALE');
+var MAT_DATE_LOCALE = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('MAT_DATE_LOCALE');
 /**
  * Provider for MAT_DATE_LOCALE injection token.
  */
-var MAT_DATE_LOCALE_PROVIDER = { provide: MAT_DATE_LOCALE, useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_core__["F" /* LOCALE_ID */] };
+var MAT_DATE_LOCALE_PROVIDER = { provide: MAT_DATE_LOCALE, useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_core__["G" /* LOCALE_ID */] };
 /**
  * Adapts type `D` to be usable as a date by cdk-based components that work with dates.
  * @abstract
@@ -83958,7 +97506,7 @@ var DateAdapter = /** @class */ (function () {
  * @suppress {checkTypes} checked by tsc
  */
 
-var MAT_DATE_FORMATS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('mat-date-formats');
+var MAT_DATE_FORMATS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-date-formats');
 
 /**
  * @fileoverview added by tsickle
@@ -84431,11 +97979,11 @@ var NativeDateAdapter = /** @class */ (function (_super) {
         return str.replace(/[\u200e\u200f]/g, '');
     };
     NativeDateAdapter.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     NativeDateAdapter.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [MAT_DATE_LOCALE,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_DATE_LOCALE,] },] },
     ]; };
     return NativeDateAdapter;
 }(DateAdapter));
@@ -84466,7 +98014,7 @@ var NativeDateModule = /** @class */ (function () {
     function NativeDateModule() {
     }
     NativeDateModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     providers: [
                         { provide: DateAdapter, useClass: NativeDateAdapter },
                         MAT_DATE_LOCALE_PROVIDER
@@ -84482,7 +98030,7 @@ var MatNativeDateModule = /** @class */ (function () {
     function MatNativeDateModule() {
     }
     MatNativeDateModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [NativeDateModule],
                     providers: [{ provide: MAT_DATE_FORMATS, useValue: ɵ0$$1 }],
                 },] },
@@ -84517,7 +98065,7 @@ var ShowOnDirtyErrorStateMatcher = /** @class */ (function () {
         return !!(control && control.invalid && (control.dirty || (form && form.submitted)));
     };
     ShowOnDirtyErrorStateMatcher.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     ShowOnDirtyErrorStateMatcher.ctorParameters = function () { return []; };
@@ -84543,7 +98091,7 @@ var ErrorStateMatcher = /** @class */ (function () {
         return !!(control && control.invalid && (control.touched || (form && form.submitted)));
     };
     ErrorStateMatcher.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     ErrorStateMatcher.ctorParameters = function () { return []; };
@@ -84559,7 +98107,7 @@ var ErrorStateMatcher = /** @class */ (function () {
  * Injection token that can be used to provide options to the Hammerjs instance.
  * More info at http://hammerjs.github.io/api/.
  */
-var MAT_HAMMER_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('MAT_HAMMER_OPTIONS');
+var MAT_HAMMER_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('MAT_HAMMER_OPTIONS');
 var GestureConfig = /** @class */ (function (_super) {
     Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(GestureConfig, _super);
     function GestureConfig(_hammerOptions, commonModule) {
@@ -84661,15 +98209,15 @@ var GestureConfig = /** @class */ (function (_super) {
         return recognizer;
     };
     GestureConfig.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     GestureConfig.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [MAT_HAMMER_OPTIONS,] },] },
-        { type: MatCommonModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_HAMMER_OPTIONS,] },] },
+        { type: MatCommonModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
     ]; };
     return GestureConfig;
-}(__WEBPACK_IMPORTED_MODULE_5__angular_platform_browser__["c" /* HammerGestureConfig */]));
+}(__WEBPACK_IMPORTED_MODULE_5__angular_platform_browser__["d" /* HammerGestureConfig */]));
 
 /**
  * @fileoverview added by tsickle
@@ -84685,7 +98233,7 @@ var MatLine = /** @class */ (function () {
     function MatLine() {
     }
     MatLine.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-line], [matLine]',
                     host: { 'class': 'mat-line' }
                 },] },
@@ -84760,7 +98308,7 @@ var MatLineModule = /** @class */ (function () {
     function MatLineModule() {
     }
     MatLineModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [MatCommonModule],
                     exports: [MatLine, MatCommonModule],
                     declarations: [MatLine],
@@ -85106,7 +98654,7 @@ function distanceToFurthestCorner(x, y, rect) {
 /**
  * Injection token that can be used to specify the global ripple options.
  */
-var MAT_RIPPLE_GLOBAL_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('mat-ripple-global-options');
+var MAT_RIPPLE_GLOBAL_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-ripple-global-options');
 var MatRipple = /** @class */ (function () {
     function MatRipple(elementRef, ngZone, platform, globalOptions) {
         /**
@@ -85211,7 +98759,7 @@ var MatRipple = /** @class */ (function () {
         this._rippleRenderer.rippleConfig = this.rippleConfig;
     };
     MatRipple.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[mat-ripple], [matRipple]',
                     exportAs: 'matRipple',
                     host: {
@@ -85222,19 +98770,19 @@ var MatRipple = /** @class */ (function () {
     ];
     /** @nocollapse */
     MatRipple.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
         { type: __WEBPACK_IMPORTED_MODULE_7__angular_cdk_platform__["a" /* Platform */], },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [MAT_RIPPLE_GLOBAL_OPTIONS,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_RIPPLE_GLOBAL_OPTIONS,] },] },
     ]; };
     MatRipple.propDecorators = {
-        "trigger": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleTrigger',] },],
-        "centered": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleCentered',] },],
-        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleDisabled',] },],
-        "radius": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleRadius',] },],
-        "speedFactor": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleSpeedFactor',] },],
-        "color": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleColor',] },],
-        "unbounded": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matRippleUnbounded',] },],
+        "trigger": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleTrigger',] },],
+        "centered": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleCentered',] },],
+        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleDisabled',] },],
+        "radius": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleRadius',] },],
+        "speedFactor": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleSpeedFactor',] },],
+        "color": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleColor',] },],
+        "unbounded": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matRippleUnbounded',] },],
     };
     return MatRipple;
 }());
@@ -85248,7 +98796,7 @@ var MatRippleModule = /** @class */ (function () {
     function MatRippleModule() {
     }
     MatRippleModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [MatCommonModule, __WEBPACK_IMPORTED_MODULE_7__angular_cdk_platform__["b" /* PlatformModule */]],
                     exports: [MatRipple, MatCommonModule],
                     declarations: [MatRipple],
@@ -85289,9 +98837,9 @@ var MatPseudoCheckbox = /** @class */ (function () {
         this.disabled = false;
     }
     MatPseudoCheckbox.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                     selector: 'mat-pseudo-checkbox',
                     styles: [".mat-pseudo-checkbox{width:20px;height:20px;border:2px solid;border-radius:2px;cursor:pointer;display:inline-block;vertical-align:middle;box-sizing:border-box;position:relative;flex-shrink:0;transition:border-color 90ms cubic-bezier(0,0,.2,.1),background-color 90ms cubic-bezier(0,0,.2,.1)}.mat-pseudo-checkbox::after{position:absolute;opacity:0;content:'';border-bottom:2px solid currentColor;transition:opacity 90ms cubic-bezier(0,0,.2,.1)}.mat-pseudo-checkbox.mat-pseudo-checkbox-checked,.mat-pseudo-checkbox.mat-pseudo-checkbox-indeterminate{border:none}.mat-pseudo-checkbox-disabled{cursor:default}.mat-pseudo-checkbox-indeterminate::after{top:9px;left:2px;width:16px;opacity:1}.mat-pseudo-checkbox-checked::after{top:5px;left:3px;width:12px;height:5px;border-left:2px solid currentColor;transform:rotate(-45deg);opacity:1}"],
                     template: '',
@@ -85306,8 +98854,8 @@ var MatPseudoCheckbox = /** @class */ (function () {
     /** @nocollapse */
     MatPseudoCheckbox.ctorParameters = function () { return []; };
     MatPseudoCheckbox.propDecorators = {
-        "state": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "state": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return MatPseudoCheckbox;
 }());
@@ -85321,7 +98869,7 @@ var MatPseudoCheckboxModule = /** @class */ (function () {
     function MatPseudoCheckboxModule() {
     }
     MatPseudoCheckboxModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     exports: [MatPseudoCheckbox],
                     declarations: [MatPseudoCheckbox]
                 },] },
@@ -85361,12 +98909,12 @@ var MatOptgroup = /** @class */ (function (_super) {
         return _this;
     }
     MatOptgroup.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-optgroup',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-optgroup',
                     exportAs: 'matOptgroup',
                     template: "<label class=\"mat-optgroup-label\" [id]=\"_labelId\">{{ label }}</label><ng-content select=\"mat-option\"></ng-content>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                     inputs: ['disabled'],
                     host: {
                         'class': 'mat-optgroup',
@@ -85380,7 +98928,7 @@ var MatOptgroup = /** @class */ (function (_super) {
     /** @nocollapse */
     MatOptgroup.ctorParameters = function () { return []; };
     MatOptgroup.propDecorators = {
-        "label": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
+        "label": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
     };
     return MatOptgroup;
 }(_MatOptgroupMixinBase));
@@ -85416,7 +98964,7 @@ var MatOptionSelectionChange = /** @class */ (function () {
 /**
  * Injection token used to provide the parent component to options.
  */
-var MAT_OPTION_PARENT_COMPONENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('MAT_OPTION_PARENT_COMPONENT');
+var MAT_OPTION_PARENT_COMPONENT = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('MAT_OPTION_PARENT_COMPONENT');
 /**
  * Single option inside of a `<mat-select>` element.
  */
@@ -85433,7 +98981,7 @@ var MatOption = /** @class */ (function () {
         /**
          * Event emitted when the option is selected or deselected.
          */
-        this.onSelectionChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["w" /* EventEmitter */]();
+        this.onSelectionChange = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
     }
     Object.defineProperty(MatOption.prototype, "multiple", {
         /** Whether the wrapping component is in multiple selection mode. */
@@ -85639,7 +99187,7 @@ var MatOption = /** @class */ (function () {
      * @return {?}
      */
     function (event) {
-        if (event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["c" /* ENTER */] || event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["e" /* SPACE */]) {
+        if (event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["c" /* ENTER */] || event.keyCode === __WEBPACK_IMPORTED_MODULE_8__angular_cdk_keycodes__["h" /* SPACE */]) {
             this._selectViaInteraction();
             // Prevent the page from scrolling down and form submits.
             event.preventDefault();
@@ -85739,7 +99287,7 @@ var MatOption = /** @class */ (function () {
         return 0;
     };
     MatOption.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-option',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-option',
                     exportAs: 'matOption',
                     host: {
                         'role': 'option',
@@ -85756,22 +99304,22 @@ var MatOption = /** @class */ (function () {
                         'class': 'mat-option',
                     },
                     template: "<mat-pseudo-checkbox *ngIf=\"multiple\" class=\"mat-option-pseudo-checkbox\" [state]=\"selected ? 'checked' : ''\" [disabled]=\"disabled\"></mat-pseudo-checkbox><span class=\"mat-option-text\"><ng-content></ng-content></span><div class=\"mat-option-ripple\" mat-ripple [matRippleTrigger]=\"_getHostElement()\" [matRippleDisabled]=\"disabled || disableRipple\"></div>",
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                 },] },
     ];
     /** @nocollapse */
     MatOption.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectorRef */], },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [MAT_OPTION_PARENT_COMPONENT,] },] },
-        { type: MatOptgroup, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* Optional */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["k" /* ChangeDetectorRef */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_OPTION_PARENT_COMPONENT,] },] },
+        { type: MatOptgroup, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
     ]; };
     MatOption.propDecorators = {
-        "value": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */] },],
-        "onSelectionChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Output */] },],
+        "value": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "disabled": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "onSelectionChange": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
     };
     return MatOption;
 }());
@@ -85785,7 +99333,7 @@ var MatOptionModule = /** @class */ (function () {
     function MatOptionModule() {
     }
     MatOptionModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [MatRippleModule, __WEBPACK_IMPORTED_MODULE_6__angular_common__["a" /* CommonModule */], MatPseudoCheckboxModule],
                     exports: [MatOption, MatOptgroup],
                     declarations: [MatOption, MatOptgroup]
@@ -85804,7 +99352,7 @@ var MatOptionModule = /** @class */ (function () {
 /**
  * InjectionToken that can be used to specify the global label options.
  */
-var MAT_LABEL_GLOBAL_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* InjectionToken */]('mat-label-global-options');
+var MAT_LABEL_GLOBAL_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-label-global-options');
 /**
  * Configurable options for floating labels.
  * @record
@@ -85875,6 +99423,2442 @@ var DEC = 11;
 
 /***/ }),
 
+/***/ "../../../material/esm5/divider.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export MatDivider */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatDividerModule; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__ = __webpack_require__("../../../cdk/esm5/coercion.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatDivider = /** @class */ (function () {
+    function MatDivider() {
+        this._vertical = false;
+        this._inset = false;
+    }
+    Object.defineProperty(MatDivider.prototype, "vertical", {
+        get: /**
+         * Whether the divider is vertically aligned.
+         * @return {?}
+         */
+        function () { return this._vertical; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) { this._vertical = Object(__WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatDivider.prototype, "inset", {
+        get: /**
+         * Whether the divider is an inset divider.
+         * @return {?}
+         */
+        function () { return this._inset; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) { this._inset = Object(__WEBPACK_IMPORTED_MODULE_1__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value); },
+        enumerable: true,
+        configurable: true
+    });
+    MatDivider.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-divider',
+                    host: {
+                        'role': 'separator',
+                        '[attr.aria-orientation]': 'vertical ? "vertical" : "horizontal"',
+                        '[class.mat-divider-vertical]': 'vertical',
+                        '[class.mat-divider-inset]': 'inset',
+                        'class': 'mat-divider'
+                    },
+                    template: '',
+                    styles: [".mat-divider{display:block;margin:0;border-top-width:1px;border-top-style:solid}.mat-divider.mat-divider-vertical{border-top:0;border-right-width:1px;border-right-style:solid}.mat-divider.mat-divider-inset{margin-left:80px}[dir=rtl] .mat-divider.mat-divider-inset{margin-left:auto;margin-right:80px}"],
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    preserveWhitespaces: false,
+                },] },
+    ];
+    /** @nocollapse */
+    MatDivider.ctorParameters = function () { return []; };
+    MatDivider.propDecorators = {
+        "vertical": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "inset": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+    };
+    return MatDivider;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatDividerModule = /** @class */ (function () {
+    function MatDividerModule() {
+    }
+    MatDividerModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_3__angular_material_core__["a" /* MatCommonModule */], __WEBPACK_IMPORTED_MODULE_2__angular_common__["a" /* CommonModule */]],
+                    exports: [
+                        MatDivider,
+                        __WEBPACK_IMPORTED_MODULE_3__angular_material_core__["a" /* MatCommonModule */],
+                    ],
+                    declarations: [
+                        MatDivider,
+                    ],
+                },] },
+    ];
+    /** @nocollapse */
+    MatDividerModule.ctorParameters = function () { return []; };
+    return MatDividerModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=divider.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../material/esm5/icon.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatIconModule; });
+/* unused harmony export MatIconBase */
+/* unused harmony export _MatIconMixinBase */
+/* unused harmony export MatIcon */
+/* unused harmony export getMatIconNameNotFoundError */
+/* unused harmony export getMatIconNoHttpProviderError */
+/* unused harmony export getMatIconFailedToSanitizeError */
+/* unused harmony export MatIconRegistry */
+/* unused harmony export ICON_REGISTRY_PROVIDER_FACTORY */
+/* unused harmony export ICON_REGISTRY_PROVIDER */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operators_take__ = __webpack_require__("../../../../rxjs/_esm5/operators/take.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operators_catchError__ = __webpack_require__("../../../../rxjs/_esm5/operators/catchError.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operators_tap__ = __webpack_require__("../../../../rxjs/_esm5/operators/tap.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operators_finalize__ = __webpack_require__("../../../../rxjs/_esm5/operators/finalize.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__ = __webpack_require__("../../../../rxjs/_esm5/operators/map.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operators_share__ = __webpack_require__("../../../../rxjs/_esm5/operators/share.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__angular_common_http__ = __webpack_require__("../../../common/esm5/http.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__angular_platform_browser__ = __webpack_require__("../../../platform-browser/esm5/platform-browser.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_rxjs_observable_forkJoin__ = __webpack_require__("../../../../rxjs/_esm5/observable/forkJoin.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_rxjs_observable_of__ = __webpack_require__("../../../../rxjs/_esm5/observable/of.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_rxjs_observable_throw__ = __webpack_require__("../../../../rxjs/_esm5/observable/throw.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Returns an exception to be thrown in the case when attempting to
+ * load an icon with a name that cannot be found.
+ * \@docs-private
+ * @param {?} iconName
+ * @return {?}
+ */
+function getMatIconNameNotFoundError(iconName) {
+    return Error("Unable to find icon with the name \"" + iconName + "\"");
+}
+/**
+ * Returns an exception to be thrown when the consumer attempts to use
+ * `<mat-icon>` without including \@angular/http.
+ * \@docs-private
+ * @return {?}
+ */
+function getMatIconNoHttpProviderError() {
+    return Error('Could not find HttpClient provider for use with Angular Material icons. ' +
+        'Please include the HttpClientModule from @angular/common/http in your ' +
+        'app imports.');
+}
+/**
+ * Returns an exception to be thrown when a URL couldn't be sanitized.
+ * \@docs-private
+ * @param {?} url URL that was attempted to be sanitized.
+ * @return {?}
+ */
+function getMatIconFailedToSanitizeError(url) {
+    return Error("The URL provided to MatIconRegistry was not trusted as a resource URL " +
+        ("via Angular's DomSanitizer. Attempted URL was \"" + url + "\"."));
+}
+/**
+ * Configuration for an icon, including the URL and possibly the cached SVG element.
+ * \@docs-private
+ */
+var SvgIconConfig = /** @class */ (function () {
+    function SvgIconConfig(url) {
+        this.url = url;
+        this.svgElement = null;
+    }
+    return SvgIconConfig;
+}());
+/**
+ * Service to register and display icons used by the <mat-icon> component.
+ * - Registers icon URLs by namespace and name.
+ * - Registers icon set URLs by namespace.
+ * - Registers aliases for CSS classes, for use with icon fonts.
+ * - Loads icons from URLs and extracts individual icons from icon sets.
+ */
+var MatIconRegistry = /** @class */ (function () {
+    function MatIconRegistry(_httpClient, _sanitizer) {
+        this._httpClient = _httpClient;
+        this._sanitizer = _sanitizer;
+        /**
+         * URLs and cached SVG elements for individual icons. Keys are of the format "[namespace]:[icon]".
+         */
+        this._svgIconConfigs = new Map();
+        /**
+         * SvgIconConfig objects and cached SVG elements for icon sets, keyed by namespace.
+         * Multiple icon sets can be registered under the same namespace.
+         */
+        this._iconSetConfigs = new Map();
+        /**
+         * Cache for icons loaded by direct URLs.
+         */
+        this._cachedIconsByUrl = new Map();
+        /**
+         * In-progress icon fetches. Used to coalesce multiple requests to the same URL.
+         */
+        this._inProgressUrlFetches = new Map();
+        /**
+         * Map from font identifiers to their CSS class names. Used for icon fonts.
+         */
+        this._fontCssClassesByAlias = new Map();
+        /**
+         * The CSS class to apply when an <mat-icon> component has no icon name, url, or font specified.
+         * The default 'material-icons' value assumes that the material icon font has been loaded as
+         * described at http://google.github.io/material-design-icons/#icon-font-for-the-web
+         */
+        this._defaultFontSetClass = 'material-icons';
+    }
+    /**
+     * Registers an icon by URL in the default namespace.
+     * @param iconName Name under which the icon should be registered.
+     * @param url
+     */
+    /**
+     * Registers an icon by URL in the default namespace.
+     * @param {?} iconName Name under which the icon should be registered.
+     * @param {?} url
+     * @return {?}
+     */
+    MatIconRegistry.prototype.addSvgIcon = /**
+     * Registers an icon by URL in the default namespace.
+     * @param {?} iconName Name under which the icon should be registered.
+     * @param {?} url
+     * @return {?}
+     */
+    function (iconName, url) {
+        return this.addSvgIconInNamespace('', iconName, url);
+    };
+    /**
+     * Registers an icon by URL in the specified namespace.
+     * @param namespace Namespace in which the icon should be registered.
+     * @param iconName Name under which the icon should be registered.
+     * @param url
+     */
+    /**
+     * Registers an icon by URL in the specified namespace.
+     * @param {?} namespace Namespace in which the icon should be registered.
+     * @param {?} iconName Name under which the icon should be registered.
+     * @param {?} url
+     * @return {?}
+     */
+    MatIconRegistry.prototype.addSvgIconInNamespace = /**
+     * Registers an icon by URL in the specified namespace.
+     * @param {?} namespace Namespace in which the icon should be registered.
+     * @param {?} iconName Name under which the icon should be registered.
+     * @param {?} url
+     * @return {?}
+     */
+    function (namespace, iconName, url) {
+        var /** @type {?} */ key = iconKey(namespace, iconName);
+        this._svgIconConfigs.set(key, new SvgIconConfig(url));
+        return this;
+    };
+    /**
+     * Registers an icon set by URL in the default namespace.
+     * @param url
+     */
+    /**
+     * Registers an icon set by URL in the default namespace.
+     * @param {?} url
+     * @return {?}
+     */
+    MatIconRegistry.prototype.addSvgIconSet = /**
+     * Registers an icon set by URL in the default namespace.
+     * @param {?} url
+     * @return {?}
+     */
+    function (url) {
+        return this.addSvgIconSetInNamespace('', url);
+    };
+    /**
+     * Registers an icon set by URL in the specified namespace.
+     * @param namespace Namespace in which to register the icon set.
+     * @param url
+     */
+    /**
+     * Registers an icon set by URL in the specified namespace.
+     * @param {?} namespace Namespace in which to register the icon set.
+     * @param {?} url
+     * @return {?}
+     */
+    MatIconRegistry.prototype.addSvgIconSetInNamespace = /**
+     * Registers an icon set by URL in the specified namespace.
+     * @param {?} namespace Namespace in which to register the icon set.
+     * @param {?} url
+     * @return {?}
+     */
+    function (namespace, url) {
+        var /** @type {?} */ config = new SvgIconConfig(url);
+        var /** @type {?} */ configNamespace = this._iconSetConfigs.get(namespace);
+        if (configNamespace) {
+            configNamespace.push(config);
+        }
+        else {
+            this._iconSetConfigs.set(namespace, [config]);
+        }
+        return this;
+    };
+    /**
+     * Defines an alias for a CSS class name to be used for icon fonts. Creating an matIcon
+     * component with the alias as the fontSet input will cause the class name to be applied
+     * to the <mat-icon> element.
+     *
+     * @param alias Alias for the font.
+     * @param className Class name override to be used instead of the alias.
+     */
+    /**
+     * Defines an alias for a CSS class name to be used for icon fonts. Creating an matIcon
+     * component with the alias as the fontSet input will cause the class name to be applied
+     * to the <mat-icon> element.
+     *
+     * @param {?} alias Alias for the font.
+     * @param {?=} className Class name override to be used instead of the alias.
+     * @return {?}
+     */
+    MatIconRegistry.prototype.registerFontClassAlias = /**
+     * Defines an alias for a CSS class name to be used for icon fonts. Creating an matIcon
+     * component with the alias as the fontSet input will cause the class name to be applied
+     * to the <mat-icon> element.
+     *
+     * @param {?} alias Alias for the font.
+     * @param {?=} className Class name override to be used instead of the alias.
+     * @return {?}
+     */
+    function (alias, className) {
+        if (className === void 0) { className = alias; }
+        this._fontCssClassesByAlias.set(alias, className);
+        return this;
+    };
+    /**
+     * Returns the CSS class name associated with the alias by a previous call to
+     * registerFontClassAlias. If no CSS class has been associated, returns the alias unmodified.
+     */
+    /**
+     * Returns the CSS class name associated with the alias by a previous call to
+     * registerFontClassAlias. If no CSS class has been associated, returns the alias unmodified.
+     * @param {?} alias
+     * @return {?}
+     */
+    MatIconRegistry.prototype.classNameForFontAlias = /**
+     * Returns the CSS class name associated with the alias by a previous call to
+     * registerFontClassAlias. If no CSS class has been associated, returns the alias unmodified.
+     * @param {?} alias
+     * @return {?}
+     */
+    function (alias) {
+        return this._fontCssClassesByAlias.get(alias) || alias;
+    };
+    /**
+     * Sets the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     *
+     * @param className
+     */
+    /**
+     * Sets the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     *
+     * @param {?} className
+     * @return {?}
+     */
+    MatIconRegistry.prototype.setDefaultFontSetClass = /**
+     * Sets the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     *
+     * @param {?} className
+     * @return {?}
+     */
+    function (className) {
+        this._defaultFontSetClass = className;
+        return this;
+    };
+    /**
+     * Returns the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     */
+    /**
+     * Returns the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     * @return {?}
+     */
+    MatIconRegistry.prototype.getDefaultFontSetClass = /**
+     * Returns the CSS class name to be used for icon fonts when an <mat-icon> component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     * @return {?}
+     */
+    function () {
+        return this._defaultFontSetClass;
+    };
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) from the given URL.
+     * The response from the URL may be cached so this will not always cause an HTTP request, but
+     * the produced element will always be a new copy of the originally fetched icon. (That is,
+     * it will not contain any modifications made to elements previously returned).
+     *
+     * @param safeUrl URL from which to fetch the SVG icon.
+     */
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) from the given URL.
+     * The response from the URL may be cached so this will not always cause an HTTP request, but
+     * the produced element will always be a new copy of the originally fetched icon. (That is,
+     * it will not contain any modifications made to elements previously returned).
+     *
+     * @param {?} safeUrl URL from which to fetch the SVG icon.
+     * @return {?}
+     */
+    MatIconRegistry.prototype.getSvgIconFromUrl = /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) from the given URL.
+     * The response from the URL may be cached so this will not always cause an HTTP request, but
+     * the produced element will always be a new copy of the originally fetched icon. (That is,
+     * it will not contain any modifications made to elements previously returned).
+     *
+     * @param {?} safeUrl URL from which to fetch the SVG icon.
+     * @return {?}
+     */
+    function (safeUrl) {
+        var _this = this;
+        var /** @type {?} */ url = this._sanitizer.sanitize(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* SecurityContext */].RESOURCE_URL, safeUrl);
+        if (!url) {
+            throw getMatIconFailedToSanitizeError(safeUrl);
+        }
+        var /** @type {?} */ cachedIcon = this._cachedIconsByUrl.get(url);
+        if (cachedIcon) {
+            return Object(__WEBPACK_IMPORTED_MODULE_12_rxjs_observable_of__["a" /* of */])(cloneSvg(cachedIcon));
+        }
+        return this._loadSvgIconFromConfig(new SvgIconConfig(safeUrl)).pipe(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_tap__["a" /* tap */])(function (svg) { return _this._cachedIconsByUrl.set(/** @type {?} */ ((url)), svg); }), Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__["a" /* map */])(function (svg) { return cloneSvg(svg); }));
+    };
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) with the given name
+     * and namespace. The icon must have been previously registered with addIcon or addIconSet;
+     * if not, the Observable will throw an error.
+     *
+     * @param name Name of the icon to be retrieved.
+     * @param namespace Namespace in which to look for the icon.
+     */
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) with the given name
+     * and namespace. The icon must have been previously registered with addIcon or addIconSet;
+     * if not, the Observable will throw an error.
+     *
+     * @param {?} name Name of the icon to be retrieved.
+     * @param {?=} namespace Namespace in which to look for the icon.
+     * @return {?}
+     */
+    MatIconRegistry.prototype.getNamedSvgIcon = /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) with the given name
+     * and namespace. The icon must have been previously registered with addIcon or addIconSet;
+     * if not, the Observable will throw an error.
+     *
+     * @param {?} name Name of the icon to be retrieved.
+     * @param {?=} namespace Namespace in which to look for the icon.
+     * @return {?}
+     */
+    function (name, namespace) {
+        if (namespace === void 0) { namespace = ''; }
+        // Return (copy of) cached icon if possible.
+        var /** @type {?} */ key = iconKey(namespace, name);
+        var /** @type {?} */ config = this._svgIconConfigs.get(key);
+        if (config) {
+            return this._getSvgFromConfig(config);
+        }
+        // See if we have any icon sets registered for the namespace.
+        var /** @type {?} */ iconSetConfigs = this._iconSetConfigs.get(namespace);
+        if (iconSetConfigs) {
+            return this._getSvgFromIconSetConfigs(name, iconSetConfigs);
+        }
+        return Object(__WEBPACK_IMPORTED_MODULE_13_rxjs_observable_throw__["a" /* _throw */])(getMatIconNameNotFoundError(key));
+    };
+    /**
+     * Returns the cached icon for a SvgIconConfig if available, or fetches it from its URL if not.
+     * @param {?} config
+     * @return {?}
+     */
+    MatIconRegistry.prototype._getSvgFromConfig = /**
+     * Returns the cached icon for a SvgIconConfig if available, or fetches it from its URL if not.
+     * @param {?} config
+     * @return {?}
+     */
+    function (config) {
+        if (config.svgElement) {
+            // We already have the SVG element for this icon, return a copy.
+            return Object(__WEBPACK_IMPORTED_MODULE_12_rxjs_observable_of__["a" /* of */])(cloneSvg(config.svgElement));
+        }
+        else {
+            // Fetch the icon from the config's URL, cache it, and return a copy.
+            return this._loadSvgIconFromConfig(config).pipe(Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_tap__["a" /* tap */])(function (svg) { return config.svgElement = svg; }), Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__["a" /* map */])(function (svg) { return cloneSvg(svg); }));
+        }
+    };
+    /**
+     * Attempts to find an icon with the specified name in any of the SVG icon sets.
+     * First searches the available cached icons for a nested element with a matching name, and
+     * if found copies the element to a new <svg> element. If not found, fetches all icon sets
+     * that have not been cached, and searches again after all fetches are completed.
+     * The returned Observable produces the SVG element if possible, and throws
+     * an error if no icon with the specified name can be found.
+     * @param {?} name
+     * @param {?} iconSetConfigs
+     * @return {?}
+     */
+    MatIconRegistry.prototype._getSvgFromIconSetConfigs = /**
+     * Attempts to find an icon with the specified name in any of the SVG icon sets.
+     * First searches the available cached icons for a nested element with a matching name, and
+     * if found copies the element to a new <svg> element. If not found, fetches all icon sets
+     * that have not been cached, and searches again after all fetches are completed.
+     * The returned Observable produces the SVG element if possible, and throws
+     * an error if no icon with the specified name can be found.
+     * @param {?} name
+     * @param {?} iconSetConfigs
+     * @return {?}
+     */
+    function (name, iconSetConfigs) {
+        var _this = this;
+        // For all the icon set SVG elements we've fetched, see if any contain an icon with the
+        // requested name.
+        var /** @type {?} */ namedIcon = this._extractIconWithNameFromAnySet(name, iconSetConfigs);
+        if (namedIcon) {
+            // We could cache namedIcon in _svgIconConfigs, but since we have to make a copy every
+            // time anyway, there's probably not much advantage compared to just always extracting
+            // it from the icon set.
+            return Object(__WEBPACK_IMPORTED_MODULE_12_rxjs_observable_of__["a" /* of */])(namedIcon);
+        }
+        // Not found in any cached icon sets. If there are icon sets with URLs that we haven't
+        // fetched, fetch them now and look for iconName in the results.
+        var /** @type {?} */ iconSetFetchRequests = iconSetConfigs
+            .filter(function (iconSetConfig) { return !iconSetConfig.svgElement; })
+            .map(function (iconSetConfig) {
+            return _this._loadSvgIconSetFromConfig(iconSetConfig).pipe(Object(__WEBPACK_IMPORTED_MODULE_4_rxjs_operators_catchError__["a" /* catchError */])(function (err) {
+                var /** @type {?} */ url = _this._sanitizer.sanitize(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* SecurityContext */].RESOURCE_URL, iconSetConfig.url);
+                // Swallow errors fetching individual URLs so the combined Observable won't
+                // necessarily fail.
+                console.log("Loading icon set URL: " + url + " failed: " + err);
+                return Object(__WEBPACK_IMPORTED_MODULE_12_rxjs_observable_of__["a" /* of */])(null);
+            }), Object(__WEBPACK_IMPORTED_MODULE_5_rxjs_operators_tap__["a" /* tap */])(function (svg) {
+                // Cache the SVG element.
+                if (svg) {
+                    iconSetConfig.svgElement = svg;
+                }
+            }));
+        });
+        // Fetch all the icon set URLs. When the requests complete, every IconSet should have a
+        // cached SVG element (unless the request failed), and we can check again for the icon.
+        return Object(__WEBPACK_IMPORTED_MODULE_11_rxjs_observable_forkJoin__["a" /* forkJoin */])(iconSetFetchRequests).pipe(Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__["a" /* map */])(function () {
+            var /** @type {?} */ foundIcon = _this._extractIconWithNameFromAnySet(name, iconSetConfigs);
+            if (!foundIcon) {
+                throw getMatIconNameNotFoundError(name);
+            }
+            return foundIcon;
+        }));
+    };
+    /**
+     * Searches the cached SVG elements for the given icon sets for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     * @param {?} iconName
+     * @param {?} iconSetConfigs
+     * @return {?}
+     */
+    MatIconRegistry.prototype._extractIconWithNameFromAnySet = /**
+     * Searches the cached SVG elements for the given icon sets for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     * @param {?} iconName
+     * @param {?} iconSetConfigs
+     * @return {?}
+     */
+    function (iconName, iconSetConfigs) {
+        // Iterate backwards, so icon sets added later have precedence.
+        for (var /** @type {?} */ i = iconSetConfigs.length - 1; i >= 0; i--) {
+            var /** @type {?} */ config = iconSetConfigs[i];
+            if (config.svgElement) {
+                var /** @type {?} */ foundIcon = this._extractSvgIconFromSet(config.svgElement, iconName);
+                if (foundIcon) {
+                    return foundIcon;
+                }
+            }
+        }
+        return null;
+    };
+    /**
+     * Loads the content of the icon URL specified in the SvgIconConfig and creates an SVG element
+     * from it.
+     * @param {?} config
+     * @return {?}
+     */
+    MatIconRegistry.prototype._loadSvgIconFromConfig = /**
+     * Loads the content of the icon URL specified in the SvgIconConfig and creates an SVG element
+     * from it.
+     * @param {?} config
+     * @return {?}
+     */
+    function (config) {
+        var _this = this;
+        return this._fetchUrl(config.url)
+            .pipe(Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__["a" /* map */])(function (svgText) { return _this._createSvgElementForSingleIcon(svgText); }));
+    };
+    /**
+     * Loads the content of the icon set URL specified in the SvgIconConfig and creates an SVG element
+     * from it.
+     * @param {?} config
+     * @return {?}
+     */
+    MatIconRegistry.prototype._loadSvgIconSetFromConfig = /**
+     * Loads the content of the icon set URL specified in the SvgIconConfig and creates an SVG element
+     * from it.
+     * @param {?} config
+     * @return {?}
+     */
+    function (config) {
+        var _this = this;
+        // TODO: Document that icons should only be loaded from trusted sources.
+        return this._fetchUrl(config.url).pipe(Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_map__["a" /* map */])(function (svgText) { return _this._svgElementFromString(svgText); }));
+    };
+    /**
+     * Creates a DOM element from the given SVG string, and adds default attributes.
+     * @param {?} responseText
+     * @return {?}
+     */
+    MatIconRegistry.prototype._createSvgElementForSingleIcon = /**
+     * Creates a DOM element from the given SVG string, and adds default attributes.
+     * @param {?} responseText
+     * @return {?}
+     */
+    function (responseText) {
+        var /** @type {?} */ svg = this._svgElementFromString(responseText);
+        this._setSvgAttributes(svg);
+        return svg;
+    };
+    /**
+     * Searches the cached element of the given SvgIconConfig for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     * @param {?} iconSet
+     * @param {?} iconName
+     * @return {?}
+     */
+    MatIconRegistry.prototype._extractSvgIconFromSet = /**
+     * Searches the cached element of the given SvgIconConfig for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     * @param {?} iconSet
+     * @param {?} iconName
+     * @return {?}
+     */
+    function (iconSet, iconName) {
+        var /** @type {?} */ iconSource = iconSet.querySelector('#' + iconName);
+        if (!iconSource) {
+            return null;
+        }
+        // Clone the element and remove the ID to prevent multiple elements from being added
+        // to the page with the same ID.
+        var /** @type {?} */ iconElement = /** @type {?} */ (iconSource.cloneNode(true));
+        iconElement.id = '';
+        // If the icon node is itself an <svg> node, clone and return it directly. If not, set it as
+        // the content of a new <svg> node.
+        if (iconElement.nodeName.toLowerCase() === 'svg') {
+            return this._setSvgAttributes(/** @type {?} */ (iconElement));
+        }
+        // If the node is a <symbol>, it won't be rendered so we have to convert it into <svg>. Note
+        // that the same could be achieved by referring to it via <use href="#id">, however the <use>
+        // tag is problematic on Firefox, because it needs to include the current page path.
+        if (iconElement.nodeName.toLowerCase() === 'symbol') {
+            return this._setSvgAttributes(this._toSvgElement(iconElement));
+        }
+        // createElement('SVG') doesn't work as expected; the DOM ends up with
+        // the correct nodes, but the SVG content doesn't render. Instead we
+        // have to create an empty SVG node using innerHTML and append its content.
+        // Elements created using DOMParser.parseFromString have the same problem.
+        // http://stackoverflow.com/questions/23003278/svg-innerhtml-in-firefox-can-not-display
+        var /** @type {?} */ svg = this._svgElementFromString('<svg></svg>');
+        // Clone the node so we don't remove it from the parent icon set element.
+        svg.appendChild(iconElement);
+        return this._setSvgAttributes(svg);
+    };
+    /**
+     * Creates a DOM element from the given SVG string.
+     * @param {?} str
+     * @return {?}
+     */
+    MatIconRegistry.prototype._svgElementFromString = /**
+     * Creates a DOM element from the given SVG string.
+     * @param {?} str
+     * @return {?}
+     */
+    function (str) {
+        var /** @type {?} */ div = document.createElement('DIV');
+        div.innerHTML = str;
+        var /** @type {?} */ svg = /** @type {?} */ (div.querySelector('svg'));
+        if (!svg) {
+            throw Error('<svg> tag not found');
+        }
+        return svg;
+    };
+    /**
+     * Converts an element into an SVG node by cloning all of its children.
+     * @param {?} element
+     * @return {?}
+     */
+    MatIconRegistry.prototype._toSvgElement = /**
+     * Converts an element into an SVG node by cloning all of its children.
+     * @param {?} element
+     * @return {?}
+     */
+    function (element) {
+        var /** @type {?} */ svg = this._svgElementFromString('<svg></svg>');
+        for (var /** @type {?} */ i = 0; i < element.childNodes.length; i++) {
+            if (element.childNodes[i].nodeType === Node.ELEMENT_NODE) {
+                svg.appendChild(element.childNodes[i].cloneNode(true));
+            }
+        }
+        return svg;
+    };
+    /**
+     * Sets the default attributes for an SVG element to be used as an icon.
+     * @param {?} svg
+     * @return {?}
+     */
+    MatIconRegistry.prototype._setSvgAttributes = /**
+     * Sets the default attributes for an SVG element to be used as an icon.
+     * @param {?} svg
+     * @return {?}
+     */
+    function (svg) {
+        if (!svg.getAttribute('xmlns')) {
+            svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        }
+        svg.setAttribute('fit', '');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.setAttribute('focusable', 'false'); // Disable IE11 default behavior to make SVGs focusable.
+        return svg;
+    };
+    /**
+     * Returns an Observable which produces the string contents of the given URL. Results may be
+     * cached, so future calls with the same URL may not cause another HTTP request.
+     * @param {?} safeUrl
+     * @return {?}
+     */
+    MatIconRegistry.prototype._fetchUrl = /**
+     * Returns an Observable which produces the string contents of the given URL. Results may be
+     * cached, so future calls with the same URL may not cause another HTTP request.
+     * @param {?} safeUrl
+     * @return {?}
+     */
+    function (safeUrl) {
+        var _this = this;
+        if (!this._httpClient) {
+            throw getMatIconNoHttpProviderError();
+        }
+        var /** @type {?} */ url = this._sanitizer.sanitize(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* SecurityContext */].RESOURCE_URL, safeUrl);
+        if (!url) {
+            throw getMatIconFailedToSanitizeError(safeUrl);
+        }
+        // Store in-progress fetches to avoid sending a duplicate request for a URL when there is
+        // already a request in progress for that URL. It's necessary to call share() on the
+        // Observable returned by http.get() so that multiple subscribers don't cause multiple XHRs.
+        var /** @type {?} */ inProgressFetch = this._inProgressUrlFetches.get(url);
+        if (inProgressFetch) {
+            return inProgressFetch;
+        }
+        // TODO(jelbourn): for some reason, the `finally` operator "loses" the generic type on the
+        // Observable. Figure out why and fix it.
+        var /** @type {?} */ req = this._httpClient.get(url, { responseType: 'text' }).pipe(Object(__WEBPACK_IMPORTED_MODULE_6_rxjs_operators_finalize__["a" /* finalize */])(function () { return _this._inProgressUrlFetches.delete(url); }), Object(__WEBPACK_IMPORTED_MODULE_8_rxjs_operators_share__["a" /* share */])());
+        this._inProgressUrlFetches.set(url, req);
+        return req;
+    };
+    MatIconRegistry.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
+    ];
+    /** @nocollapse */
+    MatIconRegistry.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_9__angular_common_http__["a" /* HttpClient */], decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_10__angular_platform_browser__["c" /* DomSanitizer */], },
+    ]; };
+    return MatIconRegistry;
+}());
+/**
+ * \@docs-private
+ * @param {?} parentRegistry
+ * @param {?} httpClient
+ * @param {?} sanitizer
+ * @return {?}
+ */
+function ICON_REGISTRY_PROVIDER_FACTORY(parentRegistry, httpClient, sanitizer) {
+    return parentRegistry || new MatIconRegistry(httpClient, sanitizer);
+}
+/**
+ * \@docs-private
+ */
+var ICON_REGISTRY_PROVIDER = {
+    // If there is already an MatIconRegistry available, use that. Otherwise, provide a new one.
+    provide: MatIconRegistry,
+    deps: [
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_2" /* SkipSelf */](), MatIconRegistry],
+        [new __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */](), __WEBPACK_IMPORTED_MODULE_9__angular_common_http__["a" /* HttpClient */]],
+        __WEBPACK_IMPORTED_MODULE_10__angular_platform_browser__["c" /* DomSanitizer */]
+    ],
+    useFactory: ICON_REGISTRY_PROVIDER_FACTORY
+};
+/**
+ * Clones an SVGElement while preserving type information.
+ * @param {?} svg
+ * @return {?}
+ */
+function cloneSvg(svg) {
+    return /** @type {?} */ (svg.cloneNode(true));
+}
+/**
+ * Returns the cache key to use for an icon namespace and name.
+ * @param {?} namespace
+ * @param {?} name
+ * @return {?}
+ */
+function iconKey(namespace, name) {
+    return namespace + ':' + name;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * \@docs-private
+ */
+var MatIconBase = /** @class */ (function () {
+    function MatIconBase(_elementRef) {
+        this._elementRef = _elementRef;
+    }
+    return MatIconBase;
+}());
+var _MatIconMixinBase = Object(__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["c" /* mixinColor */])(MatIconBase);
+/**
+ * Component to display an icon. It can be used in the following ways:
+ *
+ * - Specify the svgIcon input to load an SVG icon from a URL previously registered with the
+ *   addSvgIcon, addSvgIconInNamespace, addSvgIconSet, or addSvgIconSetInNamespace methods of
+ *   MatIconRegistry. If the svgIcon value contains a colon it is assumed to be in the format
+ *   "[namespace]:[name]", if not the value will be the name of an icon in the default namespace.
+ *   Examples:
+ *     <mat-icon svgIcon="left-arrow"></mat-icon>
+ *     <mat-icon svgIcon="animals:cat"></mat-icon>
+ *
+ * - Use a font ligature as an icon by putting the ligature text in the content of the <mat-icon>
+ *   component. By default the Material icons font is used as described at
+ *   http://google.github.io/material-design-icons/#icon-font-for-the-web. You can specify an
+ *   alternate font by setting the fontSet input to either the CSS class to apply to use the
+ *   desired font, or to an alias previously registered with MatIconRegistry.registerFontClassAlias.
+ *   Examples:
+ *     <mat-icon>home</mat-icon>
+ *     <mat-icon fontSet="myfont">sun</mat-icon>
+ *
+ * - Specify a font glyph to be included via CSS rules by setting the fontSet input to specify the
+ *   font, and the fontIcon input to specify the icon. Typically the fontIcon will specify a
+ *   CSS class which causes the glyph to be displayed via a :before selector, as in
+ *   https://fortawesome.github.io/Font-Awesome/examples/
+ *   Example:
+ *     <mat-icon fontSet="fa" fontIcon="alarm"></mat-icon>
+ */
+var MatIcon = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_2_tslib__["b" /* __extends */])(MatIcon, _super);
+    function MatIcon(elementRef, _iconRegistry, ariaHidden) {
+        var _this = _super.call(this, elementRef) || this;
+        _this._iconRegistry = _iconRegistry;
+        // If the user has not explicitly set aria-hidden, mark the icon as hidden, as this is
+        // the right thing to do for the majority of icon use-cases.
+        if (!ariaHidden) {
+            elementRef.nativeElement.setAttribute('aria-hidden', 'true');
+        }
+        return _this;
+    }
+    /**
+     * Splits an svgIcon binding value into its icon set and icon name components.
+     * Returns a 2-element array of [(icon set), (icon name)].
+     * The separator for the two fields is ':'. If there is no separator, an empty
+     * string is returned for the icon set and the entire value is returned for
+     * the icon name. If the argument is falsy, returns an array of two empty strings.
+     * Throws an error if the name contains two or more ':' separators.
+     * Examples:
+     *   'social:cake' -> ['social', 'cake']
+     *   'penguin' -> ['', 'penguin']
+     *   null -> ['', '']
+     *   'a:b:c' -> (throws Error)
+     * @param {?} iconName
+     * @return {?}
+     */
+    MatIcon.prototype._splitIconName = /**
+     * Splits an svgIcon binding value into its icon set and icon name components.
+     * Returns a 2-element array of [(icon set), (icon name)].
+     * The separator for the two fields is ':'. If there is no separator, an empty
+     * string is returned for the icon set and the entire value is returned for
+     * the icon name. If the argument is falsy, returns an array of two empty strings.
+     * Throws an error if the name contains two or more ':' separators.
+     * Examples:
+     *   'social:cake' -> ['social', 'cake']
+     *   'penguin' -> ['', 'penguin']
+     *   null -> ['', '']
+     *   'a:b:c' -> (throws Error)
+     * @param {?} iconName
+     * @return {?}
+     */
+    function (iconName) {
+        if (!iconName) {
+            return ['', ''];
+        }
+        var /** @type {?} */ parts = iconName.split(':');
+        switch (parts.length) {
+            case 1: return ['', parts[0]]; // Use default namespace.
+            case 2: return /** @type {?} */ (parts);
+            default: throw Error("Invalid icon name: \"" + iconName + "\"");
+        }
+    };
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    MatIcon.prototype.ngOnChanges = /**
+     * @param {?} changes
+     * @return {?}
+     */
+    function (changes) {
+        var _this = this;
+        // Only update the inline SVG icon if the inputs changed, to avoid unnecessary DOM operations.
+        if (changes["svgIcon"]) {
+            if (this.svgIcon) {
+                var _a = this._splitIconName(this.svgIcon), namespace = _a[0], iconName = _a[1];
+                this._iconRegistry.getNamedSvgIcon(iconName, namespace).pipe(Object(__WEBPACK_IMPORTED_MODULE_3_rxjs_operators_take__["a" /* take */])(1)).subscribe(function (svg) { return _this._setSvgElement(svg); }, function (err) { return console.log("Error retrieving icon: " + err.message); });
+            }
+            else {
+                this._clearSvgElement();
+            }
+        }
+        if (this._usingFontIcon()) {
+            this._updateFontIconClasses();
+        }
+    };
+    /**
+     * @return {?}
+     */
+    MatIcon.prototype.ngOnInit = /**
+     * @return {?}
+     */
+    function () {
+        // Update font classes because ngOnChanges won't be called if none of the inputs are present,
+        // e.g. <mat-icon>arrow</mat-icon> In this case we need to add a CSS class for the default font.
+        if (this._usingFontIcon()) {
+            this._updateFontIconClasses();
+        }
+    };
+    /**
+     * @return {?}
+     */
+    MatIcon.prototype._usingFontIcon = /**
+     * @return {?}
+     */
+    function () {
+        return !this.svgIcon;
+    };
+    /**
+     * @param {?} svg
+     * @return {?}
+     */
+    MatIcon.prototype._setSvgElement = /**
+     * @param {?} svg
+     * @return {?}
+     */
+    function (svg) {
+        this._clearSvgElement();
+        this._elementRef.nativeElement.appendChild(svg);
+    };
+    /**
+     * @return {?}
+     */
+    MatIcon.prototype._clearSvgElement = /**
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ layoutElement = this._elementRef.nativeElement;
+        var /** @type {?} */ childCount = layoutElement.childNodes.length;
+        // Remove existing child nodes and add the new SVG element. Note that we can't
+        // use innerHTML, because IE will throw if the element has a data binding.
+        for (var /** @type {?} */ i = 0; i < childCount; i++) {
+            layoutElement.removeChild(layoutElement.childNodes[i]);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    MatIcon.prototype._updateFontIconClasses = /**
+     * @return {?}
+     */
+    function () {
+        if (!this._usingFontIcon()) {
+            return;
+        }
+        var /** @type {?} */ elem = this._elementRef.nativeElement;
+        var /** @type {?} */ fontSetClass = this.fontSet ?
+            this._iconRegistry.classNameForFontAlias(this.fontSet) :
+            this._iconRegistry.getDefaultFontSetClass();
+        if (fontSetClass != this._previousFontSetClass) {
+            if (this._previousFontSetClass) {
+                elem.classList.remove(this._previousFontSetClass);
+            }
+            if (fontSetClass) {
+                elem.classList.add(fontSetClass);
+            }
+            this._previousFontSetClass = fontSetClass;
+        }
+        if (this.fontIcon != this._previousFontIconClass) {
+            if (this._previousFontIconClass) {
+                elem.classList.remove(this._previousFontIconClass);
+            }
+            if (this.fontIcon) {
+                elem.classList.add(this.fontIcon);
+            }
+            this._previousFontIconClass = this.fontIcon;
+        }
+    };
+    MatIcon.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{template: '<ng-content></ng-content>',
+                    selector: 'mat-icon',
+                    exportAs: 'matIcon',
+                    styles: [".mat-icon{background-repeat:no-repeat;display:inline-block;fill:currentColor;height:24px;width:24px}"],
+                    inputs: ['color'],
+                    host: {
+                        'role': 'img',
+                        'class': 'mat-icon',
+                    },
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                },] },
+    ];
+    /** @nocollapse */
+    MatIcon.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: MatIconRegistry, },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["h" /* Attribute */], args: ['aria-hidden',] },] },
+    ]; };
+    MatIcon.propDecorators = {
+        "svgIcon": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "fontSet": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "fontIcon": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+    };
+    return MatIcon;
+}(_MatIconMixinBase));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatIconModule = /** @class */ (function () {
+    function MatIconModule() {
+    }
+    MatIconModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */]],
+                    exports: [MatIcon, __WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */]],
+                    declarations: [MatIcon],
+                    providers: [ICON_REGISTRY_PROVIDER],
+                },] },
+    ];
+    /** @nocollapse */
+    MatIconModule.ctorParameters = function () { return []; };
+    return MatIconModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=icon.es5.js.map
+
+
+/***/ }),
+
+/***/ "../../../material/esm5/menu.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export MAT_MENU_SCROLL_STRATEGY */
+/* unused harmony export fadeInItems */
+/* unused harmony export transformMenu */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatMenuModule; });
+/* unused harmony export MatMenu */
+/* unused harmony export MAT_MENU_DEFAULT_OPTIONS */
+/* unused harmony export MatMenuItem */
+/* unused harmony export MatMenuTrigger */
+/* unused harmony export ɵa22 */
+/* unused harmony export ɵb22 */
+/* unused harmony export ɵd22 */
+/* unused harmony export ɵc22 */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_common__ = __webpack_require__("../../../common/esm5/common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_cdk_overlay__ = __webpack_require__("../../../cdk/esm5/overlay.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_cdk_a11y__ = __webpack_require__("../../../cdk/esm5/a11y.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__ = __webpack_require__("../../../cdk/esm5/keycodes.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operators_startWith__ = __webpack_require__("../../../../rxjs/_esm5/operators/startWith.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_operators_switchMap__ = __webpack_require__("../../../../rxjs/_esm5/operators/switchMap.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operators_take__ = __webpack_require__("../../../../rxjs/_esm5/operators/take.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_observable_merge__ = __webpack_require__("../../../../rxjs/_esm5/observable/merge.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_rxjs_Subscription__ = __webpack_require__("../../../../rxjs/_esm5/Subscription.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__angular_animations__ = __webpack_require__("../../../animations/esm5/animations.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_rxjs_Subject__ = __webpack_require__("../../../../rxjs/_esm5/Subject.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__angular_cdk_coercion__ = __webpack_require__("../../../cdk/esm5/coercion.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__angular_cdk_bidi__ = __webpack_require__("../../../cdk/esm5/bidi.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__angular_cdk_portal__ = __webpack_require__("../../../cdk/esm5/portal.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_rxjs_operators_filter__ = __webpack_require__("../../../../rxjs/_esm5/operators/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_rxjs_observable_of__ = __webpack_require__("../../../../rxjs/_esm5/observable/of.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * This animation controls the menu panel's entry and exit from the page.
+ *
+ * When the menu panel is added to the DOM, it scales in and fades in its border.
+ *
+ * When the menu panel is removed from the DOM, it simply fades out after a brief
+ * delay to display the ripple.
+ */
+var transformMenu = Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["j" /* trigger */])('transformMenu', [
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["g" /* state */])('void', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({
+        opacity: 0,
+        // This starts off from 0.01, instead of 0, because there's an issue in the Angular animations
+        // as of 4.2, which causes the animation to be skipped if it starts from 0.
+        transform: 'scale(0.01, 0.01)'
+    })),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["g" /* state */])('enter-start', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({
+        opacity: 1,
+        transform: 'scale(1, 0.5)'
+    })),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["g" /* state */])('enter', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({
+        transform: 'scale(1, 1)'
+    })),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["i" /* transition */])('void => enter-start', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["e" /* animate */])('100ms linear')),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["i" /* transition */])('enter-start => enter', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["e" /* animate */])('300ms cubic-bezier(0.25, 0.8, 0.25, 1)')),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["i" /* transition */])('* => void', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["e" /* animate */])('150ms 50ms linear', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({ opacity: 0 })))
+]);
+/**
+ * This animation fades in the background color and content of the menu panel
+ * after its containing element is scaled in.
+ */
+var fadeInItems = Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["j" /* trigger */])('fadeInItems', [
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["g" /* state */])('showing', Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({ opacity: 1 })),
+    Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["i" /* transition */])('void => *', [
+        Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["h" /* style */])({ opacity: 0 }),
+        Object(__WEBPACK_IMPORTED_MODULE_11__angular_animations__["e" /* animate */])('400ms 100ms cubic-bezier(0.55, 0, 0.55, 0.2)')
+    ])
+]);
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Throws an exception for the case when menu trigger doesn't have a valid mat-menu instance
+ * \@docs-private
+ * @return {?}
+ */
+function throwMatMenuMissingError() {
+    throw Error("mat-menu-trigger: must pass in an mat-menu instance.\n\n    Example:\n      <mat-menu #menu=\"matMenu\"></mat-menu>\n      <button [matMenuTriggerFor]=\"menu\"></button>");
+}
+/**
+ * Throws an exception for the case when menu's x-position value isn't valid.
+ * In other words, it doesn't match 'before' or 'after'.
+ * \@docs-private
+ * @return {?}
+ */
+function throwMatMenuInvalidPositionX() {
+    throw Error("x-position value must be either 'before' or after'.\n      Example: <mat-menu x-position=\"before\" #menu=\"matMenu\"></mat-menu>");
+}
+/**
+ * Throws an exception for the case when menu's y-position value isn't valid.
+ * In other words, it doesn't match 'above' or 'below'.
+ * \@docs-private
+ * @return {?}
+ */
+function throwMatMenuInvalidPositionY() {
+    throw Error("y-position value must be either 'above' or below'.\n      Example: <mat-menu y-position=\"above\" #menu=\"matMenu\"></mat-menu>");
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * \@docs-private
+ */
+var MatMenuItemBase = /** @class */ (function () {
+    function MatMenuItemBase() {
+    }
+    return MatMenuItemBase;
+}());
+var _MatMenuItemMixinBase = Object(__WEBPACK_IMPORTED_MODULE_2__angular_material_core__["d" /* mixinDisableRipple */])(Object(__WEBPACK_IMPORTED_MODULE_2__angular_material_core__["e" /* mixinDisabled */])(MatMenuItemBase));
+/**
+ * This directive is intended to be used inside an mat-menu tag.
+ * It exists mostly to set the role attribute.
+ */
+var MatMenuItem = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_12_tslib__["b" /* __extends */])(MatMenuItem, _super);
+    function MatMenuItem(_elementRef) {
+        var _this = _super.call(this) || this;
+        _this._elementRef = _elementRef;
+        /**
+         * Stream that emits when the menu item is hovered.
+         */
+        _this._hovered = new __WEBPACK_IMPORTED_MODULE_13_rxjs_Subject__["a" /* Subject */]();
+        /**
+         * Whether the menu item is highlighted.
+         */
+        _this._highlighted = false;
+        /**
+         * Whether the menu item acts as a trigger for a sub-menu.
+         */
+        _this._triggersSubmenu = false;
+        return _this;
+    }
+    /** Focuses the menu item. */
+    /**
+     * Focuses the menu item.
+     * @return {?}
+     */
+    MatMenuItem.prototype.focus = /**
+     * Focuses the menu item.
+     * @return {?}
+     */
+    function () {
+        this._getHostElement().focus();
+    };
+    /**
+     * @return {?}
+     */
+    MatMenuItem.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._hovered.complete();
+    };
+    /** Used to set the `tabindex`. */
+    /**
+     * Used to set the `tabindex`.
+     * @return {?}
+     */
+    MatMenuItem.prototype._getTabIndex = /**
+     * Used to set the `tabindex`.
+     * @return {?}
+     */
+    function () {
+        return this.disabled ? '-1' : '0';
+    };
+    /** Returns the host DOM element. */
+    /**
+     * Returns the host DOM element.
+     * @return {?}
+     */
+    MatMenuItem.prototype._getHostElement = /**
+     * Returns the host DOM element.
+     * @return {?}
+     */
+    function () {
+        return this._elementRef.nativeElement;
+    };
+    /** Prevents the default element actions if it is disabled. */
+    /**
+     * Prevents the default element actions if it is disabled.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenuItem.prototype._checkDisabled = /**
+     * Prevents the default element actions if it is disabled.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (this.disabled) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+    /** Emits to the hover stream. */
+    /**
+     * Emits to the hover stream.
+     * @return {?}
+     */
+    MatMenuItem.prototype._emitHoverEvent = /**
+     * Emits to the hover stream.
+     * @return {?}
+     */
+    function () {
+        if (!this.disabled) {
+            this._hovered.next(this);
+        }
+    };
+    /** Gets the label to be used when determining whether the option should be focused. */
+    /**
+     * Gets the label to be used when determining whether the option should be focused.
+     * @return {?}
+     */
+    MatMenuItem.prototype.getLabel = /**
+     * Gets the label to be used when determining whether the option should be focused.
+     * @return {?}
+     */
+    function () {
+        var /** @type {?} */ element = this._elementRef.nativeElement;
+        var /** @type {?} */ output = '';
+        if (element.childNodes) {
+            var /** @type {?} */ length_1 = element.childNodes.length;
+            // Go through all the top-level text nodes and extract their text.
+            // We skip anything that's not a text node to prevent the text from
+            // being thrown off by something like an icon.
+            for (var /** @type {?} */ i = 0; i < length_1; i++) {
+                if (element.childNodes[i].nodeType === Node.TEXT_NODE) {
+                    output += element.childNodes[i].textContent;
+                }
+            }
+        }
+        return output.trim();
+    };
+    MatMenuItem.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: '[mat-menu-item]',
+                    exportAs: 'matMenuItem',
+                    inputs: ['disabled', 'disableRipple'],
+                    host: {
+                        'role': 'menuitem',
+                        'class': 'mat-menu-item',
+                        '[class.mat-menu-item-highlighted]': '_highlighted',
+                        '[class.mat-menu-item-submenu-trigger]': '_triggersSubmenu',
+                        '[attr.tabindex]': '_getTabIndex()',
+                        '[attr.aria-disabled]': 'disabled.toString()',
+                        '[attr.disabled]': 'disabled || null',
+                        '(click)': '_checkDisabled($event)',
+                        '(mouseenter)': '_emitHoverEvent()',
+                    },
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    template: "<ng-content></ng-content><div class=\"mat-menu-ripple\" matRipple [matRippleDisabled]=\"disableRipple || disabled\" [matRippleTrigger]=\"_getHostElement()\"></div>",
+                },] },
+    ];
+    /** @nocollapse */
+    MatMenuItem.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+    ]; };
+    return MatMenuItem;
+}(_MatMenuItemMixinBase));
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Default `mat-menu` options that can be overridden.
+ * @record
+ */
+
+/**
+ * Injection token to be used to override the default options for `mat-menu`.
+ */
+var MAT_MENU_DEFAULT_OPTIONS = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-menu-default-options');
+/**
+ * Start elevation for the menu panel.
+ * \@docs-private
+ */
+var MAT_MENU_BASE_ELEVATION = 2;
+var MatMenu = /** @class */ (function () {
+    function MatMenu(_elementRef, _ngZone, _defaultOptions) {
+        this._elementRef = _elementRef;
+        this._ngZone = _ngZone;
+        this._defaultOptions = _defaultOptions;
+        this._xPosition = this._defaultOptions.xPosition;
+        this._yPosition = this._defaultOptions.yPosition;
+        /**
+         * Subscription to tab events on the menu panel
+         */
+        this._tabSubscription = __WEBPACK_IMPORTED_MODULE_10_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        /**
+         * Config object to be passed into the menu's ngClass
+         */
+        this._classList = {};
+        /**
+         * Current state of the panel animation.
+         */
+        this._panelAnimationState = 'void';
+        this._overlapTrigger = this._defaultOptions.overlapTrigger;
+        /**
+         * Event emitted when the menu is closed.
+         */
+        this.closed = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the menu is closed.
+         * @deprecated Switch to `closed` instead
+         */
+        this.close = this.closed;
+    }
+    Object.defineProperty(MatMenu.prototype, "xPosition", {
+        get: /**
+         * Position of the menu in the X axis.
+         * @return {?}
+         */
+        function () { return this._xPosition; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) {
+            if (value !== 'before' && value !== 'after') {
+                throwMatMenuInvalidPositionX();
+            }
+            this._xPosition = value;
+            this.setPositionClasses();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatMenu.prototype, "yPosition", {
+        get: /**
+         * Position of the menu in the Y axis.
+         * @return {?}
+         */
+        function () { return this._yPosition; },
+        set: /**
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) {
+            if (value !== 'above' && value !== 'below') {
+                throwMatMenuInvalidPositionY();
+            }
+            this._yPosition = value;
+            this.setPositionClasses();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatMenu.prototype, "overlapTrigger", {
+        get: /**
+         * @return {?}
+         */
+        function () {
+            return this._overlapTrigger;
+        },
+        set: /**
+         * Whether the menu should overlap its trigger.
+         * @param {?} value
+         * @return {?}
+         */
+        function (value) {
+            this._overlapTrigger = Object(__WEBPACK_IMPORTED_MODULE_14__angular_cdk_coercion__["a" /* coerceBooleanProperty */])(value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatMenu.prototype, "panelClass", {
+        set: /**
+         * This method takes classes set on the host mat-menu element and applies them on the
+         * menu template that displays in the overlay container.  Otherwise, it's difficult
+         * to style the containing menu from outside the component.
+         * @param {?} classes list of class names
+         * @return {?}
+         */
+        function (classes) {
+            if (classes && classes.length) {
+                this._classList = classes.split(' ').reduce(function (obj, className) {
+                    obj[className] = true;
+                    return obj;
+                }, {});
+                this._elementRef.nativeElement.className = '';
+                this.setPositionClasses();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatMenu.prototype, "classList", {
+        get: /**
+         * @return {?}
+         */
+        function () { return this.panelClass; },
+        set: /**
+         * This method takes classes set on the host mat-menu element and applies them on the
+         * menu template that displays in the overlay container.  Otherwise, it's difficult
+         * to style the containing menu from outside the component.
+         * @deprecated Use `panelClass` instead.
+         * @param {?} classes
+         * @return {?}
+         */
+        function (classes) { this.panelClass = classes; },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    MatMenu.prototype.ngAfterContentInit = /**
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._keyManager = new __WEBPACK_IMPORTED_MODULE_4__angular_cdk_a11y__["b" /* FocusKeyManager */](this.items).withWrap().withTypeAhead();
+        this._tabSubscription = this._keyManager.tabOut.subscribe(function () { return _this.close.emit('keydown'); });
+    };
+    /**
+     * @return {?}
+     */
+    MatMenu.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        this._tabSubscription.unsubscribe();
+        this.closed.complete();
+    };
+    /** Stream that emits whenever the hovered menu item changes. */
+    /**
+     * Stream that emits whenever the hovered menu item changes.
+     * @return {?}
+     */
+    MatMenu.prototype._hovered = /**
+     * Stream that emits whenever the hovered menu item changes.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (this.items) {
+            return this.items.changes.pipe(Object(__WEBPACK_IMPORTED_MODULE_6_rxjs_operators_startWith__["a" /* startWith */])(this.items), Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_switchMap__["a" /* switchMap */])(function (items) { return __WEBPACK_IMPORTED_MODULE_9_rxjs_observable_merge__["a" /* merge */].apply(void 0, items.map(function (item) { return item._hovered; })); }));
+        }
+        return this._ngZone.onStable
+            .asObservable()
+            .pipe(Object(__WEBPACK_IMPORTED_MODULE_8_rxjs_operators_take__["a" /* take */])(1), Object(__WEBPACK_IMPORTED_MODULE_7_rxjs_operators_switchMap__["a" /* switchMap */])(function () { return _this._hovered(); }));
+    };
+    /** Handle a keyboard event from the menu, delegating to the appropriate action. */
+    /**
+     * Handle a keyboard event from the menu, delegating to the appropriate action.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenu.prototype._handleKeydown = /**
+     * Handle a keyboard event from the menu, delegating to the appropriate action.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        switch (event.keyCode) {
+            case __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__["d" /* ESCAPE */]:
+                this.closed.emit('keydown');
+                event.stopPropagation();
+                break;
+            case __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__["e" /* LEFT_ARROW */]:
+                if (this.parentMenu && this.direction === 'ltr') {
+                    this.closed.emit('keydown');
+                }
+                break;
+            case __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__["g" /* RIGHT_ARROW */]:
+                if (this.parentMenu && this.direction === 'rtl') {
+                    this.closed.emit('keydown');
+                }
+                break;
+            default:
+                this._keyManager.onKeydown(event);
+        }
+    };
+    /**
+     * Focus the first item in the menu. This method is used by the menu trigger
+     * to focus the first item when the menu is opened by the ENTER key.
+     */
+    /**
+     * Focus the first item in the menu. This method is used by the menu trigger
+     * to focus the first item when the menu is opened by the ENTER key.
+     * @return {?}
+     */
+    MatMenu.prototype.focusFirstItem = /**
+     * Focus the first item in the menu. This method is used by the menu trigger
+     * to focus the first item when the menu is opened by the ENTER key.
+     * @return {?}
+     */
+    function () {
+        this._keyManager.setFirstItemActive();
+    };
+    /**
+     * Resets the active item in the menu. This is used when the menu is opened by mouse,
+     * allowing the user to start from the first option when pressing the down arrow.
+     */
+    /**
+     * Resets the active item in the menu. This is used when the menu is opened by mouse,
+     * allowing the user to start from the first option when pressing the down arrow.
+     * @return {?}
+     */
+    MatMenu.prototype.resetActiveItem = /**
+     * Resets the active item in the menu. This is used when the menu is opened by mouse,
+     * allowing the user to start from the first option when pressing the down arrow.
+     * @return {?}
+     */
+    function () {
+        this._keyManager.setActiveItem(-1);
+    };
+    /**
+     * It's necessary to set position-based classes to ensure the menu panel animation
+     * folds out from the correct direction.
+     */
+    /**
+     * It's necessary to set position-based classes to ensure the menu panel animation
+     * folds out from the correct direction.
+     * @param {?=} posX
+     * @param {?=} posY
+     * @return {?}
+     */
+    MatMenu.prototype.setPositionClasses = /**
+     * It's necessary to set position-based classes to ensure the menu panel animation
+     * folds out from the correct direction.
+     * @param {?=} posX
+     * @param {?=} posY
+     * @return {?}
+     */
+    function (posX, posY) {
+        if (posX === void 0) { posX = this.xPosition; }
+        if (posY === void 0) { posY = this.yPosition; }
+        this._classList['mat-menu-before'] = posX === 'before';
+        this._classList['mat-menu-after'] = posX === 'after';
+        this._classList['mat-menu-above'] = posY === 'above';
+        this._classList['mat-menu-below'] = posY === 'below';
+    };
+    /**
+     * Sets the menu panel elevation.
+     * @param depth Number of parent menus that come before the menu.
+     */
+    /**
+     * Sets the menu panel elevation.
+     * @param {?} depth Number of parent menus that come before the menu.
+     * @return {?}
+     */
+    MatMenu.prototype.setElevation = /**
+     * Sets the menu panel elevation.
+     * @param {?} depth Number of parent menus that come before the menu.
+     * @return {?}
+     */
+    function (depth) {
+        // The elevation starts at the base and increases by one for each level.
+        var /** @type {?} */ newElevation = "mat-elevation-z" + (MAT_MENU_BASE_ELEVATION + depth);
+        var /** @type {?} */ customElevation = Object.keys(this._classList).find(function (c) { return c.startsWith('mat-elevation-z'); });
+        if (!customElevation || customElevation === this._previousElevation) {
+            if (this._previousElevation) {
+                this._classList[this._previousElevation] = false;
+            }
+            this._classList[newElevation] = true;
+            this._previousElevation = newElevation;
+        }
+    };
+    /** Starts the enter animation. */
+    /**
+     * Starts the enter animation.
+     * @return {?}
+     */
+    MatMenu.prototype._startAnimation = /**
+     * Starts the enter animation.
+     * @return {?}
+     */
+    function () {
+        this._panelAnimationState = 'enter-start';
+    };
+    /** Resets the panel animation to its initial state. */
+    /**
+     * Resets the panel animation to its initial state.
+     * @return {?}
+     */
+    MatMenu.prototype._resetAnimation = /**
+     * Resets the panel animation to its initial state.
+     * @return {?}
+     */
+    function () {
+        this._panelAnimationState = 'void';
+    };
+    /** Callback that is invoked when the panel animation completes. */
+    /**
+     * Callback that is invoked when the panel animation completes.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenu.prototype._onAnimationDone = /**
+     * Callback that is invoked when the panel animation completes.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        // After the initial expansion is done, trigger the second phase of the enter animation.
+        if (event.toState === 'enter-start') {
+            this._panelAnimationState = 'enter';
+        }
+    };
+    MatMenu.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-menu',
+                    template: "<ng-template><div class=\"mat-menu-panel\" [ngClass]=\"_classList\" (keydown)=\"_handleKeydown($event)\" (click)=\"closed.emit('click')\" [@transformMenu]=\"_panelAnimationState\" (@transformMenu.done)=\"_onAnimationDone($event)\" tabindex=\"-1\" role=\"menu\"><div class=\"mat-menu-content\" [@fadeInItems]=\"'showing'\"><ng-content></ng-content></div></div></ng-template>",
+                    styles: [".mat-menu-panel{min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100vh - 48px);border-radius:2px;outline:0}.mat-menu-panel:not([class*=mat-elevation-z]){box-shadow:0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)}.mat-menu-panel.mat-menu-after.mat-menu-below{transform-origin:left top}.mat-menu-panel.mat-menu-after.mat-menu-above{transform-origin:left bottom}.mat-menu-panel.mat-menu-before.mat-menu-below{transform-origin:right top}.mat-menu-panel.mat-menu-before.mat-menu-above{transform-origin:right bottom}[dir=rtl] .mat-menu-panel.mat-menu-after.mat-menu-below{transform-origin:right top}[dir=rtl] .mat-menu-panel.mat-menu-after.mat-menu-above{transform-origin:right bottom}[dir=rtl] .mat-menu-panel.mat-menu-before.mat-menu-below{transform-origin:left top}[dir=rtl] .mat-menu-panel.mat-menu-before.mat-menu-above{transform-origin:left bottom}.mat-menu-panel.ng-animating{pointer-events:none}@media screen and (-ms-high-contrast:active){.mat-menu-panel{outline:solid 1px}}.mat-menu-content{padding-top:8px;padding-bottom:8px}.mat-menu-item{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;outline:0;border:none;-webkit-tap-highlight-color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:48px;height:48px;padding:0 16px;text-align:left;text-decoration:none;position:relative}.mat-menu-item[disabled]{cursor:default}[dir=rtl] .mat-menu-item{text-align:right}.mat-menu-item .mat-icon{margin-right:16px}[dir=rtl] .mat-menu-item .mat-icon{margin-left:16px;margin-right:0}.mat-menu-item .mat-icon{vertical-align:middle}.mat-menu-item-submenu-trigger{padding-right:32px}.mat-menu-item-submenu-trigger::after{width:0;height:0;border-style:solid;border-width:5px 0 5px 5px;border-color:transparent transparent transparent currentColor;content:'';display:inline-block;position:absolute;top:50%;right:16px;transform:translateY(-50%)}[dir=rtl] .mat-menu-item-submenu-trigger{padding-right:8px;padding-left:32px}[dir=rtl] .mat-menu-item-submenu-trigger::after{right:auto;left:16px;transform:rotateY(180deg) translateY(-50%)}button.mat-menu-item{width:100%}.mat-menu-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}"],
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                    animations: [
+                        transformMenu,
+                        fadeInItems
+                    ],
+                    exportAs: 'matMenu'
+                },] },
+    ];
+    /** @nocollapse */
+    MatMenu.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_MENU_DEFAULT_OPTIONS,] },] },
+    ]; };
+    MatMenu.propDecorators = {
+        "xPosition": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "yPosition": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "templateRef": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewChild */], args: [__WEBPACK_IMPORTED_MODULE_0__angular_core__["_5" /* TemplateRef */],] },],
+        "items": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* ContentChildren */], args: [MatMenuItem,] },],
+        "overlapTrigger": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "panelClass": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['class',] },],
+        "classList": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */] },],
+        "closed": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "close": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+    };
+    return MatMenu;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * Injection token that determines the scroll handling while the menu is open.
+ */
+var MAT_MENU_SCROLL_STRATEGY = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* InjectionToken */]('mat-menu-scroll-strategy');
+/**
+ * \@docs-private
+ * @param {?} overlay
+ * @return {?}
+ */
+function MAT_MENU_SCROLL_STRATEGY_PROVIDER_FACTORY(overlay) {
+    return function () { return overlay.scrollStrategies.reposition(); };
+}
+/**
+ * \@docs-private
+ */
+var MAT_MENU_SCROLL_STRATEGY_PROVIDER = {
+    provide: MAT_MENU_SCROLL_STRATEGY,
+    deps: [__WEBPACK_IMPORTED_MODULE_3__angular_cdk_overlay__["a" /* Overlay */]],
+    useFactory: MAT_MENU_SCROLL_STRATEGY_PROVIDER_FACTORY,
+};
+/**
+ * Default top padding of the menu panel.
+ */
+var MENU_PANEL_TOP_PADDING = 8;
+/**
+ * This directive is intended to be used in conjunction with an mat-menu tag.  It is
+ * responsible for toggling the display of the provided menu instance.
+ */
+var MatMenuTrigger = /** @class */ (function () {
+    function MatMenuTrigger(_overlay, _element, _viewContainerRef, _scrollStrategy, _parentMenu, _menuItemInstance, _dir) {
+        this._overlay = _overlay;
+        this._element = _element;
+        this._viewContainerRef = _viewContainerRef;
+        this._scrollStrategy = _scrollStrategy;
+        this._parentMenu = _parentMenu;
+        this._menuItemInstance = _menuItemInstance;
+        this._dir = _dir;
+        this._overlayRef = null;
+        this._menuOpen = false;
+        this._closeSubscription = __WEBPACK_IMPORTED_MODULE_10_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._positionSubscription = __WEBPACK_IMPORTED_MODULE_10_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._hoverSubscription = __WEBPACK_IMPORTED_MODULE_10_rxjs_Subscription__["a" /* Subscription */].EMPTY;
+        this._openedByMouse = false;
+        /**
+         * Event emitted when the associated menu is opened.
+         */
+        this.menuOpened = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the associated menu is opened.
+         * @deprecated Switch to `menuOpened` instead
+         */
+        this.onMenuOpen = this.menuOpened;
+        /**
+         * Event emitted when the associated menu is closed.
+         */
+        this.menuClosed = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["x" /* EventEmitter */]();
+        /**
+         * Event emitted when the associated menu is closed.
+         * @deprecated Switch to `menuClosed` instead
+         */
+        this.onMenuClose = this.menuClosed;
+        if (_menuItemInstance) {
+            _menuItemInstance._triggersSubmenu = this.triggersSubmenu();
+        }
+    }
+    Object.defineProperty(MatMenuTrigger.prototype, "_deprecatedMatMenuTriggerFor", {
+        get: /**
+         * @deprecated
+         * @return {?}
+         */
+        function () {
+            return this.menu;
+        },
+        set: /**
+         * @param {?} v
+         * @return {?}
+         */
+        function (v) {
+            this.menu = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.ngAfterContentInit = /**
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        this._checkMenu();
+        this.menu.close.subscribe(function (reason) {
+            _this._destroyMenu();
+            // If a click closed the menu, we should close the entire chain of nested menus.
+            if (reason === 'click' && _this._parentMenu) {
+                _this._parentMenu.closed.emit(reason);
+            }
+        });
+        if (this.triggersSubmenu()) {
+            // Subscribe to changes in the hovered item in order to toggle the panel.
+            this._hoverSubscription = this._parentMenu._hovered()
+                .pipe(Object(__WEBPACK_IMPORTED_MODULE_17_rxjs_operators_filter__["a" /* filter */])(function (active) { return active === _this._menuItemInstance; }))
+                .subscribe(function () {
+                _this._openedByMouse = true;
+                _this.openMenu();
+            });
+        }
+    };
+    /**
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.ngOnDestroy = /**
+     * @return {?}
+     */
+    function () {
+        if (this._overlayRef) {
+            this._overlayRef.dispose();
+            this._overlayRef = null;
+        }
+        this._cleanUpSubscriptions();
+    };
+    Object.defineProperty(MatMenuTrigger.prototype, "menuOpen", {
+        /** Whether the menu is open. */
+        get: /**
+         * Whether the menu is open.
+         * @return {?}
+         */
+        function () {
+            return this._menuOpen;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MatMenuTrigger.prototype, "dir", {
+        /** The text direction of the containing app. */
+        get: /**
+         * The text direction of the containing app.
+         * @return {?}
+         */
+        function () {
+            return this._dir && this._dir.value === 'rtl' ? 'rtl' : 'ltr';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /** Whether the menu triggers a sub-menu or a top-level one. */
+    /**
+     * Whether the menu triggers a sub-menu or a top-level one.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.triggersSubmenu = /**
+     * Whether the menu triggers a sub-menu or a top-level one.
+     * @return {?}
+     */
+    function () {
+        return !!(this._menuItemInstance && this._parentMenu);
+    };
+    /** Toggles the menu between the open and closed states. */
+    /**
+     * Toggles the menu between the open and closed states.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.toggleMenu = /**
+     * Toggles the menu between the open and closed states.
+     * @return {?}
+     */
+    function () {
+        return this._menuOpen ? this.closeMenu() : this.openMenu();
+    };
+    /** Opens the menu. */
+    /**
+     * Opens the menu.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.openMenu = /**
+     * Opens the menu.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!this._menuOpen) {
+            this._createOverlay().attach(this._portal);
+            this._closeSubscription = this._menuClosingActions().subscribe(function () { return _this.closeMenu(); });
+            this._initMenu();
+            if (this.menu instanceof MatMenu) {
+                this.menu._startAnimation();
+            }
+        }
+    };
+    /** Closes the menu. */
+    /**
+     * Closes the menu.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.closeMenu = /**
+     * Closes the menu.
+     * @return {?}
+     */
+    function () {
+        this.menu.close.emit();
+    };
+    /** Focuses the menu trigger. */
+    /**
+     * Focuses the menu trigger.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype.focus = /**
+     * Focuses the menu trigger.
+     * @return {?}
+     */
+    function () {
+        this._element.nativeElement.focus();
+    };
+    /**
+     * Closes the menu and does the necessary cleanup.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._destroyMenu = /**
+     * Closes the menu and does the necessary cleanup.
+     * @return {?}
+     */
+    function () {
+        if (this._overlayRef && this.menuOpen) {
+            this._resetMenu();
+            this._closeSubscription.unsubscribe();
+            this._overlayRef.detach();
+            if (this.menu instanceof MatMenu) {
+                this.menu._resetAnimation();
+            }
+        }
+    };
+    /**
+     * This method sets the menu state to open and focuses the first item if
+     * the menu was opened via the keyboard.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._initMenu = /**
+     * This method sets the menu state to open and focuses the first item if
+     * the menu was opened via the keyboard.
+     * @return {?}
+     */
+    function () {
+        this.menu.parentMenu = this.triggersSubmenu() ? this._parentMenu : undefined;
+        this.menu.direction = this.dir;
+        this._setMenuElevation();
+        this._setIsMenuOpen(true);
+        // If the menu was opened by mouse, we focus the root node, which allows for the keyboard
+        // interactions to work. Otherwise, if the menu was opened by keyboard, we focus the first item.
+        if (this._openedByMouse) {
+            var /** @type {?} */ rootNode = /** @type {?} */ (((this._overlayRef)).overlayElement.firstElementChild);
+            if (rootNode) {
+                this.menu.resetActiveItem();
+                rootNode.focus();
+            }
+        }
+        else {
+            this.menu.focusFirstItem();
+        }
+    };
+    /**
+     * Updates the menu elevation based on the amount of parent menus that it has.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._setMenuElevation = /**
+     * Updates the menu elevation based on the amount of parent menus that it has.
+     * @return {?}
+     */
+    function () {
+        if (this.menu.setElevation) {
+            var /** @type {?} */ depth = 0;
+            var /** @type {?} */ parentMenu = this.menu.parentMenu;
+            while (parentMenu) {
+                depth++;
+                parentMenu = parentMenu.parentMenu;
+            }
+            this.menu.setElevation(depth);
+        }
+    };
+    /**
+     * This method resets the menu when it's closed, most importantly restoring
+     * focus to the menu trigger if the menu was opened via the keyboard.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._resetMenu = /**
+     * This method resets the menu when it's closed, most importantly restoring
+     * focus to the menu trigger if the menu was opened via the keyboard.
+     * @return {?}
+     */
+    function () {
+        this._setIsMenuOpen(false);
+        // We should reset focus if the user is navigating using a keyboard or
+        // if we have a top-level trigger which might cause focus to be lost
+        // when clicking on the backdrop.
+        if (!this._openedByMouse || !this.triggersSubmenu()) {
+            this.focus();
+        }
+        this._openedByMouse = false;
+    };
+    /**
+     * @param {?} isOpen
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._setIsMenuOpen = /**
+     * @param {?} isOpen
+     * @return {?}
+     */
+    function (isOpen) {
+        this._menuOpen = isOpen;
+        this._menuOpen ? this.menuOpened.emit() : this.menuClosed.emit();
+        if (this.triggersSubmenu()) {
+            this._menuItemInstance._highlighted = isOpen;
+        }
+    };
+    /**
+     * This method checks that a valid instance of MatMenu has been passed into
+     * matMenuTriggerFor. If not, an exception is thrown.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._checkMenu = /**
+     * This method checks that a valid instance of MatMenu has been passed into
+     * matMenuTriggerFor. If not, an exception is thrown.
+     * @return {?}
+     */
+    function () {
+        if (!this.menu) {
+            throwMatMenuMissingError();
+        }
+    };
+    /**
+     * This method creates the overlay from the provided menu's template and saves its
+     * OverlayRef so that it can be attached to the DOM when openMenu is called.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._createOverlay = /**
+     * This method creates the overlay from the provided menu's template and saves its
+     * OverlayRef so that it can be attached to the DOM when openMenu is called.
+     * @return {?}
+     */
+    function () {
+        if (!this._overlayRef) {
+            this._portal = new __WEBPACK_IMPORTED_MODULE_16__angular_cdk_portal__["c" /* TemplatePortal */](this.menu.templateRef, this._viewContainerRef);
+            var /** @type {?} */ config = this._getOverlayConfig();
+            this._subscribeToPositions(/** @type {?} */ (config.positionStrategy));
+            this._overlayRef = this._overlay.create(config);
+        }
+        return this._overlayRef;
+    };
+    /**
+     * This method builds the configuration object needed to create the overlay, the OverlayState.
+     * @return {?} OverlayConfig
+     */
+    MatMenuTrigger.prototype._getOverlayConfig = /**
+     * This method builds the configuration object needed to create the overlay, the OverlayState.
+     * @return {?} OverlayConfig
+     */
+    function () {
+        return new __WEBPACK_IMPORTED_MODULE_3__angular_cdk_overlay__["b" /* OverlayConfig */]({
+            positionStrategy: this._getPosition(),
+            hasBackdrop: !this.triggersSubmenu(),
+            backdropClass: 'cdk-overlay-transparent-backdrop',
+            direction: this.dir,
+            scrollStrategy: this._scrollStrategy()
+        });
+    };
+    /**
+     * Listens to changes in the position of the overlay and sets the correct classes
+     * on the menu based on the new position. This ensures the animation origin is always
+     * correct, even if a fallback position is used for the overlay.
+     * @param {?} position
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._subscribeToPositions = /**
+     * Listens to changes in the position of the overlay and sets the correct classes
+     * on the menu based on the new position. This ensures the animation origin is always
+     * correct, even if a fallback position is used for the overlay.
+     * @param {?} position
+     * @return {?}
+     */
+    function (position) {
+        var _this = this;
+        this._positionSubscription = position.onPositionChange.subscribe(function (change) {
+            var /** @type {?} */ posX = change.connectionPair.overlayX === 'start' ? 'after' : 'before';
+            var /** @type {?} */ posY = change.connectionPair.overlayY === 'top' ? 'below' : 'above';
+            _this.menu.setPositionClasses(posX, posY);
+        });
+    };
+    /**
+     * This method builds the position strategy for the overlay, so the menu is properly connected
+     * to the trigger.
+     * @return {?} ConnectedPositionStrategy
+     */
+    MatMenuTrigger.prototype._getPosition = /**
+     * This method builds the position strategy for the overlay, so the menu is properly connected
+     * to the trigger.
+     * @return {?} ConnectedPositionStrategy
+     */
+    function () {
+        var _a = this.menu.xPosition === 'before' ? ['end', 'start'] : ['start', 'end'], originX = _a[0], originFallbackX = _a[1];
+        var _b = this.menu.yPosition === 'above' ? ['bottom', 'top'] : ['top', 'bottom'], overlayY = _b[0], overlayFallbackY = _b[1];
+        var _c = [overlayY, overlayFallbackY], originY = _c[0], originFallbackY = _c[1];
+        var _d = [originX, originFallbackX], overlayX = _d[0], overlayFallbackX = _d[1];
+        var /** @type {?} */ offsetY = 0;
+        if (this.triggersSubmenu()) {
+            // When the menu is a sub-menu, it should always align itself
+            // to the edges of the trigger, instead of overlapping it.
+            overlayFallbackX = originX = this.menu.xPosition === 'before' ? 'start' : 'end';
+            originFallbackX = overlayX = originX === 'end' ? 'start' : 'end';
+            offsetY = overlayY === 'bottom' ? MENU_PANEL_TOP_PADDING : -MENU_PANEL_TOP_PADDING;
+        }
+        else if (!this.menu.overlapTrigger) {
+            originY = overlayY === 'top' ? 'bottom' : 'top';
+            originFallbackY = overlayFallbackY === 'top' ? 'bottom' : 'top';
+        }
+        return this._overlay.position()
+            .connectedTo(this._element, { originX: originX, originY: originY }, { overlayX: overlayX, overlayY: overlayY })
+            .withDirection(this.dir)
+            .withOffsetY(offsetY)
+            .withFallbackPosition({ originX: originFallbackX, originY: originY }, { overlayX: overlayFallbackX, overlayY: overlayY })
+            .withFallbackPosition({ originX: originX, originY: originFallbackY }, { overlayX: overlayX, overlayY: overlayFallbackY }, undefined, -offsetY)
+            .withFallbackPosition({ originX: originFallbackX, originY: originFallbackY }, { overlayX: overlayFallbackX, overlayY: overlayFallbackY }, undefined, -offsetY);
+    };
+    /**
+     * Cleans up the active subscriptions.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._cleanUpSubscriptions = /**
+     * Cleans up the active subscriptions.
+     * @return {?}
+     */
+    function () {
+        this._closeSubscription.unsubscribe();
+        this._positionSubscription.unsubscribe();
+        this._hoverSubscription.unsubscribe();
+    };
+    /**
+     * Returns a stream that emits whenever an action that should close the menu occurs.
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._menuClosingActions = /**
+     * Returns a stream that emits whenever an action that should close the menu occurs.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        var /** @type {?} */ backdrop = /** @type {?} */ ((this._overlayRef)).backdropClick();
+        var /** @type {?} */ detachments = /** @type {?} */ ((this._overlayRef)).detachments();
+        var /** @type {?} */ parentClose = this._parentMenu ? this._parentMenu.close : Object(__WEBPACK_IMPORTED_MODULE_18_rxjs_observable_of__["a" /* of */])();
+        var /** @type {?} */ hover = this._parentMenu ? this._parentMenu._hovered().pipe(Object(__WEBPACK_IMPORTED_MODULE_17_rxjs_operators_filter__["a" /* filter */])(function (active) { return active !== _this._menuItemInstance; }), Object(__WEBPACK_IMPORTED_MODULE_17_rxjs_operators_filter__["a" /* filter */])(function () { return _this._menuOpen; })) : Object(__WEBPACK_IMPORTED_MODULE_18_rxjs_observable_of__["a" /* of */])();
+        return Object(__WEBPACK_IMPORTED_MODULE_9_rxjs_observable_merge__["a" /* merge */])(backdrop, parentClose, hover, detachments);
+    };
+    /** Handles mouse presses on the trigger. */
+    /**
+     * Handles mouse presses on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._handleMousedown = /**
+     * Handles mouse presses on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (!Object(__WEBPACK_IMPORTED_MODULE_4__angular_cdk_a11y__["d" /* isFakeMousedownFromScreenReader */])(event)) {
+            this._openedByMouse = true;
+            // Since clicking on the trigger won't close the menu if it opens a sub-menu,
+            // we should prevent focus from moving onto it via click to avoid the
+            // highlight from lingering on the menu item.
+            if (this.triggersSubmenu()) {
+                event.preventDefault();
+            }
+        }
+    };
+    /** Handles key presses on the trigger. */
+    /**
+     * Handles key presses on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._handleKeydown = /**
+     * Handles key presses on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        var /** @type {?} */ keyCode = event.keyCode;
+        if (this.triggersSubmenu() && ((keyCode === __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__["g" /* RIGHT_ARROW */] && this.dir === 'ltr') ||
+            (keyCode === __WEBPACK_IMPORTED_MODULE_5__angular_cdk_keycodes__["e" /* LEFT_ARROW */] && this.dir === 'rtl'))) {
+            this.openMenu();
+        }
+    };
+    /** Handles click events on the trigger. */
+    /**
+     * Handles click events on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    MatMenuTrigger.prototype._handleClick = /**
+     * Handles click events on the trigger.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (this.triggersSubmenu()) {
+            // Stop event propagation to avoid closing the parent menu.
+            event.stopPropagation();
+            this.openMenu();
+        }
+        else {
+            this.toggleMenu();
+        }
+    };
+    MatMenuTrigger.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: "[mat-menu-trigger-for], [matMenuTriggerFor]",
+                    host: {
+                        'aria-haspopup': 'true',
+                        '(mousedown)': '_handleMousedown($event)',
+                        '(keydown)': '_handleKeydown($event)',
+                        '(click)': '_handleClick($event)',
+                    },
+                    exportAs: 'matMenuTrigger'
+                },] },
+    ];
+    /** @nocollapse */
+    MatMenuTrigger.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_3__angular_cdk_overlay__["a" /* Overlay */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_9" /* ViewContainerRef */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [MAT_MENU_SCROLL_STRATEGY,] },] },
+        { type: MatMenu, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+        { type: MatMenuItem, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* Self */] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_15__angular_cdk_bidi__["b" /* Directionality */], decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["N" /* Optional */] },] },
+    ]; };
+    MatMenuTrigger.propDecorators = {
+        "_deprecatedMatMenuTriggerFor": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['mat-menu-trigger-for',] },],
+        "menu": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matMenuTriggerFor',] },],
+        "menuOpened": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "onMenuOpen": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "menuClosed": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+        "onMenuClose": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["O" /* Output */] },],
+    };
+    return MatMenuTrigger;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var ɵ0 = {
+    overlapTrigger: true,
+    xPosition: 'after',
+    yPosition: 'below',
+};
+var MatMenuModule = /** @class */ (function () {
+    function MatMenuModule() {
+    }
+    MatMenuModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [
+                        __WEBPACK_IMPORTED_MODULE_3__angular_cdk_overlay__["c" /* OverlayModule */],
+                        __WEBPACK_IMPORTED_MODULE_1__angular_common__["a" /* CommonModule */],
+                        __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["b" /* MatRippleModule */],
+                        __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["a" /* MatCommonModule */],
+                    ],
+                    exports: [MatMenu, MatMenuItem, MatMenuTrigger, __WEBPACK_IMPORTED_MODULE_2__angular_material_core__["a" /* MatCommonModule */]],
+                    declarations: [MatMenu, MatMenuItem, MatMenuTrigger],
+                    providers: [
+                        MAT_MENU_SCROLL_STRATEGY_PROVIDER,
+                        {
+                            provide: MAT_MENU_DEFAULT_OPTIONS,
+                            useValue: ɵ0,
+                        }
+                    ],
+                },] },
+    ];
+    /** @nocollapse */
+    MatMenuModule.ctorParameters = function () { return []; };
+    return MatMenuModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=menu.es5.js.map
+
+
+/***/ }),
+
 /***/ "../../../material/esm5/table.es5.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -85934,16 +101918,16 @@ var MatTable = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatTable.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-table',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-table',
                     exportAs: 'matTable',
                     template: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["b" /* CDK_TABLE_TEMPLATE */],
                     styles: [".mat-table{display:block}.mat-header-row,.mat-row{display:flex;border-bottom-width:1px;border-bottom-style:solid;align-items:center;min-height:48px;padding:0 24px}.mat-cell,.mat-header-cell{flex:1;overflow:hidden;word-wrap:break-word}"],
                     host: {
                         'class': 'mat-table',
                     },
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     preserveWhitespaces: false,
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
                 },] },
     ];
     /** @nocollapse */
@@ -85966,7 +101950,7 @@ var MatCellDef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatCellDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[matCellDef]',
                     providers: [{ provide: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["d" /* CdkCellDef */], useExisting: MatCellDef }]
                 },] },
@@ -85985,7 +101969,7 @@ var MatHeaderCellDef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatHeaderCellDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[matHeaderCellDef]',
                     providers: [{ provide: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["g" /* CdkHeaderCellDef */], useExisting: MatHeaderCellDef }]
                 },] },
@@ -86004,7 +101988,7 @@ var MatColumnDef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatColumnDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[matColumnDef]',
                     providers: [{ provide: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["e" /* CdkColumnDef */], useExisting: MatColumnDef }],
                 },] },
@@ -86012,7 +101996,7 @@ var MatColumnDef = /** @class */ (function (_super) {
     /** @nocollapse */
     MatColumnDef.ctorParameters = function () { return []; };
     MatColumnDef.propDecorators = {
-        "name": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* Input */], args: ['matColumnDef',] },],
+        "name": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["D" /* Input */], args: ['matColumnDef',] },],
     };
     return MatColumnDef;
 }(__WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["e" /* CdkColumnDef */]));
@@ -86027,7 +102011,7 @@ var MatHeaderCell = /** @class */ (function (_super) {
         return _this;
     }
     MatHeaderCell.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'mat-header-cell',
                     host: {
                         'class': 'mat-header-cell',
@@ -86038,7 +102022,7 @@ var MatHeaderCell = /** @class */ (function (_super) {
     /** @nocollapse */
     MatHeaderCell.ctorParameters = function () { return [
         { type: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["e" /* CdkColumnDef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
     ]; };
     return MatHeaderCell;
 }(__WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["f" /* CdkHeaderCell */]));
@@ -86053,7 +102037,7 @@ var MatCell = /** @class */ (function (_super) {
         return _this;
     }
     MatCell.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: 'mat-cell',
                     host: {
                         'class': 'mat-cell',
@@ -86064,7 +102048,7 @@ var MatCell = /** @class */ (function (_super) {
     /** @nocollapse */
     MatCell.ctorParameters = function () { return [
         { type: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["e" /* CdkColumnDef */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
     ]; };
     return MatCell;
 }(__WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["c" /* CdkCell */]));
@@ -86084,7 +102068,7 @@ var MatHeaderRowDef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatHeaderRowDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[matHeaderRowDef]',
                     providers: [{ provide: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["i" /* CdkHeaderRowDef */], useExisting: MatHeaderRowDef }],
                     inputs: ['columns: matHeaderRowDef'],
@@ -86105,7 +102089,7 @@ var MatRowDef = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatRowDef.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* Directive */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
                     selector: '[matRowDef]',
                     providers: [{ provide: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["k" /* CdkRowDef */], useExisting: MatRowDef }],
                     inputs: ['columns: matRowDefColumns', 'when: matRowDefWhen'],
@@ -86124,14 +102108,14 @@ var MatHeaderRow = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatHeaderRow.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-header-row',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-header-row',
                     template: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["a" /* CDK_ROW_TEMPLATE */],
                     host: {
                         'class': 'mat-header-row',
                         'role': 'row',
                     },
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     exportAs: 'matHeaderRow',
                     preserveWhitespaces: false,
                 },] },
@@ -86149,14 +102133,14 @@ var MatRow = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MatRow.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */], args: [{selector: 'mat-row',
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-row',
                     template: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["a" /* CDK_ROW_TEMPLATE */],
                     host: {
                         'class': 'mat-row',
                         'role': 'row',
                     },
-                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["i" /* ChangeDetectionStrategy */].OnPush,
-                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
                     exportAs: 'matRow',
                     preserveWhitespaces: false,
                 },] },
@@ -86175,7 +102159,7 @@ var MatTableModule = /** @class */ (function () {
     function MatTableModule() {
     }
     MatTableModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     imports: [__WEBPACK_IMPORTED_MODULE_2__angular_cdk_table__["m" /* CdkTableModule */], __WEBPACK_IMPORTED_MODULE_3__angular_common__["a" /* CommonModule */], __WEBPACK_IMPORTED_MODULE_4__angular_material_core__["a" /* MatCommonModule */]],
                     exports: [MatTable, MatCellDef, MatHeaderCellDef, MatColumnDef,
                         MatHeaderCell, MatCell, MatHeaderRow, MatRow,
@@ -86557,6 +102541,181 @@ var MatTableDataSource = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "../../../material/esm5/toolbar.es5.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MatToolbarModule; });
+/* unused harmony export MatToolbarBase */
+/* unused harmony export _MatToolbarMixinBase */
+/* unused harmony export MatToolbarRow */
+/* unused harmony export MatToolbar */
+/* unused harmony export throwToolbarMixedModesError */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/esm5/core.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_material_core__ = __webpack_require__("../../../material/esm5/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_cdk_platform__ = __webpack_require__("../../../cdk/esm5/platform.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_tslib__ = __webpack_require__("../../../../tslib/tslib.es6.js");
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+
+
+
+
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * \@docs-private
+ */
+var MatToolbarBase = /** @class */ (function () {
+    function MatToolbarBase(_elementRef) {
+        this._elementRef = _elementRef;
+    }
+    return MatToolbarBase;
+}());
+var _MatToolbarMixinBase = Object(__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["c" /* mixinColor */])(MatToolbarBase);
+var MatToolbarRow = /** @class */ (function () {
+    function MatToolbarRow() {
+    }
+    MatToolbarRow.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["t" /* Directive */], args: [{
+                    selector: 'mat-toolbar-row',
+                    exportAs: 'matToolbarRow',
+                    host: { 'class': 'mat-toolbar-row' },
+                },] },
+    ];
+    /** @nocollapse */
+    MatToolbarRow.ctorParameters = function () { return []; };
+    return MatToolbarRow;
+}());
+var MatToolbar = /** @class */ (function (_super) {
+    Object(__WEBPACK_IMPORTED_MODULE_3_tslib__["b" /* __extends */])(MatToolbar, _super);
+    function MatToolbar(elementRef, _platform) {
+        var _this = _super.call(this, elementRef) || this;
+        _this._platform = _platform;
+        return _this;
+    }
+    /**
+     * @return {?}
+     */
+    MatToolbar.prototype.ngAfterViewInit = /**
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (!Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_16" /* isDevMode */])() || !this._platform.isBrowser) {
+            return;
+        }
+        this._checkToolbarMixedModes();
+        this._toolbarRows.changes.subscribe(function () { return _this._checkToolbarMixedModes(); });
+    };
+    /**
+     * Throws an exception when developers are attempting to combine the different toolbar row modes.
+     * @return {?}
+     */
+    MatToolbar.prototype._checkToolbarMixedModes = /**
+     * Throws an exception when developers are attempting to combine the different toolbar row modes.
+     * @return {?}
+     */
+    function () {
+        if (!this._toolbarRows.length) {
+            return;
+        }
+        // Check if there are any other DOM nodes that can display content but aren't inside of
+        // a <mat-toolbar-row> element.
+        var /** @type {?} */ isCombinedUsage = [].slice.call(this._elementRef.nativeElement.childNodes)
+            .filter(function (node) { return !(node.classList && node.classList.contains('mat-toolbar-row')); })
+            .filter(function (node) { return node.nodeType !== Node.COMMENT_NODE; })
+            .some(function (node) { return node.textContent.trim(); });
+        if (isCombinedUsage) {
+            throwToolbarMixedModesError();
+        }
+    };
+    MatToolbar.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */], args: [{selector: 'mat-toolbar',
+                    exportAs: 'matToolbar',
+                    template: "<ng-content></ng-content><ng-content select=\"mat-toolbar-row\"></ng-content>",
+                    styles: [".mat-toolbar-row,.mat-toolbar-single-row{display:flex;box-sizing:border-box;padding:0 16px;width:100%;flex-direction:row;align-items:center;white-space:nowrap}.mat-toolbar-multiple-rows{display:flex;box-sizing:border-box;flex-direction:column;width:100%}.mat-toolbar-multiple-rows{min-height:64px}.mat-toolbar-row,.mat-toolbar-single-row{height:64px}@media (max-width:600px){.mat-toolbar-multiple-rows{min-height:56px}.mat-toolbar-row,.mat-toolbar-single-row{height:56px}}"],
+                    inputs: ['color'],
+                    host: {
+                        'class': 'mat-toolbar',
+                        '[class.mat-toolbar-multiple-rows]': 'this._toolbarRows.length',
+                        '[class.mat-toolbar-single-row]': '!this._toolbarRows.length'
+                    },
+                    changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["j" /* ChangeDetectionStrategy */].OnPush,
+                    encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
+                    preserveWhitespaces: false,
+                },] },
+    ];
+    /** @nocollapse */
+    MatToolbar.ctorParameters = function () { return [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ElementRef */], },
+        { type: __WEBPACK_IMPORTED_MODULE_2__angular_cdk_platform__["a" /* Platform */], },
+    ]; };
+    MatToolbar.propDecorators = {
+        "_toolbarRows": [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["s" /* ContentChildren */], args: [MatToolbarRow,] },],
+    };
+    return MatToolbar;
+}(_MatToolbarMixinBase));
+/**
+ * Throws an exception when attempting to combine the different toolbar row modes.
+ * \@docs-private
+ * @return {?}
+ */
+function throwToolbarMixedModesError() {
+    throw Error('MatToolbar: Attempting to combine different toolbar modes. ' +
+        'Either specify multiple `<mat-toolbar-row>` elements explicitly or just place content ' +
+        'inside of a `<mat-toolbar>` for a single row.');
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+var MatToolbarModule = /** @class */ (function () {
+    function MatToolbarModule() {
+    }
+    MatToolbarModule.decorators = [
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
+                    imports: [__WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */], __WEBPACK_IMPORTED_MODULE_2__angular_cdk_platform__["b" /* PlatformModule */]],
+                    exports: [MatToolbar, MatToolbarRow, __WEBPACK_IMPORTED_MODULE_1__angular_material_core__["a" /* MatCommonModule */]],
+                    declarations: [MatToolbar, MatToolbarRow],
+                },] },
+    ];
+    /** @nocollapse */
+    MatToolbarModule.ctorParameters = function () { return []; };
+    return MatToolbarModule;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=toolbar.es5.js.map
+
+
+/***/ }),
+
 /***/ "../../../platform-browser-dynamic/esm5/platform-browser-dynamic.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -86602,7 +102761,7 @@ var builtinExternalReferences = createBuiltinExternalReferencesMap();
 var JitReflector = /** @class */ (function () {
     function JitReflector() {
         this.builtinExternalReferences = new Map();
-        this.reflectionCapabilities = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_21" /* ɵReflectionCapabilities */]();
+        this.reflectionCapabilities = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_23" /* ɵReflectionCapabilities */]();
     }
     /**
      * @param {?} type
@@ -86621,10 +102780,10 @@ var JitReflector = /** @class */ (function () {
             return scheme ? moduleId : "package:" + moduleId + MODULE_SUFFIX;
         }
         else if (moduleId !== null && moduleId !== void 0) {
-            throw Object(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["A" /* syntaxError */])("moduleId should be a string in \"" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵstringify */])(type) + "\". See https://goo.gl/wIDDiL for more information.\n" +
+            throw Object(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["A" /* syntaxError */])("moduleId should be a string in \"" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_47" /* ɵstringify */])(type) + "\". See https://goo.gl/wIDDiL for more information.\n" +
                 "If you're using Webpack you should inline the template and the styles, see https://goo.gl/X2J8zc.");
         }
-        return "./" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵstringify */])(type);
+        return "./" + Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_47" /* ɵstringify */])(type);
     };
     /**
      * @param {?} typeOrFunc
@@ -86691,48 +102850,48 @@ var JitReflector = /** @class */ (function () {
 function createBuiltinExternalReferencesMap() {
     var /** @type {?} */ map = new Map();
     map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ANALYZE_FOR_ENTRY_COMPONENTS, __WEBPACK_IMPORTED_MODULE_1__angular_core__["a" /* ANALYZE_FOR_ENTRY_COMPONENTS */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ElementRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["t" /* ElementRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["J" /* NgModuleRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewContainerRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* ViewContainerRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectorRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectorRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].QueryList, __WEBPACK_IMPORTED_MODULE_1__angular_core__["S" /* QueryList */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TemplateRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TemplateRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].CodegenComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_17" /* ɵCodegenComponentFactoryResolver */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["o" /* ComponentFactoryResolver */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["n" /* ComponentFactory */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["p" /* ComponentRef */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModuleFactory */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_24" /* ɵcmf */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_34" /* ɵmod */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleProviderDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_35" /* ɵmpd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].RegisterModuleFactoryFn, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_44" /* ɵregisterModuleFactory */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Injector, __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* Injector */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewEncapsulation, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectionStrategy, __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* ChangeDetectionStrategy */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].SecurityContext, __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].LOCALE_ID, __WEBPACK_IMPORTED_MODULE_1__angular_core__["F" /* LOCALE_ID */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TRANSLATIONS_FORMAT, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TRANSLATIONS_FORMAT */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].inlineInterpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_29" /* ɵinlineInterpolate */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].interpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵinterpolate */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_ARRAY, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_19" /* ɵEMPTY_ARRAY */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_MAP, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵEMPTY_MAP */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Renderer, __WEBPACK_IMPORTED_MODULE_1__angular_core__["T" /* Renderer */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].viewDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_48" /* ɵvid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].elementDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_27" /* ɵeld */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].anchorDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_22" /* ɵand */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].textDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_46" /* ɵted */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].directiveDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵdid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].providerDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_42" /* ɵprd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].queryDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_43" /* ɵqud */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureArrayDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_38" /* ɵpad */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureObjectDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_40" /* ɵpod */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].purePipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_41" /* ɵppd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_39" /* ɵpid */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].nodeValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_37" /* ɵnov */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ngContentDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_36" /* ɵncd */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].unwrapValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_47" /* ɵunv */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createRendererType2, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_25" /* ɵcrt */]);
-    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_23" /* ɵccf */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ElementRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["u" /* ElementRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["K" /* NgModuleRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewContainerRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_9" /* ViewContainerRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectorRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["k" /* ChangeDetectorRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].QueryList, __WEBPACK_IMPORTED_MODULE_1__angular_core__["T" /* QueryList */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TemplateRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* TemplateRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].CodegenComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_19" /* ɵCodegenComponentFactoryResolver */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactoryResolver, __WEBPACK_IMPORTED_MODULE_1__angular_core__["p" /* ComponentFactoryResolver */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["o" /* ComponentFactory */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ComponentRef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["q" /* ComponentRef */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].NgModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["J" /* NgModuleFactory */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createModuleFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_26" /* ɵcmf */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_36" /* ɵmod */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].moduleProviderDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_37" /* ɵmpd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].RegisterModuleFactoryFn, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_46" /* ɵregisterModuleFactory */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Injector, __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Injector */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ViewEncapsulation, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ChangeDetectionStrategy, __WEBPACK_IMPORTED_MODULE_1__angular_core__["j" /* ChangeDetectionStrategy */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].SecurityContext, __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].LOCALE_ID, __WEBPACK_IMPORTED_MODULE_1__angular_core__["G" /* LOCALE_ID */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].TRANSLATIONS_FORMAT, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* TRANSLATIONS_FORMAT */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].inlineInterpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_31" /* ɵinlineInterpolate */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].interpolate, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_32" /* ɵinterpolate */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_ARRAY, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_21" /* ɵEMPTY_ARRAY */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].EMPTY_MAP, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_22" /* ɵEMPTY_MAP */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].Renderer, __WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Renderer */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].viewDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_50" /* ɵvid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].elementDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_29" /* ɵeld */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].anchorDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_24" /* ɵand */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].textDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_48" /* ɵted */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].directiveDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵdid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].providerDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_44" /* ɵprd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].queryDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_45" /* ɵqud */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureArrayDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_40" /* ɵpad */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pureObjectDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_42" /* ɵpod */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].purePipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_43" /* ɵppd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].pipeDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_41" /* ɵpid */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].nodeValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_39" /* ɵnov */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].ngContentDef, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_38" /* ɵncd */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].unwrapValue, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_49" /* ɵunv */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createRendererType2, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_27" /* ɵcrt */]);
+    map.set(__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["j" /* Identifiers */].createComponentFactory, __WEBPACK_IMPORTED_MODULE_1__angular_core__["_25" /* ɵccf */]);
     return map;
 }
 
@@ -86747,12 +102906,12 @@ function createBuiltinExternalReferencesMap() {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var ERROR_COLLECTOR_TOKEN = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* InjectionToken */]('ErrorCollector');
+var ERROR_COLLECTOR_TOKEN = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* InjectionToken */]('ErrorCollector');
 /**
  * A default provider for {\@link PACKAGE_ROOT_URL} that maps to '/'.
  */
 var DEFAULT_PACKAGE_URL_PROVIDER = {
-    provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["O" /* PACKAGE_ROOT_URL */],
+    provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["P" /* PACKAGE_ROOT_URL */],
     useValue: '/'
 };
 var _NO_RESOURCE_LOADER = {
@@ -86764,7 +102923,7 @@ var _NO_RESOURCE_LOADER = {
         throw new Error("No ResourceLoader implementation has been provided. Can't read the url \"" + url + "\"");
     }
 };
-var baseHtmlParser = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* InjectionToken */]('HtmlParser');
+var baseHtmlParser = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* InjectionToken */]('HtmlParser');
 var CompilerImpl = /** @class */ (function () {
     function CompilerImpl(injector, _metadataResolver, templateParser, styleCompiler, viewCompiler, ngModuleCompiler, summaryResolver, compileReflector, compilerConfig, console) {
         this._metadataResolver = _metadataResolver;
@@ -86778,7 +102937,7 @@ var CompilerImpl = /** @class */ (function () {
      * @return {?}
      */
     function () {
-        return [this._metadataResolver.getProviderMetadata(new __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["r" /* ProviderMeta */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["k" /* Compiler */], { useValue: this }))];
+        return [this._metadataResolver.getProviderMetadata(new __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["r" /* ProviderMeta */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["l" /* Compiler */], { useValue: this }))];
     };
     /**
      * @template T
@@ -86900,7 +103059,7 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["s" /* ResourceLoader */], useValue: _NO_RESOURCE_LOADER },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["l" /* JitSummaryResolver */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */], useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["l" /* JitSummaryResolver */] },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */], deps: [] },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵConsole */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["m" /* Lexer */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["p" /* Parser */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["m" /* Lexer */]] },
     {
@@ -86912,15 +103071,15 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
         provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */],
         useFactory: function (parser, translations, format, config, console) {
             translations = translations || '';
-            var /** @type {?} */ missingTranslation = translations ? /** @type {?} */ ((config.missingTranslation)) : __WEBPACK_IMPORTED_MODULE_1__angular_core__["G" /* MissingTranslationStrategy */].Ignore;
+            var /** @type {?} */ missingTranslation = translations ? /** @type {?} */ ((config.missingTranslation)) : __WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* MissingTranslationStrategy */].Ignore;
             return new __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */](parser, translations, format, missingTranslation, console);
         },
         deps: [
             baseHtmlParser,
-            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_1" /* TRANSLATIONS */])],
-            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* TRANSLATIONS_FORMAT */])],
+            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_3" /* TRANSLATIONS */])],
+            [new __WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */](), new __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */](__WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* TRANSLATIONS_FORMAT */])],
             [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */]],
-            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]],
+            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵConsole */]],
         ]
     },
     {
@@ -86930,30 +103089,30 @@ var COMPILER_PROVIDERS = /** @type {?} */ ([
     {
         provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["w" /* TemplateParser */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["p" /* Parser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */],
-            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]]
+            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["i" /* I18NHtmlParser */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵConsole */]]
     },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["s" /* ResourceLoader */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["h" /* HtmlParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["a" /* CompileMetadataResolver */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["h" /* HtmlParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["o" /* NgModuleResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["e" /* DirectiveResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["q" /* PipeResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */],
-            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */],
-            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["t" /* StaticSymbolCache */]],
+            __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["d" /* DirectiveNormalizer */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵConsole */],
+            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["t" /* StaticSymbolCache */]],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */],
-            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */], ERROR_COLLECTOR_TOKEN]] },
+            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */], ERROR_COLLECTOR_TOKEN]] },
     DEFAULT_PACKAGE_URL_PROVIDER,
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["u" /* StyleCompiler */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["y" /* ViewCompiler */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["n" /* NgModuleCompiler */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */], useValue: new __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */]() },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["k" /* Compiler */], useClass: CompilerImpl, deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* Injector */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["a" /* CompileMetadataResolver */],
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["l" /* Compiler */], useClass: CompilerImpl, deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Injector */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["a" /* CompileMetadataResolver */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["w" /* TemplateParser */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["u" /* StyleCompiler */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["y" /* ViewCompiler */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["n" /* NgModuleCompiler */],
             __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["v" /* SummaryResolver */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */], __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */],
-            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* ɵConsole */]] },
+            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_20" /* ɵConsole */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["f" /* DomElementSchemaRegistry */], deps: [] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["g" /* ElementSchemaRegistry */], useExisting: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["f" /* DomElementSchemaRegistry */] },
-    { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */], deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["O" /* PACKAGE_ROOT_URL */]] },
+    { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["x" /* UrlResolver */], deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["P" /* PACKAGE_ROOT_URL */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["e" /* DirectiveResolver */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["q" /* PipeResolver */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */]] },
     { provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["o" /* NgModuleResolver */], deps: [__WEBPACK_IMPORTED_MODULE_0__angular_compiler__["b" /* CompileReflector */]] },
@@ -86966,8 +103125,8 @@ var JitCompilerFactory = /** @class */ (function () {
     function JitCompilerFactory(defaultOptions) {
         var /** @type {?} */ compilerOptions = {
             useJit: true,
-            defaultEncapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Emulated,
-            missingTranslation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["G" /* MissingTranslationStrategy */].Warning,
+            defaultEncapsulation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].Emulated,
+            missingTranslation: __WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* MissingTranslationStrategy */].Warning,
             enableLegacyTemplate: false,
         };
         this._defaultOptions = [compilerOptions].concat(defaultOptions);
@@ -86983,7 +103142,7 @@ var JitCompilerFactory = /** @class */ (function () {
     function (options) {
         if (options === void 0) { options = []; }
         var /** @type {?} */ opts = _mergeOptions(this._defaultOptions.concat(options));
-        var /** @type {?} */ injector = __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* Injector */].create([
+        var /** @type {?} */ injector = __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Injector */].create([
             COMPILER_PROVIDERS, {
                 provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["c" /* CompilerConfig */],
                 useFactory: function () {
@@ -86991,7 +103150,7 @@ var JitCompilerFactory = /** @class */ (function () {
                         // let explicit values from the compiler options overwrite options
                         // from the app providers
                         useJit: opts.useJit,
-                        jitDevMode: Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])(),
+                        jitDevMode: Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* isDevMode */])(),
                         // let explicit values from the compiler options overwrite options
                         // from the app providers
                         defaultEncapsulation: opts.defaultEncapsulation,
@@ -87004,7 +103163,7 @@ var JitCompilerFactory = /** @class */ (function () {
             },
             /** @type {?} */ ((opts.providers))
         ]);
-        return injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["k" /* Compiler */]);
+        return injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["l" /* Compiler */]);
     };
     return JitCompilerFactory;
 }());
@@ -87061,9 +103220,9 @@ function _mergeArrays(parts) {
  *
  * \@experimental
  */
-var platformCoreDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* platformCore */], 'coreDynamic', [
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* COMPILER_OPTIONS */], useValue: {}, multi: true },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["l" /* CompilerFactory */], useClass: JitCompilerFactory, deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* COMPILER_OPTIONS */]] },
+var platformCoreDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_17" /* platformCore */], 'coreDynamic', [
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* COMPILER_OPTIONS */], useValue: {}, multi: true },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["m" /* CompilerFactory */], useClass: JitCompilerFactory, deps: [__WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* COMPILER_OPTIONS */]] },
 ]);
 
 /**
@@ -87125,7 +103284,7 @@ var ResourceLoaderImpl = /** @class */ (function (_super) {
         return promise;
     };
     ResourceLoaderImpl.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     ResourceLoaderImpl.ctorParameters = function () { return []; };
@@ -87144,13 +103303,13 @@ var ResourceLoaderImpl = /** @class */ (function (_super) {
  * found in the LICENSE file at https://angular.io/license
  */
 var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
-    __WEBPACK_IMPORTED_MODULE_3__angular_platform_browser__["e" /* ɵINTERNAL_BROWSER_PLATFORM_PROVIDERS */],
+    __WEBPACK_IMPORTED_MODULE_3__angular_platform_browser__["f" /* ɵINTERNAL_BROWSER_PLATFORM_PROVIDERS */],
     {
-        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["h" /* COMPILER_OPTIONS */],
+        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["i" /* COMPILER_OPTIONS */],
         useValue: { providers: [{ provide: __WEBPACK_IMPORTED_MODULE_0__angular_compiler__["s" /* ResourceLoader */], useClass: ResourceLoaderImpl, deps: [] }] },
         multi: true
     },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["P" /* PLATFORM_ID */], useValue: __WEBPACK_IMPORTED_MODULE_2__angular_common__["d" /* ɵPLATFORM_BROWSER_ID */] },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["Q" /* PLATFORM_ID */], useValue: __WEBPACK_IMPORTED_MODULE_2__angular_common__["h" /* ɵPLATFORM_BROWSER_ID */] },
 ];
 
 /**
@@ -87175,7 +103334,7 @@ var CachedResourceLoader = /** @class */ (function (_super) {
     Object(__WEBPACK_IMPORTED_MODULE_4_tslib__["b" /* __extends */])(CachedResourceLoader, _super);
     function CachedResourceLoader() {
         var _this = _super.call(this) || this;
-        _this._cache = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */])).$templateCache;
+        _this._cache = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */])).$templateCache;
         if (_this._cache == null) {
             throw new Error('CachedResourceLoader: Template cache was not found in $templateCache.');
         }
@@ -87231,7 +103390,7 @@ var CachedResourceLoader = /** @class */ (function (_super) {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle
@@ -87251,7 +103410,7 @@ var RESOURCE_CACHE_PROVIDER = [{ provide: __WEBPACK_IMPORTED_MODULE_0__angular_c
 /**
  * \@stable
  */
-var platformBrowserDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
+var platformBrowserDynamic = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* createPlatformFactory */])(platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
 
 /**
  * @fileoverview added by tsickle
@@ -87337,7 +103496,7 @@ var BrowserAnimationBuilder = /** @class */ (function (_super) {
         _this._nextAnimationId = 0;
         var /** @type {?} */ typeData = /** @type {?} */ ({
             id: '0',
-            encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewEncapsulation */].None,
+            encapsulation: __WEBPACK_IMPORTED_MODULE_0__angular_core__["_10" /* ViewEncapsulation */].None,
             styles: [],
             data: { animation: [] }
         });
@@ -87355,17 +103514,17 @@ var BrowserAnimationBuilder = /** @class */ (function (_super) {
     function (animation) {
         var /** @type {?} */ id = this._nextAnimationId.toString();
         this._nextAnimationId++;
-        var /** @type {?} */ entry = Array.isArray(animation) ? Object(__WEBPACK_IMPORTED_MODULE_3__angular_animations__["e" /* sequence */])(animation) : animation;
+        var /** @type {?} */ entry = Array.isArray(animation) ? Object(__WEBPACK_IMPORTED_MODULE_3__angular_animations__["f" /* sequence */])(animation) : animation;
         issueAnimationCommand(this._renderer, null, id, 'register', [entry]);
         return new BrowserAnimationFactory(id, this._renderer);
     };
     BrowserAnimationBuilder.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     BrowserAnimationBuilder.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* RendererFactory2 */], },
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["y" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["b" /* DOCUMENT */],] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["W" /* RendererFactory2 */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Inject */], args: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["b" /* DOCUMENT */],] },] },
     ]; };
     return BrowserAnimationBuilder;
 }(__WEBPACK_IMPORTED_MODULE_3__angular_animations__["b" /* AnimationBuilder */]));
@@ -87692,13 +103851,13 @@ var AnimationRendererFactory = /** @class */ (function () {
      */
     function () { return this.engine.whenRenderingDone(); };
     AnimationRendererFactory.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     AnimationRendererFactory.ctorParameters = function () { return [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* RendererFactory2 */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["W" /* RendererFactory2 */], },
         { type: __WEBPACK_IMPORTED_MODULE_4__angular_animations_browser__["b" /* ɵAnimationEngine */], },
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */], },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */], },
     ]; };
     return AnimationRendererFactory;
 }());
@@ -88086,7 +104245,7 @@ var InjectableAnimationEngine = /** @class */ (function (_super) {
         return _super.call(this, driver, normalizer) || this;
     }
     InjectableAnimationEngine.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     InjectableAnimationEngine.ctorParameters = function () { return [
@@ -88123,9 +104282,9 @@ var SHARED_ANIMATION_PROVIDERS = [
     { provide: __WEBPACK_IMPORTED_MODULE_3__angular_animations__["b" /* AnimationBuilder */], useClass: BrowserAnimationBuilder },
     { provide: __WEBPACK_IMPORTED_MODULE_4__angular_animations_browser__["c" /* ɵAnimationStyleNormalizer */], useFactory: instantiateDefaultStyleNormalizer },
     { provide: __WEBPACK_IMPORTED_MODULE_4__angular_animations_browser__["b" /* ɵAnimationEngine */], useClass: InjectableAnimationEngine }, {
-        provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* RendererFactory2 */],
+        provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["W" /* RendererFactory2 */],
         useFactory: instantiateRendererFactory,
-        deps: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["d" /* ɵDomRendererFactory2 */], __WEBPACK_IMPORTED_MODULE_4__angular_animations_browser__["b" /* ɵAnimationEngine */], __WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgZone */]]
+        deps: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["e" /* ɵDomRendererFactory2 */], __WEBPACK_IMPORTED_MODULE_4__angular_animations_browser__["b" /* ɵAnimationEngine */], __WEBPACK_IMPORTED_MODULE_0__angular_core__["M" /* NgZone */]]
     }
 ];
 /**
@@ -88159,7 +104318,7 @@ var BrowserAnimationsModule = /** @class */ (function () {
     function BrowserAnimationsModule() {
     }
     BrowserAnimationsModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     exports: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["a" /* BrowserModule */]],
                     providers: BROWSER_ANIMATIONS_PROVIDERS,
                 },] },
@@ -88175,7 +104334,7 @@ var NoopAnimationsModule = /** @class */ (function () {
     function NoopAnimationsModule() {
     }
     NoopAnimationsModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */], args: [{
                     exports: [__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["a" /* BrowserModule */]],
                     providers: BROWSER_NOOP_ANIMATIONS_PROVIDERS,
                 },] },
@@ -88263,11 +104422,11 @@ var NoopAnimationsModule = /** @class */ (function () {
 /* unused harmony export EVENT_MANAGER_PLUGINS */
 /* unused harmony export EventManager */
 /* unused harmony export HAMMER_GESTURE_CONFIG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return HammerGestureConfig; });
-/* unused harmony export DomSanitizer */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return HammerGestureConfig; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return DomSanitizer; });
 /* unused harmony export VERSION */
 /* unused harmony export ɵBROWSER_SANITIZATION_PROVIDERS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return INTERNAL_BROWSER_PLATFORM_PROVIDERS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return INTERNAL_BROWSER_PLATFORM_PROVIDERS; });
 /* unused harmony export ɵinitDomAdapter */
 /* unused harmony export ɵBrowserDomAdapter */
 /* unused harmony export ɵBrowserPlatformLocation */
@@ -88278,7 +104437,7 @@ var NoopAnimationsModule = /** @class */ (function () {
 /* unused harmony export ɵDomAdapter */
 /* unused harmony export ɵgetDOM */
 /* unused harmony export ɵsetRootDomAdapter */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return DomRendererFactory2; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DomRendererFactory2; });
 /* unused harmony export ɵNAMESPACE_URIS */
 /* unused harmony export ɵflattenStyles */
 /* unused harmony export ɵshimContentAttribute */
@@ -88554,8 +104713,8 @@ var _chromeNumKeyPadMap = {
     '\x90': 'NumLock'
 };
 var nodeContains;
-if (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['Node']) {
-    nodeContains = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['Node'].prototype.contains || function (node) {
+if (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['Node']) {
+    nodeContains = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['Node'].prototype.contains || function (node) {
         return !!(this.compareDocumentPosition(node) & 16);
     };
 }
@@ -89854,7 +106013,7 @@ var BrowserDomAdapter = /** @class */ (function (_super) {
      * @param {?} name
      * @return {?}
      */
-    function (name) { return Object(__WEBPACK_IMPORTED_MODULE_0__angular_common__["e" /* ɵparseCookieValue */])(document.cookie, name); };
+    function (name) { return Object(__WEBPACK_IMPORTED_MODULE_0__angular_common__["i" /* ɵparseCookieValue */])(document.cookie, name); };
     /**
      * @param {?} name
      * @param {?} value
@@ -90090,14 +106249,14 @@ var BrowserPlatformLocation = /** @class */ (function (_super) {
      */
     function () { this._history.back(); };
     BrowserPlatformLocation.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     BrowserPlatformLocation.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return BrowserPlatformLocation;
-}(__WEBPACK_IMPORTED_MODULE_0__angular_common__["c" /* PlatformLocation */]));
+}(__WEBPACK_IMPORTED_MODULE_0__angular_common__["e" /* PlatformLocation */]));
 
 /**
  * @fileoverview added by tsickle
@@ -90296,11 +106455,11 @@ var Meta = /** @class */ (function () {
         return Object.keys(tag).every(function (key) { return _this._dom.getAttribute(elem, key) === tag[key]; });
     };
     Meta.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     Meta.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return Meta;
 }());
@@ -90320,7 +106479,7 @@ var Meta = /** @class */ (function () {
  * An id that identifies a particular application being bootstrapped, that should
  * match across the client/server boundary.
  */
-var TRANSITION_ID = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* InjectionToken */]('TRANSITION_ID');
+var TRANSITION_ID = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* InjectionToken */]('TRANSITION_ID');
 /**
  * @param {?} transitionId
  * @param {?} document
@@ -90331,7 +106490,7 @@ function appInitializerFactory(transitionId, document, injector) {
     return function () {
         // Wait for all application initializers to be completed before removing the styles set by
         // the server.
-        injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["d" /* ApplicationInitStatus */]).donePromise.then(function () {
+        injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["e" /* ApplicationInitStatus */]).donePromise.then(function () {
             var /** @type {?} */ dom = getDOM();
             var /** @type {?} */ styles = Array.prototype.slice.apply(dom.querySelectorAll(document, "style[ng-transition]"));
             styles.filter(function (el) { return dom.getAttribute(el, 'ng-transition') === transitionId; })
@@ -90341,9 +106500,9 @@ function appInitializerFactory(transitionId, document, injector) {
 }
 var SERVER_TRANSITION_PROVIDERS = [
     {
-        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* APP_INITIALIZER */],
+        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["d" /* APP_INITIALIZER */],
         useFactory: appInitializerFactory,
-        deps: [TRANSITION_ID, DOCUMENT$1, __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* Injector */]],
+        deps: [TRANSITION_ID, DOCUMENT$1, __WEBPACK_IMPORTED_MODULE_1__angular_core__["C" /* Injector */]],
         multi: true
     },
 ];
@@ -90368,7 +106527,7 @@ var BrowserGetTestability = /** @class */ (function () {
     BrowserGetTestability.init = /**
      * @return {?}
      */
-    function () { Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* setTestabilityGetter */])(new BrowserGetTestability()); };
+    function () { Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_18" /* setTestabilityGetter */])(new BrowserGetTestability()); };
     /**
      * @param {?} registry
      * @return {?}
@@ -90378,7 +106537,7 @@ var BrowserGetTestability = /** @class */ (function () {
      * @return {?}
      */
     function (registry) {
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAngularTestability'] = function (elem, findInAncestors) {
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['getAngularTestability'] = function (elem, findInAncestors) {
             if (findInAncestors === void 0) { findInAncestors = true; }
             var /** @type {?} */ testability = registry.findTestabilityInTree(elem, findInAncestors);
             if (testability == null) {
@@ -90386,10 +106545,10 @@ var BrowserGetTestability = /** @class */ (function () {
             }
             return testability;
         };
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
         var /** @type {?} */ whenAllStable = function (callback /** TODO #9100 */) {
-            var /** @type {?} */ testabilities = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['getAllAngularTestabilities']();
+            var /** @type {?} */ testabilities = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['getAllAngularTestabilities']();
             var /** @type {?} */ count = testabilities.length;
             var /** @type {?} */ didWork = false;
             var /** @type {?} */ decrement = function (didWork_ /** TODO #9100 */) {
@@ -90403,10 +106562,10 @@ var BrowserGetTestability = /** @class */ (function () {
                 testability.whenStable(decrement);
             });
         };
-        if (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers']) {
-            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers'] = [];
+        if (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['frameworkStabilizers']) {
+            __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['frameworkStabilizers'] = [];
         }
-        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['frameworkStabilizers'].push(whenAllStable);
+        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['frameworkStabilizers'].push(whenAllStable);
     };
     /**
      * @param {?} registry
@@ -90492,11 +106651,11 @@ var Title = /** @class */ (function () {
      */
     function (newTitle) { getDOM().setTitle(this._doc, newTitle); };
     Title.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     Title.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return Title;
 }());
@@ -90536,7 +106695,7 @@ function exportNgVar(name, value) {
         // - closure declares globals itself for minified names, which sometimes clobber our `ng` global
         // - we can't declare a closure extern as the namespace `ng` is already used within Google
         //   for typings for angularJS (via `goog.provide('ng....')`).
-        var /** @type {?} */ ng = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['ng'] = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_28" /* ɵglobal */]['ng'])) || {};
+        var /** @type {?} */ ng = __WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['ng'] = (/** @type {?} */ (__WEBPACK_IMPORTED_MODULE_1__angular_core__["_30" /* ɵglobal */]['ng'])) || {};
         ng[name] = value;
     }
 }
@@ -90553,8 +106712,8 @@ function exportNgVar(name, value) {
  * found in the LICENSE file at https://angular.io/license
  */
 var CORE_TOKENS = {
-    'ApplicationRef': __WEBPACK_IMPORTED_MODULE_1__angular_core__["f" /* ApplicationRef */],
-    'NgZone': __WEBPACK_IMPORTED_MODULE_1__angular_core__["L" /* NgZone */],
+    'ApplicationRef': __WEBPACK_IMPORTED_MODULE_1__angular_core__["g" /* ApplicationRef */],
+    'NgZone': __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* NgZone */],
 };
 var INSPECT_GLOBAL_NAME = 'probe';
 var CORE_TOKENS_GLOBAL_NAME = 'coreTokens';
@@ -90566,7 +106725,7 @@ var CORE_TOKENS_GLOBAL_NAME = 'coreTokens';
  * @return {?}
  */
 function inspectNativeElement(element) {
-    return Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_13" /* getDebugNode */])(element);
+    return Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* getDebugNode */])(element);
 }
 /**
  * @param {?} coreTokens
@@ -90589,10 +106748,10 @@ function _ngProbeTokensToMap(tokens) {
  */
 var ELEMENT_PROBE_PROVIDERS = [
     {
-        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* APP_INITIALIZER */],
+        provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["d" /* APP_INITIALIZER */],
         useFactory: _createNgProbe,
         deps: [
-            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["K" /* NgProbeToken */], new __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */]()],
+            [__WEBPACK_IMPORTED_MODULE_1__angular_core__["L" /* NgProbeToken */], new __WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */]()],
         ],
         multi: true,
     },
@@ -90612,7 +106771,7 @@ var ELEMENT_PROBE_PROVIDERS = [
 /**
  * \@stable
  */
-var EVENT_MANAGER_PLUGINS = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* InjectionToken */]('EventManagerPlugins');
+var EVENT_MANAGER_PLUGINS = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* InjectionToken */]('EventManagerPlugins');
 /**
  * \@stable
  */
@@ -90690,12 +106849,12 @@ var EventManager = /** @class */ (function () {
         throw new Error("No event manager plugin found for event " + eventName);
     };
     EventManager.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     EventManager.ctorParameters = function () { return [
-        { type: Array, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [EVENT_MANAGER_PLUGINS,] },] },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["L" /* NgZone */], },
+        { type: Array, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [EVENT_MANAGER_PLUGINS,] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* NgZone */], },
     ]; };
     return EventManager;
 }());
@@ -90782,7 +106941,7 @@ var SharedStylesHost = /** @class */ (function () {
      */
     function () { return Array.from(this._stylesSet); };
     SharedStylesHost.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     SharedStylesHost.ctorParameters = function () { return []; };
@@ -90857,11 +107016,11 @@ var DomSharedStylesHost = /** @class */ (function (_super) {
      */
     function () { this._styleNodes.forEach(function (styleNode) { return getDOM().remove(styleNode); }); };
     DomSharedStylesHost.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     DomSharedStylesHost.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return DomSharedStylesHost;
 }(SharedStylesHost));
@@ -90957,7 +107116,7 @@ var DomRendererFactory2 = /** @class */ (function () {
             return this.defaultRenderer;
         }
         switch (type.encapsulation) {
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Emulated: {
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].Emulated: {
                 var /** @type {?} */ renderer = this.rendererByCompId.get(type.id);
                 if (!renderer) {
                     renderer =
@@ -90967,7 +107126,7 @@ var DomRendererFactory2 = /** @class */ (function () {
                 (/** @type {?} */ (renderer)).applyToHost(element);
                 return renderer;
             }
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewEncapsulation */].Native:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* ViewEncapsulation */].Native:
                 return new ShadowDomRenderer(this.eventManager, this.sharedStylesHost, element, type);
             default: {
                 if (!this.rendererByCompId.has(type.id)) {
@@ -90994,7 +107153,7 @@ var DomRendererFactory2 = /** @class */ (function () {
      */
     function () { };
     DomRendererFactory2.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     DomRendererFactory2.ctorParameters = function () { return [
@@ -91219,8 +107378,8 @@ var DefaultDomRenderer2 = /** @class */ (function () {
      * @return {?}
      */
     function (el, style, value, flags) {
-        if (flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["W" /* RendererStyleFlags2 */].DashCase) {
-            el.style.setProperty(style, value, !!(flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["W" /* RendererStyleFlags2 */].Important) ? 'important' : '');
+        if (flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["X" /* RendererStyleFlags2 */].DashCase) {
+            el.style.setProperty(style, value, !!(flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["X" /* RendererStyleFlags2 */].Important) ? 'important' : '');
         }
         else {
             el.style[style] = value;
@@ -91239,7 +107398,7 @@ var DefaultDomRenderer2 = /** @class */ (function () {
      * @return {?}
      */
     function (el, style, flags) {
-        if (flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["W" /* RendererStyleFlags2 */].DashCase) {
+        if (flags & __WEBPACK_IMPORTED_MODULE_1__angular_core__["X" /* RendererStyleFlags2 */].DashCase) {
             el.style.removeProperty(style);
         }
         else {
@@ -91596,7 +107755,7 @@ var DomEventsPlugin = /** @class */ (function (_super) {
         var /** @type {?} */ callback = /** @type {?} */ (handler);
         // if zonejs is loaded and current zone is not ngZone
         // we keep Zone.current on target for later restoration.
-        if (zoneJsLoaded && (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["L" /* NgZone */].isInAngularZone() || isBlackListedEvent(eventName))) {
+        if (zoneJsLoaded && (!__WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* NgZone */].isInAngularZone() || isBlackListedEvent(eventName))) {
             var /** @type {?} */ symbolName = symbolNames[eventName];
             if (!symbolName) {
                 symbolName = symbolNames[eventName] = __symbol__(ANGULAR + eventName + FALSE);
@@ -91680,12 +107839,12 @@ var DomEventsPlugin = /** @class */ (function (_super) {
         }
     };
     DomEventsPlugin.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     DomEventsPlugin.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["L" /* NgZone */], },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* NgZone */], },
     ]; };
     return DomEventsPlugin;
 }(EventManagerPlugin));
@@ -91744,7 +107903,7 @@ var EVENT_NAMES = {
  *
  * \@experimental
  */
-var HAMMER_GESTURE_CONFIG = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* InjectionToken */]('HammerGestureConfig');
+var HAMMER_GESTURE_CONFIG = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["B" /* InjectionToken */]('HammerGestureConfig');
 /**
  * @record
  */
@@ -91775,7 +107934,7 @@ var HammerGestureConfig = /** @class */ (function () {
         return mc;
     };
     HammerGestureConfig.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HammerGestureConfig.ctorParameters = function () { return []; };
@@ -91841,12 +108000,12 @@ var HammerGesturesPlugin = /** @class */ (function (_super) {
      */
     function (eventName) { return this._config.events.indexOf(eventName) > -1; };
     HammerGesturesPlugin.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     HammerGesturesPlugin.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
-        { type: HammerGestureConfig, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [HAMMER_GESTURE_CONFIG,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: HammerGestureConfig, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [HAMMER_GESTURE_CONFIG,] },] },
     ]; };
     return HammerGesturesPlugin;
 }(EventManagerPlugin));
@@ -92011,11 +108170,11 @@ var KeyEventsPlugin = /** @class */ (function (_super) {
         }
     };
     KeyEventsPlugin.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     KeyEventsPlugin.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return KeyEventsPlugin;
 }(EventManagerPlugin));
@@ -92070,7 +108229,7 @@ function sanitizeUrl(url) {
     url = String(url);
     if (url.match(SAFE_URL_PATTERN) || url.match(DATA_URL_PATTERN))
         return url;
-    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])()) {
+    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* isDevMode */])()) {
         getDOM().log("WARNING: sanitizing unsafe URL value " + url + " (see http://g.co/ng/security#xss)");
     }
     return 'unsafe:' + url;
@@ -92400,7 +108559,7 @@ function sanitizeHtml(defaultDoc, unsafeHtmlInput) {
             var child = _a[_i];
             DOM.removeChild(parent_1, child);
         }
-        if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])() && sanitizer.sanitizedSomething) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* isDevMode */])() && sanitizer.sanitizedSomething) {
             DOM.log('WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).');
         }
         return safeHtml;
@@ -92506,7 +108665,7 @@ function sanitizeStyle(value) {
         value.match(SAFE_STYLE_VALUE) && hasBalancedQuotes(value)) {
         return value; // Safe style values.
     }
-    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_14" /* isDevMode */])()) {
+    if (Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_16" /* isDevMode */])()) {
         getDOM().log("WARNING: sanitizing unsafe style value " + value + " (see http://g.co/ng/security#xss).");
     }
     return 'unsafe';
@@ -92623,31 +108782,31 @@ var DomSanitizerImpl = /** @class */ (function (_super) {
         if (value == null)
             return null;
         switch (ctx) {
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].NONE:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].NONE:
                 return /** @type {?} */ (value);
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].HTML:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].HTML:
                 if (value instanceof SafeHtmlImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'HTML');
                 return sanitizeHtml(this._doc, String(value));
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].STYLE:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].STYLE:
                 if (value instanceof SafeStyleImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'Style');
                 return sanitizeStyle(/** @type {?} */ (value));
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].SCRIPT:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].SCRIPT:
                 if (value instanceof SafeScriptImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'Script');
                 throw new Error('unsafe value used in a script context');
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].URL:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].URL:
                 if (value instanceof SafeResourceUrlImpl || value instanceof SafeUrlImpl) {
                     // Allow resource URLs in URL contexts, they are strictly more trusted.
                     return value.changingThisBreaksApplicationSecurity;
                 }
                 this.checkNotSafeValue(value, 'URL');
                 return sanitizeUrl(String(value));
-            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* SecurityContext */].RESOURCE_URL:
+            case __WEBPACK_IMPORTED_MODULE_1__angular_core__["Z" /* SecurityContext */].RESOURCE_URL:
                 if (value instanceof SafeResourceUrlImpl) {
                     return value.changingThisBreaksApplicationSecurity;
                 }
@@ -92721,11 +108880,11 @@ var DomSanitizerImpl = /** @class */ (function (_super) {
         return new SafeResourceUrlImpl(value);
     };
     DomSanitizerImpl.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     DomSanitizerImpl.ctorParameters = function () { return [
-        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["y" /* Inject */], args: [DOCUMENT$1,] },] },
+        { type: undefined, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Inject */], args: [DOCUMENT$1,] },] },
     ]; };
     return DomSanitizerImpl;
 }(DomSanitizer));
@@ -92832,9 +108991,9 @@ var SafeResourceUrlImpl = /** @class */ (function (_super) {
  * found in the LICENSE file at https://angular.io/license
  */
 var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["P" /* PLATFORM_ID */], useValue: __WEBPACK_IMPORTED_MODULE_0__angular_common__["d" /* ɵPLATFORM_BROWSER_ID */] },
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["Q" /* PLATFORM_INITIALIZER */], useValue: initDomAdapter, multi: true },
-    { provide: __WEBPACK_IMPORTED_MODULE_0__angular_common__["c" /* PlatformLocation */], useClass: BrowserPlatformLocation, deps: [DOCUMENT$1] },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["Q" /* PLATFORM_ID */], useValue: __WEBPACK_IMPORTED_MODULE_0__angular_common__["h" /* ɵPLATFORM_BROWSER_ID */] },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["R" /* PLATFORM_INITIALIZER */], useValue: initDomAdapter, multi: true },
+    { provide: __WEBPACK_IMPORTED_MODULE_0__angular_common__["e" /* PlatformLocation */], useClass: BrowserPlatformLocation, deps: [DOCUMENT$1] },
     { provide: DOCUMENT$1, useFactory: _document, deps: [] },
 ];
 /**
@@ -92844,13 +109003,13 @@ var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
  * \@experimental
  */
 var BROWSER_SANITIZATION_PROVIDERS = [
-    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["X" /* Sanitizer */], useExisting: DomSanitizer },
+    { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["Y" /* Sanitizer */], useExisting: DomSanitizer },
     { provide: DomSanitizer, useClass: DomSanitizerImpl, deps: [DOCUMENT$1] },
 ];
 /**
  * \@stable
  */
-var platformBrowser = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_10" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_15" /* platformCore */], 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
+var platformBrowser = Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_12" /* createPlatformFactory */])(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_17" /* platformCore */], 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
 /**
  * @return {?}
  */
@@ -92862,7 +109021,7 @@ function initDomAdapter() {
  * @return {?}
  */
 function errorHandler() {
-    return new __WEBPACK_IMPORTED_MODULE_1__angular_core__["v" /* ErrorHandler */]();
+    return new __WEBPACK_IMPORTED_MODULE_1__angular_core__["w" /* ErrorHandler */]();
 }
 /**
  * @return {?}
@@ -92910,37 +109069,37 @@ var BrowserModule = /** @class */ (function () {
         return {
             ngModule: BrowserModule,
             providers: [
-                { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["b" /* APP_ID */], useValue: params.appId },
-                { provide: TRANSITION_ID, useExisting: __WEBPACK_IMPORTED_MODULE_1__angular_core__["b" /* APP_ID */] },
+                { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* APP_ID */], useValue: params.appId },
+                { provide: TRANSITION_ID, useExisting: __WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* APP_ID */] },
                 SERVER_TRANSITION_PROVIDERS,
             ],
         };
     };
     BrowserModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* NgModule */], args: [{
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModule */], args: [{
                     providers: [
                         BROWSER_SANITIZATION_PROVIDERS,
-                        { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["v" /* ErrorHandler */], useFactory: errorHandler, deps: [] },
+                        { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["w" /* ErrorHandler */], useFactory: errorHandler, deps: [] },
                         { provide: EVENT_MANAGER_PLUGINS, useClass: DomEventsPlugin, multi: true },
                         { provide: EVENT_MANAGER_PLUGINS, useClass: KeyEventsPlugin, multi: true },
                         { provide: EVENT_MANAGER_PLUGINS, useClass: HammerGesturesPlugin, multi: true },
                         { provide: HAMMER_GESTURE_CONFIG, useClass: HammerGestureConfig },
                         DomRendererFactory2,
-                        { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["V" /* RendererFactory2 */], useExisting: DomRendererFactory2 },
+                        { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["W" /* RendererFactory2 */], useExisting: DomRendererFactory2 },
                         { provide: SharedStylesHost, useExisting: DomSharedStylesHost },
                         DomSharedStylesHost,
-                        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_4" /* Testability */],
+                        __WEBPACK_IMPORTED_MODULE_1__angular_core__["_6" /* Testability */],
                         EventManager,
                         ELEMENT_PROBE_PROVIDERS,
                         Meta,
                         Title,
                     ],
-                    exports: [__WEBPACK_IMPORTED_MODULE_0__angular_common__["a" /* CommonModule */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["e" /* ApplicationModule */]]
+                    exports: [__WEBPACK_IMPORTED_MODULE_0__angular_common__["a" /* CommonModule */], __WEBPACK_IMPORTED_MODULE_1__angular_core__["f" /* ApplicationModule */]]
                 },] },
     ];
     /** @nocollapse */
     BrowserModule.ctorParameters = function () { return [
-        { type: BrowserModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["M" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_0" /* SkipSelf */] },] },
+        { type: BrowserModule, decorators: [{ type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["N" /* Optional */] }, { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["_2" /* SkipSelf */] },] },
     ]; };
     return BrowserModule;
 }());
@@ -92982,7 +109141,7 @@ var ChangeDetectionPerfRecord = /** @class */ (function () {
  */
 var AngularProfiler = /** @class */ (function () {
     function AngularProfiler(ref) {
-        this.appRef = ref.injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["f" /* ApplicationRef */]);
+        this.appRef = ref.injector.get(__WEBPACK_IMPORTED_MODULE_1__angular_core__["g" /* ApplicationRef */]);
     }
     // tslint:disable:no-console
     /**
@@ -93316,7 +109475,7 @@ var TransferState = /** @class */ (function () {
         return JSON.stringify(this.store);
     };
     TransferState.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["z" /* Injectable */] },
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["A" /* Injectable */] },
     ];
     /** @nocollapse */
     TransferState.ctorParameters = function () { return []; };
@@ -93352,8 +109511,8 @@ var BrowserTransferStateModule = /** @class */ (function () {
     function BrowserTransferStateModule() {
     }
     BrowserTransferStateModule.decorators = [
-        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["H" /* NgModule */], args: [{
-                    providers: [{ provide: TransferState, useFactory: initTransferState, deps: [DOCUMENT$1, __WEBPACK_IMPORTED_MODULE_1__angular_core__["b" /* APP_ID */]] }],
+        { type: __WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* NgModule */], args: [{
+                    providers: [{ provide: TransferState, useFactory: initTransferState, deps: [DOCUMENT$1, __WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* APP_ID */]] }],
                 },] },
     ];
     /** @nocollapse */
@@ -93498,7 +109657,7 @@ var By = /** @class */ (function () {
 /**
  * \@stable
  */
-var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_5" /* Version */]('5.1.3');
+var VERSION = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["_7" /* Version */]('5.1.3');
 
 /**
  * @fileoverview added by tsickle

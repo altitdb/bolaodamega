@@ -3,12 +3,16 @@ mat-toolbar {
     bottom: 0;
 }
 
-mat-toolbar span {
+mat-toolbar span, #menu button, .bx-wrapper {
     margin: auto;
 }
 
-#menu button {
-    margin: auto;
+#menu {
+    height: 50px;
+}
+
+#menu a.mat-button {
+    line-height: 50px;
 }
 
 .card {
