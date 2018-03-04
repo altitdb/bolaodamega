@@ -15,6 +15,7 @@ export class RaffledComponent implements OnInit {
   game: Game = null;
   gameNumber: string;
   tenderNumber: number;
+  tenderDate: Date;
   raffledGame: number[] = [];
   constructor(private _raffledService: RaffledService) { }
 
@@ -22,6 +23,7 @@ export class RaffledComponent implements OnInit {
     this._raffledService.findLastGame().subscribe(suc => {
       this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.tenderDate = suc.tenderDate;
       this.formatGameNumber();
     });
   }
@@ -45,6 +47,7 @@ export class RaffledComponent implements OnInit {
     this._raffledService.findPreviousGame(tenderNumber).subscribe(suc => {
       this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.tenderDate = suc.tenderDate;
       this.formatGameNumber();
     });
   }
@@ -53,6 +56,7 @@ export class RaffledComponent implements OnInit {
     this._raffledService.findNextGame(tenderNumber).subscribe(suc => {
       this.game = suc.game;
       this.tenderNumber = suc.tenderNumber;
+      this.tenderDate = suc.tenderDate;
       this.formatGameNumber();
     });
   }

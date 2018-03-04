@@ -5,10 +5,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RaffledService } from "./raffled.service";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 @NgModule({
   imports: [
     CommonModule,
+    BrowserAnimationsModule,
+    FlexLayoutModule,
     MatTableModule,
     MatButtonModule,
     MatCardModule

@@ -9,5 +9,6 @@ export interface Game {
 
 export interface Raffled {
   tenderNumber: number;
+  tenderDate: Date;
   game: Game;
 }

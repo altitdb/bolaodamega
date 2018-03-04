@@ -23,10 +23,7 @@ public class RaffledGameServiceBean {
 
 	public RaffledDTO getLast() {
 		RaffledGame raffled = raffledGameRepository.findTopByOrderByTenderNumberDesc();
-		RaffledDTO dto = new RaffledDTO();
-		dto.setTenderNumber(raffled.getTenderNumber());
-		dto.setGame(convert(raffled));
-		return dto;
+		return createDto(raffled);
 	}
 
 	public RaffledDTO getNext(Integer tenderNumber) {
@@ -34,10 +31,7 @@ public class RaffledGameServiceBean {
 		Integer tenderNumberCandidate = tenderNumber + ONE_GAME;
 		Integer tenderNumberHandled = handleTenderNumber(tenderNumberCandidate);
 		RaffledGame raffled = raffledGameRepository.findByTenderNumber(tenderNumberHandled);
-		RaffledDTO dto = new RaffledDTO();
-		dto.setTenderNumber(raffled.getTenderNumber());
-		dto.setGame(convert(raffled));
-		return dto;
+		return createDto(raffled);
 	}
 
 	public RaffledDTO getPrevious(Integer tenderNumber) {
@@ -45,8 +39,13 @@ public class RaffledGameServiceBean {
 		Integer tenderNumberCandidate = tenderNumber - ONE_GAME;
 		Integer tenderNumberHandled = handleTenderNumber(tenderNumberCandidate);
 		RaffledGame raffled = raffledGameRepository.findByTenderNumber(tenderNumberHandled);
+		return createDto(raffled);
+	}
+
+	private RaffledDTO createDto(RaffledGame raffled) {
 		RaffledDTO dto = new RaffledDTO();
 		dto.setTenderNumber(raffled.getTenderNumber());
+		dto.setTenderDate(raffled.getTenderDate());
 		dto.setGame(convert(raffled));
 		return dto;
 	}

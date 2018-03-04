@@ -1,7 +1,6 @@
 package com.bolaodamega.megasena.repository;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Query;
@@ -18,6 +17,6 @@ public interface MineGameRepository extends DeleteGameRepository<MineGame, Strin
 	Slice<MineGame> findAllBy(Pageable page);
 
 	@Query(value = "{number01: {$gte: :#{#game.number01}}, number02: {$gte: :#{#game.number02}}, number03: {$gte: :#{#game.number03}}, number04: {$gte: :#{#game.number04}}, number05: {$gte: :#{#game.number05}}, number06: {$gte: :#{#game.number06}}}")
-	Page<MineGame> findAll(@Param("game") MineGame mineGame, PageRequest pageRequest);
+	Page<MineGame> findAll(@Param("game") MineGame mineGame, Pageable pageable);
 
 }

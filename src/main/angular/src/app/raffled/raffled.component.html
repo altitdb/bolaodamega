@@ -1,7 +1,6 @@
 <div class="header-container mat-elevation-z8">
-  <label>{{ gameNumber }}</label>
-  <label align="center"> Concurso nº {{ tenderNumber }} </label>
   <button mat-raised-button (click)="previous(tenderNumber)"> Anterior </button>
+  <label>{{ gameNumber }}</label>
   <button mat-raised-button (click)="next(tenderNumber)"> Próximo </button>
 </div>
 <div class="table-container mat-elevation-z8">
@@ -61,4 +60,7 @@
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
   </mat-table>
+  <div class="bottom-container mat-elevation-z8">
+    <label align="center"> Concurso nº {{ tenderNumber }} realizado em {{ tenderDate | date : 'dd/MM/yyyy' }}</label>
+  </div>
 </div>
