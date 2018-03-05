@@ -66,11 +66,11 @@ public class MinerGameRunner implements CommandLineRunner {
     }
 
     private boolean miner(MineGame game) {
-        LOG.debug("VALIDATING " + game);
+        LOG.info("VALIDATING " + game);
         for (Role role : roles) {
             boolean isInvalid = role.validate(game);
             if (isInvalid) {
-                LOG.debug("INVALID " + game);
+                LOG.info("INVALID " + game);
                 handleInvalidGame(game, role);
             }
             return isInvalid;
@@ -80,7 +80,7 @@ public class MinerGameRunner implements CommandLineRunner {
 
     private void handleInvalidGame(MineGame game, Role role) {
     	try {
-	        LOG.debug("SAVING EXCLUDED " + game);
+	        LOG.info("SAVING EXCLUDED " + game);
 	        ExcludedGame newGame = new ExcludedGame();
 	        newGame.setNumber01(game.getNumber01());
 	        newGame.setNumber02(game.getNumber02());
@@ -90,10 +90,10 @@ public class MinerGameRunner implements CommandLineRunner {
 	        newGame.setNumber06(game.getNumber06());
 	        newGame.setRole(role);
 	        excludedGameRepository.save(newGame);
-	        LOG.debug("EXCLUDING " + game);
+	        LOG.info("EXCLUDING " + game);
 	        mineGameRepository.deleteNumber((Game) game);
     	} catch (Exception ex) {
-    		LOG.debug("SAVING HANDLED " + game);
+    		LOG.info("SAVING HANDLED " + game);
     		LOG.error("ERROR DURING MINE GAME: " + ex);
 	        HandleGame handleGame = new HandleGame();
 	        handleGame.setNumber01(game.getNumber01());
