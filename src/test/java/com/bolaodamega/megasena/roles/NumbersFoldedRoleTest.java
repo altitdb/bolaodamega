@@ -28,11 +28,37 @@ public class NumbersFoldedRoleTest {
 		game.setNumber05(11);
 		game.setNumber06(22);
 		boolean isInvalid = role.validate(game);
-		Assert.assertTrue(isInvalid);
+		Assert.assertFalse(isInvalid);
 	}
-
+	
 	@Test
-	public void shouldShowValidGroupSequenceSixAndNoneNumbers() {
+	public void shouldShowInvalidGroupSequenceThreeFoldedNumbers() {
+		Game game = new Game();
+		game.setNumber01(1);
+		game.setNumber02(2);
+		game.setNumber03(8);
+		game.setNumber04(9);
+		game.setNumber05(21);
+		game.setNumber06(22);
+		boolean isInvalid = role.validate(game);
+		Assert.assertFalse(isInvalid);
+	}
+	
+	@Test
+	public void shouldShowInvalidGroupSequenceTwoFoldedNumbersSeparated() {
+		Game game = new Game();
+		game.setNumber01(2);
+		game.setNumber02(3);
+		game.setNumber03(8);
+		game.setNumber04(15);
+		game.setNumber05(50);
+		game.setNumber06(51);
+		boolean isInvalid = role.validate(game);
+		Assert.assertFalse(isInvalid);
+	}
+	
+	@Test
+	public void shouldShowInvalidGroupSequenceSixAndNoneNumbers() {
 		Game game = new Game();
 		game.setNumber01(1);
 		game.setNumber02(2);
@@ -42,6 +68,58 @@ public class NumbersFoldedRoleTest {
 		game.setNumber06(11);
 		boolean isInvalid = role.validate(game);
 		Assert.assertFalse(isInvalid);
+	}
+	
+	@Test
+	public void shouldShowValidGroupSequenceOneFoldedNumbersInTheBeginning() {
+		Game game = new Game();
+		game.setNumber01(5);
+		game.setNumber02(6);
+		game.setNumber03(8);
+		game.setNumber04(15);
+		game.setNumber05(50);
+		game.setNumber06(60);
+		boolean isValid = role.validate(game);
+		Assert.assertTrue(isValid);
+	}
+	
+	@Test
+	public void shouldShowValidGroupSequenceOneFoldedNumbersInTheMiddle() {
+		Game game = new Game();
+		game.setNumber01(5);
+		game.setNumber02(10);
+		game.setNumber03(17);
+		game.setNumber04(18);
+		game.setNumber05(53);
+		game.setNumber06(60);
+		boolean isValid = role.validate(game);
+		Assert.assertTrue(isValid);
+	}
+	
+	@Test
+	public void shouldShowValidGroupSequenceNoFoldedNumbers() {
+		Game game = new Game();
+		game.setNumber01(5);
+		game.setNumber02(10);
+		game.setNumber03(17);
+		game.setNumber04(20);
+		game.setNumber05(53);
+		game.setNumber06(60);
+		boolean isValid = role.validate(game);
+		Assert.assertTrue(isValid);
+	}
+	
+	@Test
+	public void shouldShowValidGroupSequenceOneFoldedNumbersInTheEnd() {
+		Game game = new Game();
+		game.setNumber01(5);
+		game.setNumber02(10);
+		game.setNumber03(17);
+		game.setNumber04(32);
+		game.setNumber05(59);
+		game.setNumber06(60);
+		boolean isValid = role.validate(game);
+		Assert.assertTrue(isValid);
 	}
 
 }
