@@ -32,6 +32,7 @@ import com.bolaodamega.megasena.roles.NumbersSameColumnRole;
 import com.bolaodamega.megasena.roles.NumbersSameRowRole;
 import com.bolaodamega.megasena.roles.NumbersSequentialRole;
 import com.bolaodamega.megasena.roles.Role;
+import com.bolaodamega.megasena.service.StatisticsServiceBean;
 
 @Order(value = 30)
 @Controller
@@ -46,6 +47,9 @@ public class MinerGameRunner implements CommandLineRunner {
     @Autowired
     private HandleGameRepository handleGameRepository;
     
+    @Autowired
+    private StatisticsServiceBean statisticsServiceBean;
+
     private static final Logger LOG = Logger.getLogger(MinerGameRunner.class);
 
     private Set<Role> roles = new HashSet<>();
@@ -141,9 +145,15 @@ public class MinerGameRunner implements CommandLineRunner {
     public void run(String... arg0) throws Exception {
         if (EnableRunner.MINER_GAME) {
         	LOG.info("STARTED");
+        	updateStatistics();
             start();
+            updateStatistics();
             LOG.info("FINISHED");
 		}
     }
+
+	private void updateStatistics() {
+		statisticsServiceBean.update();
+	}
 
 }
