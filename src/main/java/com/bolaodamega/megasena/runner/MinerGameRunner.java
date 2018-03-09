@@ -19,6 +19,7 @@ import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.HandleGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
+import com.bolaodamega.megasena.roles.NumbersFoldedRole;
 import com.bolaodamega.megasena.roles.NumbersGreaterThanThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
 import com.bolaodamega.megasena.roles.NumbersInTwoColumnRole;
@@ -62,7 +63,7 @@ public class MinerGameRunner implements CommandLineRunner {
         roles.add(new NumbersLessAndEqualsThirtyRole());
         roles.add(new NumbersGreaterThanThirtyRole());
         roles.add(new NumbersPrimeRole());
-        //roles.add(new NumbersFoldedRole());
+        roles.add(new NumbersFoldedRole());
     }
 
     private boolean miner(MineGame game) {
@@ -108,7 +109,7 @@ public class MinerGameRunner implements CommandLineRunner {
     }
 
     public void start() {
-        final int pageSize = 1000;
+        final int pageSize = 10000;
         int start = 0;
         Slice<MineGame> mineGameStream;
         do {
