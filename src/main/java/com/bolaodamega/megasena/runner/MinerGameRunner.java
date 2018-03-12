@@ -19,6 +19,7 @@ import com.bolaodamega.megasena.repository.ExcludedGameRepository;
 import com.bolaodamega.megasena.repository.HandleGameRepository;
 import com.bolaodamega.megasena.repository.MineGameRepository;
 import com.bolaodamega.megasena.roles.NumberGroupSequentialRole;
+import com.bolaodamega.megasena.roles.NumberInStartOrEndSequentialRole;
 import com.bolaodamega.megasena.roles.NumbersFoldedRole;
 import com.bolaodamega.megasena.roles.NumbersGreaterThanThirtyRole;
 import com.bolaodamega.megasena.roles.NumbersInQuadrantRole;
@@ -68,6 +69,7 @@ public class MinerGameRunner implements CommandLineRunner {
         roles.add(new NumbersGreaterThanThirtyRole());
         roles.add(new NumbersPrimeRole());
         roles.add(new NumbersFoldedRole());
+        roles.add(new NumberInStartOrEndSequentialRole());
     }
 
     private boolean miner(MineGame game) {
